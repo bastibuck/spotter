@@ -1,8 +1,10 @@
 import Link from "next/link";
 
-import { LatestPost } from "~/app/_components/post";
+import { CreatePost } from "~/app/_components/post";
 import { getServerAuthSession } from "~/server/auth";
 import { api, HydrateClient } from "~/trpc/server";
+import LatestPost from "./_components/LatestPost";
+import { Suspense } from "react";
 
 export default async function Home() {
   const hello = await api.post.hello({ text: "from tRPC" });
@@ -59,7 +61,11 @@ export default async function Home() {
             </div>
           </div>
 
-          {session?.user && <LatestPost />}
+          {session?.user && <CreatePost />}
+
+          <Suspense fallback="loading...">
+            <LatestPost />
+          </Suspense>
         </div>
       </main>
     </HydrateClient>
