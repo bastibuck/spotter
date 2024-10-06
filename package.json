@@ -12,10 +12,12 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
-    "tsc:check": "tsc --noEmit"
+    "tsc:check": "tsc --noEmit",
+    "email:dev": "email dev"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.1.0",
+    "@react-email/components": "0.0.25",
     "@t3-oss/env-nextjs": "^0.10.1",
     "@tanstack/react-query": "^5.50.0",
     "@trpc/client": "^11.0.0-rc.446",
@@ -28,6 +30,7 @@
     "postgres": "^3.4.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "resend": "^4.0.0",
     "server-only": "^0.0.1",
     "superjson": "^2.2.1",
     "zod": "^3.23.3"
@@ -46,6 +49,7 @@
     "postcss": "^8.4.39",
     "prettier": "^3.3.2",
     "prettier-plugin-tailwindcss": "^0.6.5",
+    "react-email": "3.0.1",
     "tailwindcss": "^3.4.3",
     "typescript": "^5.5.3"
   },
