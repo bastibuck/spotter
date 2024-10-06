@@ -17,6 +17,8 @@ export const subscriptionRouter = createTRPCRouter({
         where: eq(spots.id, input.spotId),
       });
 
+      console.log("starting for ...", spot?.name);
+
       if (spot === undefined) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -33,6 +35,8 @@ export const subscriptionRouter = createTRPCRouter({
         .returning({ securityToken: subscriptions.securityToken });
 
       const securityToken = subscription.at(0)?.securityToken ?? null;
+
+      console.log("gotten token ...", securityToken);
 
       if (securityToken === null) {
         throw new TRPCError({
@@ -51,6 +55,8 @@ export const subscriptionRouter = createTRPCRouter({
             securityToken,
           }),
         });
+
+        console.error(error);
 
         // TODO? add logging for errors
 
