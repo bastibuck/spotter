@@ -8,6 +8,7 @@ import {
   serial,
   text,
   timestamp,
+  unique,
   varchar,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
@@ -18,7 +19,7 @@ import { type AdapterAccount } from "next-auth/adapters";
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = pgTableCreator((name) => `lets-kite_${name}`);
+export const createTable = pgTableCreator((name) => `spotter_${name}`);
 
 export const posts = createTable(
   "post",
@@ -130,7 +131,9 @@ export const verificationTokens = createTable(
   }),
 );
 
-// Spots
+/**
+ * Spots
+ **/
 export const spots = createTable("spots", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 128 }).notNull(),
@@ -138,3 +141,38 @@ export const spots = createTable("spots", {
   long: doublePrecision("long").notNull(),
   lat: doublePrecision("lat").notNull(),
 });
+
+export const spotsRelations = relations(spots, ({ many }) => ({
+  subscriptions: many(subscriptions),
+}));
+
+/**
+ * Subscriptions
+ **/
+export const subscriptions = createTable(
+  "subscriptions",
+  {
+    id: serial("id").primaryKey(),
+    email: varchar("email").notNull(),
+    securityToken: varchar("security_token", { length: 36 }).$defaultFn(() =>
+      crypto.randomUUID(),
+    ),
+    verifiedAt: timestamp("verified_at"),
+    spotId: integer("spot_id")
+      .notNull()
+      .references(() => spots.id),
+  },
+  (subscriptions) => ({
+    uniqueSpotSubscription: unique().on(
+      subscriptions.email,
+      subscriptions.spotId,
+    ),
+  }),
+);
+
+export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
+  spot: one(spots, {
+    fields: [subscriptions.spotId],
+    references: [spots.id],
+  }),
+}));
