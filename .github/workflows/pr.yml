@@ -1,0 +1,27 @@
+name: Validate PRs
+
+on:
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Lint
+        run: SKIP_ENV_VALIDATION=1 npm run lint
+
+      - name: Typecheck
+        run: npm run tsc:check

@@ -8,5 +8,5 @@ export default {
   dbCredentials: {
     url: env.DATABASE_URL,
   },
-  tablesFilter: ["lets-kite_*"],
+  tablesFilter: ["spotter_*"],
 } satisfies Config;
