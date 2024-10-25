@@ -1,11 +1,11 @@
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import VerifySpotSubscriptionEmail from "emails/verifySpot";
 import { Resend } from "resend";
 import { z } from "zod";
 import { env } from "~/env";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { spots, subscriptions } from "~/server/db/schema";
+import { kiters, spots, subscriptions } from "~/server/db/schema";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -17,8 +17,6 @@ export const subscriptionRouter = createTRPCRouter({
         where: eq(spots.id, input.spotId),
       });
 
-      console.log("starting for ...", spot?.name);
-
       if (spot === undefined) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -26,82 +24,94 @@ export const subscriptionRouter = createTRPCRouter({
         });
       }
 
-      const subscription = await ctx.db
-        .insert(subscriptions)
-        .values({
-          email: input.email,
-          spotId: spot.id,
-        })
-        .returning({ securityToken: subscriptions.securityToken });
+      await ctx.db.transaction(async (tx) => {
+        const kiter = await ctx.db
+          .insert(kiters)
+          .values({ email: input.email })
+          .onConflictDoNothing()
+          .returning({ id: kiters.id });
 
-      const securityToken = subscription.at(0)?.securityToken ?? null;
+        const kiterId = kiter.at(0)?.id ?? null;
 
-      console.log("gotten token ...", securityToken);
+        if (kiterId === null) {
+          tx.rollback();
 
-      if (securityToken === null) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to create subscription token.",
-        });
-      }
-
-      try {
-        const { error } = await resend.emails.send({
-          from: env.FROM_EMAIL,
-          to: input.email,
-          subject: `Verify your subscription to ${spot.name}`,
-          react: VerifySpotSubscriptionEmail({
-            spotName: spot.name,
-            securityToken,
-          }),
-        });
-
-        console.error(error);
-
-        // TODO? add logging for errors
-
-        if (error !== null) {
-          throw new Error("error");
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create or find kiter.",
+          });
         }
-      } catch {
-        await ctx.db
-          .delete(subscriptions)
-          .where(
-            and(
-              eq(subscriptions.email, input.email),
-              eq(subscriptions.spotId, spot.id),
-            ),
-          );
 
-        throw new TRPCError({
-          code: "SERVICE_UNAVAILABLE",
-          message: "The email service is currently unavailable.",
-        });
-      }
+        const subscription = await ctx.db
+          .insert(subscriptions)
+          .values({
+            kiterId: kiterId,
+            spotId: spot.id,
+          })
+          .returning({ id: subscriptions.id });
+
+        const subscriptionId = subscription.at(0)?.id ?? null;
+
+        console.log("gotten subscriptionId ...", subscriptionId);
+
+        if (subscriptionId === null) {
+          tx.rollback();
+
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create subscription.",
+          });
+        }
+
+        try {
+          const { error } = await resend.emails.send({
+            from: env.FROM_EMAIL,
+            to: input.email,
+            subject: `Verify your subscription to ${spot.name}`,
+            react: VerifySpotSubscriptionEmail({
+              spotName: spot.name,
+              subscriptionId: subscriptionId,
+            }),
+          });
+
+          console.error(error);
+
+          // TODO? add logging service/vercel for errors
+
+          if (error !== null) {
+            throw new Error("error");
+          }
+        } catch {
+          tx.rollback();
+
+          throw new TRPCError({
+            code: "SERVICE_UNAVAILABLE",
+            message: "The email service is currently unavailable.",
+          });
+        }
+      });
     }),
 
   verify: publicProcedure
     .input(
       z.object({
-        token: z.string(),
+        id: z.string().uuid(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
-      await ctx.db
+    .mutation(({ ctx, input }) =>
+      ctx.db
         .update(subscriptions)
         .set({ verifiedAt: new Date() })
-        .where(eq(subscriptions.securityToken, input.token));
-    }),
+        .where(eq(subscriptions.id, input.id)),
+    ),
 
   unsubscribe: publicProcedure
     .input(
       z.object({
-        token: z.string(),
+        id: z.string().uuid(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
-      await ctx.db
-        .delete(subscriptions)
-        .where(eq(subscriptions.securityToken, input.token));
-    }),
+    .mutation(({ ctx, input }) =>
+      ctx.db.delete(subscriptions).where(eq(subscriptions.id, input.id)),
+    ),
 });

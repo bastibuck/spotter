@@ -14,17 +14,18 @@ import {
 import * as React from "react";
 
 interface VerifyEmailProps {
+  subscriptionId: string;
   spotName: string;
-  securityToken: string;
 }
 
+// TODO? can we get this from ~env?
 const baseUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "";
 
 const VerifySpotSubscriptionEmail = ({
+  subscriptionId,
   spotName,
-  securityToken,
 }: VerifyEmailProps) => (
   <Html>
     <Head />
@@ -45,7 +46,7 @@ const VerifySpotSubscriptionEmail = ({
         </Heading>
 
         <Section style={buttonContainer}>
-          <Button style={button} href={`${baseUrl}/verify/${securityToken}`}>
+          <Button style={button} href={`${baseUrl}/verify/${subscriptionId}`}>
             Verify subscription
           </Button>
         </Section>
