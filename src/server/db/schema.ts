@@ -8,6 +8,8 @@ import {
   serial,
   text,
   timestamp,
+  unique,
+  uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
@@ -148,13 +150,21 @@ export const spotsRelations = relations(spots, ({ many }) => ({
 /**
  * Kiters
  **/
-export const kiters = createTable("kiters", {
-  id: varchar("id", { length: 255 })
-    .notNull()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  email: varchar("email").notNull(),
-});
+export const kiters = createTable(
+  "kiters",
+  {
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    email: varchar("email").notNull(),
+  },
+  (kiters) => ({
+    emailUniqueIndex: uniqueIndex("emailUniqueIndex").on(
+      sql`lower(${kiters.email})`,
+    ),
+  }),
+);
 
 export const kitersRelations = relations(kiters, ({ many }) => ({
   subscriptions: many(subscriptions),
@@ -163,21 +173,30 @@ export const kitersRelations = relations(kiters, ({ many }) => ({
 /**
  * Subscriptions | Spots to Kiters
  **/
-export const subscriptions = createTable("subscriptions", {
-  // UUID also for subscribing and unsubscribing
-  id: varchar("id", { length: 255 })
-    .notNull()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  spotId: integer("spot_id")
-    .notNull()
-    .references(() => spots.id),
-  kiterId: varchar("kiter_id")
-    .notNull()
-    .references(() => kiters.id),
+export const subscriptions = createTable(
+  "subscriptions",
+  {
+    // UUID also for subscribing and unsubscribing
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    spotId: integer("spot_id")
+      .notNull()
+      .references(() => spots.id),
+    kiterId: varchar("kiter_id")
+      .notNull()
+      .references(() => kiters.id),
 
-  verifiedAt: timestamp("verified_at"),
-});
+    verifiedAt: timestamp("verified_at"),
+  },
+  (subscriptions) => ({
+    uniqueSubscription: unique().on(
+      subscriptions.spotId,
+      subscriptions.kiterId,
+    ),
+  }),
+);
 
 export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
   spot: one(spots, {

@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import VerifySpotSubscriptionEmail from "emails/verifySpot";
 import { Resend } from "resend";
 import { z } from "zod";
@@ -13,6 +13,7 @@ export const subscriptionRouter = createTRPCRouter({
   subscribe: publicProcedure
     .input(z.object({ email: z.string().email(), spotId: z.number().int() }))
     .mutation(async ({ ctx, input }) => {
+      // Check for spot existence
       const spot = await ctx.db.query.spots.findFirst({
         where: eq(spots.id, input.spotId),
       });
@@ -24,25 +25,44 @@ export const subscriptionRouter = createTRPCRouter({
         });
       }
 
+      // start transaction for mutations
       await ctx.db.transaction(async (tx) => {
-        const kiter = await ctx.db
+        // create and get kiter if it doesn't exist
+        await tx
           .insert(kiters)
           .values({ email: input.email })
-          .onConflictDoNothing()
-          .returning({ id: kiters.id });
+          .onConflictDoNothing();
 
-        const kiterId = kiter.at(0)?.id ?? null;
+        const kiter = await tx.query.kiters.findFirst({
+          where: eq(kiters.email, input.email),
+        });
+
+        const kiterId = kiter?.id ?? null;
 
         if (kiterId === null) {
-          tx.rollback();
-
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Failed to create or find kiter.",
           });
         }
 
-        const subscription = await ctx.db
+        // check if subscription already exists
+        const existingSubscription = await tx.query.subscriptions.findFirst({
+          where: and(
+            eq(subscriptions.kiterId, kiterId),
+            eq(subscriptions.spotId, spot.id),
+          ),
+        });
+
+        if (existingSubscription !== undefined) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "Subscription already exists.",
+          });
+        }
+
+        // create new subscription
+        const subscription = await tx
           .insert(subscriptions)
           .values({
             kiterId: kiterId,
@@ -52,17 +72,14 @@ export const subscriptionRouter = createTRPCRouter({
 
         const subscriptionId = subscription.at(0)?.id ?? null;
 
-        console.log("gotten subscriptionId ...", subscriptionId);
-
         if (subscriptionId === null) {
-          tx.rollback();
-
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Failed to create subscription.",
           });
         }
 
+        // send verification email
         try {
           const { error } = await resend.emails.send({
             from: env.FROM_EMAIL,
@@ -70,20 +87,18 @@ export const subscriptionRouter = createTRPCRouter({
             subject: `Verify your subscription to ${spot.name}`,
             react: VerifySpotSubscriptionEmail({
               spotName: spot.name,
-              subscriptionId: subscriptionId,
+              subscriptionId,
             }),
           });
 
+          // TODO? add logging service/vercel for errors
           console.error(error);
 
-          // TODO? add logging service/vercel for errors
-
+          // throw meaningless error to trigger catch block for email sending
           if (error !== null) {
             throw new Error("error");
           }
         } catch {
-          tx.rollback();
-
           throw new TRPCError({
             code: "SERVICE_UNAVAILABLE",
             message: "The email service is currently unavailable.",
