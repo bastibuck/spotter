@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import VerifySpotSubscriptionEmail from "emails/verifySpot";
 import { Resend } from "resend";
 import { z } from "zod";
@@ -35,26 +35,17 @@ export const subscriptionRouter = createTRPCRouter({
 
         const kiter = await tx.query.kiters.findFirst({
           where: eq(kiters.email, input.email),
+          with: { subscriptions: true },
         });
 
-        const kiterId = kiter?.id ?? null;
-
-        if (kiterId === null) {
+        if (kiter === undefined) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Failed to create or find kiter.",
           });
         }
 
-        // check if subscription already exists
-        const existingSubscription = await tx.query.subscriptions.findFirst({
-          where: and(
-            eq(subscriptions.kiterId, kiterId),
-            eq(subscriptions.spotId, spot.id),
-          ),
-        });
-
-        if (existingSubscription !== undefined) {
+        if (kiter.subscriptions.some((sub) => sub.spotId === spot.id)) {
           throw new TRPCError({
             code: "CONFLICT",
             message: "Subscription already exists.",
@@ -65,14 +56,14 @@ export const subscriptionRouter = createTRPCRouter({
         const subscription = await tx
           .insert(subscriptions)
           .values({
-            kiterId: kiterId,
+            kiterId: kiter.id,
             spotId: spot.id,
           })
           .returning({ id: subscriptions.id });
 
-        const subscriptionId = subscription.at(0)?.id ?? null;
+        const subscriptionId = subscription.at(0)?.id;
 
-        if (subscriptionId === null) {
+        if (subscriptionId === undefined) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Failed to create subscription.",
