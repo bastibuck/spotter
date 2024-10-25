@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import VerifySpotSubscriptionEmail from "emails/verifySpot";
 import { Resend } from "resend";
 import { z } from "zod";
@@ -10,6 +10,28 @@ import { kiters, spots, subscriptions } from "~/server/db/schema";
 const resend = new Resend(env.RESEND_API_KEY);
 
 export const subscriptionRouter = createTRPCRouter({
+  get: publicProcedure
+    .input(
+      z.object({
+        id: z.string().uuid(),
+      }),
+    )
+    .query(({ ctx, input }) =>
+      ctx.db.query.subscriptions.findFirst({
+        where: eq(subscriptions.id, input.id),
+        columns: {
+          id: true,
+        },
+        with: {
+          spot: {
+            columns: {
+              name: true,
+            },
+          },
+        },
+      }),
+    ),
+
   subscribe: publicProcedure
     .input(z.object({ email: z.string().email(), spotId: z.number().int() }))
     .mutation(async ({ ctx, input }) => {
@@ -108,16 +130,9 @@ export const subscriptionRouter = createTRPCRouter({
       ctx.db
         .update(subscriptions)
         .set({ verifiedAt: new Date() })
-        .where(eq(subscriptions.id, input.id)),
-    ),
-
-  unsubscribe: publicProcedure
-    .input(
-      z.object({
-        id: z.string().uuid(),
-      }),
-    )
-    .mutation(({ ctx, input }) =>
-      ctx.db.delete(subscriptions).where(eq(subscriptions.id, input.id)),
+        .where(
+          and(eq(subscriptions.id, input.id), isNull(subscriptions.verifiedAt)),
+        )
+        .returning({ id: subscriptions.id }),
     ),
 });

@@ -46,7 +46,10 @@ const VerifySpotSubscriptionEmail = ({
         </Heading>
 
         <Section style={buttonContainer}>
-          <Button style={button} href={`${baseUrl}/verify/${subscriptionId}`}>
+          <Button
+            style={button}
+            href={`${baseUrl}/verify-spot/${subscriptionId}`}
+          >
             Verify subscription
           </Button>
         </Section>
@@ -74,7 +77,7 @@ const VerifySpotSubscriptionEmail = ({
 export default VerifySpotSubscriptionEmail;
 
 VerifySpotSubscriptionEmail.PreviewProps = {
-  securityToken: "tt226-5398x",
+  subscriptionId: "65356434-ca00-4273-afff-af6354dcb731",
   spotName: "Aukrog",
 };
 
