@@ -6,6 +6,7 @@ import {
   pgTableCreator,
   primaryKey,
   serial,
+  smallint,
   text,
   timestamp,
   unique,
@@ -188,7 +189,15 @@ export const subscriptions = createTable(
       .notNull()
       .references(() => kiters.id),
 
+    // activated?
     verifiedAt: timestamp("verified_at"),
+
+    // conditions
+    windSpeedMin: smallint("wind_speed_min").notNull(),
+    windSpeedMax: smallint("wind_speed_max").notNull(),
+    windDirections: varchar("wind_directions", { length: 3 })
+      .array(16)
+      .notNull(),
   },
   (subscriptions) => ({
     uniqueSubscription: unique().on(
