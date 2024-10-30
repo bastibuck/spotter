@@ -5,7 +5,12 @@ import { Resend } from "resend";
 import { z } from "zod";
 import { env } from "~/env";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { kiters, spots, subscriptions } from "~/server/db/schema";
+import {
+  kiters,
+  spots,
+  subscriptions,
+  WindDirection,
+} from "~/server/db/schema";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -33,7 +38,20 @@ export const subscriptionRouter = createTRPCRouter({
     ),
 
   subscribe: publicProcedure
-    .input(z.object({ email: z.string().email(), spotId: z.number().int() }))
+    .input(
+      z
+        .object({
+          email: z.string().email(),
+          spotId: z.number().int(),
+          windSpeedMin: z.number().int().positive(),
+          windSpeedMax: z.number().int().positive(),
+          windDirections: z.array(WindDirection),
+        })
+        .refine((input) => input.windSpeedMax > input.windSpeedMin, {
+          message: "Max. wind speed must be larger than min. wind speed.",
+          path: ["windSpeedMax"],
+        }),
+    )
     .mutation(async ({ ctx, input }) => {
       // Check for spot existence
       const spot = await ctx.db.query.spots.findFirst({
@@ -80,9 +98,9 @@ export const subscriptionRouter = createTRPCRouter({
           .values({
             kiterId: kiter.id,
             spotId: spot.id,
-            windDirections: ["N", "NE", "E", "SE", "S", "SW", "W", "NW"],
-            windSpeedMax: 30,
-            windSpeedMin: 18,
+            windDirections: input.windDirections,
+            windSpeedMax: input.windSpeedMin,
+            windSpeedMin: input.windSpeedMax,
           })
           .returning({ id: subscriptions.id });
 

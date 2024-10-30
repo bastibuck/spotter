@@ -16,7 +16,7 @@ const Spots: React.FC = async () => {
               {spot.long}, {spot.lat}
             </p>
 
-            <SubscribeToSpotForm spotId={spot.id} />
+            <SubscribeToSpotForm spot={spot} />
           </div>
         </li>
       ))}

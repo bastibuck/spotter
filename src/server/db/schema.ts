@@ -14,6 +14,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
+import { z } from "zod";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -133,6 +134,26 @@ export const verificationTokens = createTable(
   }),
 );
 
+// enums
+export const WindDirection = z.enum([
+  "N",
+  "NNE",
+  "NE",
+  "ENE",
+  "E",
+  "ESE",
+  "SE",
+  "SSE",
+  "S",
+  "SSW",
+  "SW",
+  "WSW",
+  "W",
+  "WNW",
+  "NW",
+  "NNW",
+]);
+
 /**
  * Spots
  **/
@@ -142,6 +163,12 @@ export const spots = createTable("spots", {
   description: text("description"),
   long: doublePrecision("long").notNull(),
   lat: doublePrecision("lat").notNull(),
+
+  // conditions
+  defaultWindDirections: varchar("default_wind_direction", { length: 3 })
+    .array()
+    .notNull()
+    .$type<z.infer<typeof WindDirection>[]>(),
 });
 
 export const spotsRelations = relations(spots, ({ many }) => ({
@@ -197,7 +224,8 @@ export const subscriptions = createTable(
     windSpeedMax: smallint("wind_speed_max").notNull(),
     windDirections: varchar("wind_directions", { length: 3 })
       .array(16)
-      .notNull(),
+      .notNull()
+      .$type<z.infer<typeof WindDirection>[]>(),
   },
   (subscriptions) => ({
     uniqueSubscription: unique().on(
