@@ -6,6 +6,7 @@ import {
   pgTableCreator,
   primaryKey,
   serial,
+  smallint,
   text,
   timestamp,
   unique,
@@ -13,6 +14,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
+import { z } from "zod";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -25,36 +27,36 @@ export const createTable = pgTableCreator((name) => `spotter_${name}`);
 export const posts = createTable(
   "post",
   {
-    id: serial("id").primaryKey(),
-    name: varchar("name", { length: 256 }),
-    createdById: varchar("created_by", { length: 255 })
+    id: serial().primaryKey(),
+    name: varchar({ length: 256 }),
+    createdById: varchar({ length: 255 })
       .notNull()
       .references(() => users.id),
-    createdAt: timestamp("created_at", { withTimezone: true })
+    createdAt: timestamp({ withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
-      () => new Date(),
-    ),
+    updatedAt: timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
   },
-  (example) => ({
-    createdByIdIdx: index("created_by_idx").on(example.createdById),
-    nameIndex: index("name_idx").on(example.name),
-  }),
+  (example) => [
+    {
+      createdByIdIdx: index().on(example.createdById),
+      nameIndex: index().on(example.name),
+    },
+  ],
 );
 
 export const users = createTable("user", {
-  id: varchar("id", { length: 255 })
+  id: varchar({ length: 255 })
     .notNull()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  name: varchar("name", { length: 255 }),
-  email: varchar("email", { length: 255 }).notNull(),
-  emailVerified: timestamp("email_verified", {
+  name: varchar({ length: 255 }),
+  email: varchar({ length: 255 }).notNull(),
+  emailVerified: timestamp({
     mode: "date",
     withTimezone: true,
   }).default(sql`CURRENT_TIMESTAMP`),
-  image: varchar("image", { length: 255 }),
+  image: varchar({ length: 255 }),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -64,30 +66,30 @@ export const usersRelations = relations(users, ({ many }) => ({
 export const accounts = createTable(
   "account",
   {
-    userId: varchar("user_id", { length: 255 })
+    userId: varchar({ length: 255 })
       .notNull()
       .references(() => users.id),
-    type: varchar("type", { length: 255 })
-      .$type<AdapterAccount["type"]>()
-      .notNull(),
-    provider: varchar("provider", { length: 255 }).notNull(),
-    providerAccountId: varchar("provider_account_id", {
+    type: varchar({ length: 255 }).$type<AdapterAccount["type"]>().notNull(),
+    provider: varchar({ length: 255 }).notNull(),
+    providerAccountId: varchar({
       length: 255,
     }).notNull(),
-    refresh_token: text("refresh_token"),
-    access_token: text("access_token"),
-    expires_at: integer("expires_at"),
-    token_type: varchar("token_type", { length: 255 }),
-    scope: varchar("scope", { length: 255 }),
-    id_token: text("id_token"),
-    session_state: varchar("session_state", { length: 255 }),
+    refresh_token: text(),
+    access_token: text(),
+    expires_at: integer(),
+    token_type: varchar({ length: 255 }),
+    scope: varchar({ length: 255 }),
+    id_token: text(),
+    session_state: varchar({ length: 255 }),
   },
-  (account) => ({
-    compoundKey: primaryKey({
-      columns: [account.provider, account.providerAccountId],
-    }),
-    userIdIdx: index("account_user_id_idx").on(account.userId),
-  }),
+  (account) => [
+    {
+      compoundKey: primaryKey({
+        columns: [account.provider, account.providerAccountId],
+      }),
+      userIdIdx: index().on(account.userId),
+    },
+  ],
 );
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -97,20 +99,20 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
 export const sessions = createTable(
   "session",
   {
-    sessionToken: varchar("session_token", { length: 255 })
-      .notNull()
-      .primaryKey(),
-    userId: varchar("user_id", { length: 255 })
+    sessionToken: varchar({ length: 255 }).notNull().primaryKey(),
+    userId: varchar({ length: 255 })
       .notNull()
       .references(() => users.id),
-    expires: timestamp("expires", {
+    expires: timestamp({
       mode: "date",
       withTimezone: true,
     }).notNull(),
   },
-  (session) => ({
-    userIdIdx: index("session_user_id_idx").on(session.userId),
-  }),
+  (session) => [
+    {
+      userIdIdx: index().on(session.userId),
+    },
+  ],
 );
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -120,27 +122,55 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 export const verificationTokens = createTable(
   "verification_token",
   {
-    identifier: varchar("identifier", { length: 255 }).notNull(),
-    token: varchar("token", { length: 255 }).notNull(),
-    expires: timestamp("expires", {
+    identifier: varchar({ length: 255 }).notNull(),
+    token: varchar({ length: 255 }).notNull(),
+    expires: timestamp({
       mode: "date",
       withTimezone: true,
     }).notNull(),
   },
-  (vt) => ({
-    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-  }),
+  (vt) => [
+    {
+      compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
+    },
+  ],
 );
+
+// enums
+export const WindDirection = z.enum([
+  "N",
+  "NNE",
+  "NE",
+  "ENE",
+  "E",
+  "ESE",
+  "SE",
+  "SSE",
+  "S",
+  "SSW",
+  "SW",
+  "WSW",
+  "W",
+  "WNW",
+  "NW",
+  "NNW",
+]);
 
 /**
  * Spots
  **/
 export const spots = createTable("spots", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 128 }).notNull(),
-  description: text("description"),
-  long: doublePrecision("long").notNull(),
-  lat: doublePrecision("lat").notNull(),
+  id: serial().primaryKey(),
+  name: varchar({ length: 128 }).notNull(),
+  description: text(),
+  long: doublePrecision().notNull(),
+  lat: doublePrecision().notNull(),
+
+  // conditions
+  defaultWindDirections: varchar("default_wind_direction", { length: 3 })
+    .array()
+    .notNull()
+    .$type<z.infer<typeof WindDirection>[]>(),
 });
 
 export const spotsRelations = relations(spots, ({ many }) => ({
@@ -153,17 +183,19 @@ export const spotsRelations = relations(spots, ({ many }) => ({
 export const kiters = createTable(
   "kiters",
   {
-    id: varchar("id", { length: 255 })
+    id: varchar({ length: 255 })
       .notNull()
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    email: varchar("email").notNull(),
+    email: varchar().notNull(),
   },
-  (kiters) => ({
-    emailUniqueIndex: uniqueIndex("emailUniqueIndex").on(
-      sql`lower(${kiters.email})`,
-    ),
-  }),
+  (kiters) => [
+    {
+      emailUniqueIndex: uniqueIndex("emailUniqueIndex").on(
+        sql`lower(${kiters.email})`,
+      ),
+    },
+  ],
 );
 
 export const kitersRelations = relations(kiters, ({ many }) => ({
@@ -177,25 +209,36 @@ export const subscriptions = createTable(
   "subscriptions",
   {
     // UUID also for subscribing and unsubscribing
-    id: varchar("id", { length: 255 })
+    id: varchar({ length: 255 })
       .notNull()
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    spotId: integer("spot_id")
+    spotId: integer()
       .notNull()
       .references(() => spots.id),
-    kiterId: varchar("kiter_id")
+    kiterId: varchar()
       .notNull()
       .references(() => kiters.id),
 
-    verifiedAt: timestamp("verified_at"),
+    // activated?
+    verifiedAt: timestamp(),
+
+    // conditions
+    windSpeedMin: smallint().notNull(),
+    windSpeedMax: smallint().notNull(),
+    windDirections: varchar({ length: 3 })
+      .array(16)
+      .notNull()
+      .$type<z.infer<typeof WindDirection>[]>(),
   },
-  (subscriptions) => ({
-    uniqueSubscription: unique().on(
-      subscriptions.spotId,
-      subscriptions.kiterId,
-    ),
-  }),
+  (subscriptions) => [
+    {
+      uniqueSubscription: unique().on(
+        subscriptions.spotId,
+        subscriptions.kiterId,
+      ),
+    },
+  ],
 );
 
 export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
