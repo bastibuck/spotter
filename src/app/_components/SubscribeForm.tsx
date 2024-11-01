@@ -5,19 +5,16 @@ import { type spots } from "~/server/db/schema";
 
 import { api } from "~/trpc/react";
 
-const WIND_SPEED_MIN = 18;
-const WIND_SPEED_MAX = 30;
-
 function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
   const [email, setEmail] = useState("");
-  const [windSpeedMin, setWindSpeedMin] = useState(WIND_SPEED_MIN);
-  const [windSpeedMax, setWindSpeedMax] = useState(WIND_SPEED_MAX);
+  const [windSpeedMin, setWindSpeedMin] = useState<number | "">("");
+  const [windSpeedMax, setWindSpeedMax] = useState<number | "">("");
 
   const subscribe = api.subscription.subscribe.useMutation({
     onSuccess: async () => {
       setEmail("");
-      setWindSpeedMin(WIND_SPEED_MIN);
-      setWindSpeedMax(WIND_SPEED_MAX);
+      setWindSpeedMin("");
+      setWindSpeedMax("");
     },
     onError: (error) => {
       console.log(error.message);
@@ -32,8 +29,8 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
           subscribe.mutate({
             email,
             spotId: spot.id,
-            windSpeedMin,
-            windSpeedMax,
+            windSpeedMin: windSpeedMin as number,
+            windSpeedMax: windSpeedMax as number,
             windDirections: spot.defaultWindDirections,
           });
         }}
@@ -45,22 +42,33 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full px-4 py-2 text-black"
+          required
         />
 
         <input
           type="number"
           placeholder="Min. wind speed"
           value={windSpeedMin}
-          onChange={(e) => setWindSpeedMin(e.target.valueAsNumber)}
+          onChange={(e) =>
+            setWindSpeedMin(
+              isNaN(e.target.valueAsNumber) ? "" : e.target.valueAsNumber,
+            )
+          }
           className="w-full px-4 py-2 text-black"
+          required
         />
 
         <input
           type="number"
           placeholder="Max. wind speed"
           value={windSpeedMax}
-          onChange={(e) => setWindSpeedMax(e.target.valueAsNumber)}
+          onChange={(e) =>
+            setWindSpeedMax(
+              isNaN(e.target.valueAsNumber) ? "" : e.target.valueAsNumber,
+            )
+          }
           className="w-full px-4 py-2 text-black"
+          required
         />
 
         <button
