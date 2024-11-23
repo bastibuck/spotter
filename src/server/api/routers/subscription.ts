@@ -156,4 +156,17 @@ export const subscriptionRouter = createTRPCRouter({
         )
         .returning({ id: subscriptions.id }),
     ),
+
+  unsubscribe: publicProcedure
+    .input(
+      z.object({
+        id: z.string().uuid(),
+      }),
+    )
+    .mutation(({ ctx, input }) =>
+      ctx.db
+        .delete(subscriptions)
+        .where(eq(subscriptions.id, input.id))
+        .returning({ id: subscriptions.id }),
+    ),
 });
