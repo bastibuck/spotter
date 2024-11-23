@@ -66,16 +66,18 @@ export const subscriptionRouter = createTRPCRouter({
         });
       }
 
+      const emailLowerCased = input.email.toLowerCase();
+
       // start transaction for mutations
       await ctx.db.transaction(async (tx) => {
         // create and get kiter if it doesn't exist
         await tx
           .insert(kiters)
-          .values({ email: input.email })
+          .values({ email: emailLowerCased })
           .onConflictDoNothing();
 
         const kiter = await tx.query.kiters.findFirst({
-          where: eq(kiters.email, input.email),
+          where: eq(kiters.email, emailLowerCased),
           with: { subscriptions: true },
         });
 
@@ -118,7 +120,7 @@ export const subscriptionRouter = createTRPCRouter({
         try {
           const { error } = await resend.emails.send({
             from: env.FROM_EMAIL,
-            to: input.email,
+            to: emailLowerCased,
             subject: `Verify your subscription to ${spot.name}`,
             react: VerifySpotSubscriptionEmail({
               spotName: spot.name,
