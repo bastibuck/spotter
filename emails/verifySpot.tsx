@@ -5,14 +5,11 @@ import {
   Head,
   Heading,
   Html,
-  Link,
   Preview,
   Section,
   Text,
-  Row,
-  Column,
 } from "@react-email/components";
-import * as React from "react";
+import Footer from "~/components/emails/Footer";
 import { getBaseUrl } from "~/lib/url";
 
 interface VerifyEmailProps {
@@ -63,35 +60,7 @@ const VerifySpotSubscriptionEmail = ({
           a notification email.
         </Text>
 
-        <Section style={footer}>
-          <Row style={{ height: "3em" }}>
-            <Column>
-              <Link href={`${baseUrl}`} style={spotterLink}>
-                Spotter
-              </Link>
-            </Column>
-          </Row>
-
-          <Row>
-            <Column>
-              <Link
-                href={`${baseUrl}/unsubscribe-spot/${subscriptionId}`}
-                style={metaLink}
-              >
-                Unsubscribe {spotName}
-              </Link>
-            </Column>
-
-            <Column>
-              <Link
-                href={`${baseUrl}/unsubscribe-all-spots/${subscriptionId}`}
-                style={metaLink}
-              >
-                Unsubscribe all spots
-              </Link>
-            </Column>
-          </Row>
-        </Section>
+        <Footer spotName={spotName} subscriptionId={subscriptionId} />
       </Container>
     </Body>
   </Html>
@@ -146,20 +115,4 @@ const button = {
   textAlign: "center" as const,
   display: "block",
   padding: "11px 23px",
-};
-
-const footer = {
-  marginTop: 26,
-  padding: "20px 20px 40px",
-  background: "#f9fafb",
-};
-
-const spotterLink = {
-  fontSize: "14px",
-  color: "#35b8e0",
-};
-
-const metaLink = {
-  fontSize: "14px",
-  color: "#cececf",
 };
