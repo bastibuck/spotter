@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { api } from "~/trpc/server";
 
-const VerifySubscriptionPage = async ({
+const UnsubscribeAllSpotsPage = async ({
   params,
 }: {
   params: { id: string };
@@ -24,4 +24,4 @@ const VerifySubscriptionPage = async ({
   );
 };
 
-export default VerifySubscriptionPage;
+export default UnsubscribeAllSpotsPage;
