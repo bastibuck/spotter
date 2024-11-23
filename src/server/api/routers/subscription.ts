@@ -4,6 +4,7 @@ import VerifySpotSubscriptionEmail from "emails/verifySpot";
 import { Resend } from "resend";
 import { z } from "zod";
 import { env } from "~/env";
+import { getBaseUrl } from "~/lib/url";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import {
   kiters,
@@ -65,16 +66,18 @@ export const subscriptionRouter = createTRPCRouter({
         });
       }
 
+      const emailLowerCased = input.email.toLowerCase();
+
       // start transaction for mutations
       await ctx.db.transaction(async (tx) => {
         // create and get kiter if it doesn't exist
         await tx
           .insert(kiters)
-          .values({ email: input.email })
+          .values({ email: emailLowerCased })
           .onConflictDoNothing();
 
         const kiter = await tx.query.kiters.findFirst({
-          where: eq(kiters.email, input.email),
+          where: eq(kiters.email, emailLowerCased),
           with: { subscriptions: true },
         });
 
@@ -102,11 +105,11 @@ export const subscriptionRouter = createTRPCRouter({
             windSpeedMax: input.windSpeedMin,
             windSpeedMin: input.windSpeedMax,
           })
-          .returning({ id: subscriptions.id });
+          .returning();
 
-        const subscriptionId = subscription.at(0)?.id;
+        const newSubscription = subscription.at(0);
 
-        if (subscriptionId === undefined) {
+        if (newSubscription === undefined) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Failed to create subscription.",
@@ -117,12 +120,15 @@ export const subscriptionRouter = createTRPCRouter({
         try {
           const { error } = await resend.emails.send({
             from: env.FROM_EMAIL,
-            to: input.email,
+            to: emailLowerCased,
             subject: `Verify your subscription to ${spot.name}`,
             react: VerifySpotSubscriptionEmail({
               spotName: spot.name,
-              subscriptionId,
+              subscription: newSubscription,
             }),
+            headers: {
+              "List-Unsubscribe": `${getBaseUrl()}/unsubscribe-spot/${newSubscription.id}`,
+            },
           });
 
           // TODO? add logging service/vercel for errors
@@ -156,4 +162,47 @@ export const subscriptionRouter = createTRPCRouter({
         )
         .returning({ id: subscriptions.id }),
     ),
+
+  unsubscribe: publicProcedure
+    .input(
+      z.object({
+        id: z.string().uuid(),
+      }),
+    )
+    .mutation(({ ctx, input }) =>
+      ctx.db
+        .delete(subscriptions)
+        .where(eq(subscriptions.id, input.id))
+        .returning({ id: subscriptions.id }),
+    ),
+
+  unsubscribeAll: publicProcedure
+    .input(
+      z.object({
+        id: z.string().uuid(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const subscription = await ctx.db.query.subscriptions.findFirst({
+        where: eq(subscriptions.id, input.id),
+        with: { kiter: true },
+      });
+
+      if (subscription === undefined) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Subscription not found.",
+        });
+      }
+
+      const allSubscriptions = await ctx.db.query.subscriptions.findMany({
+        where: eq(subscriptions.kiterId, subscription.kiter.id),
+      });
+
+      await ctx.db
+        .delete(subscriptions)
+        .where(eq(subscriptions.kiterId, subscription.kiter.id));
+
+      return allSubscriptions.length;
+    }),
 });

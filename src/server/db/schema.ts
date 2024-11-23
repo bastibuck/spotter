@@ -189,13 +189,9 @@ export const kiters = createTable(
       .$defaultFn(() => crypto.randomUUID()),
     email: varchar().notNull(),
   },
-  (kiters) => [
-    {
-      emailUniqueIndex: uniqueIndex("emailUniqueIndex").on(
-        sql`lower(${kiters.email})`,
-      ),
-    },
-  ],
+  (kiters) => ({
+    emailUniqueIndex: uniqueIndex("emailUniqueIndex").on(kiters.email),
+  }),
 );
 
 export const kitersRelations = relations(kiters, ({ many }) => ({

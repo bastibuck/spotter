@@ -4,27 +4,29 @@ import {
   Container,
   Head,
   Heading,
-  Hr,
   Html,
-  Link,
   Preview,
   Section,
   Text,
 } from "@react-email/components";
-import * as React from "react";
+import { type InferSelectModel } from "drizzle-orm";
+import Footer from "~/components/emails/Footer";
+import Table from "~/components/emails/Table";
+import { getBaseUrl } from "~/lib/url";
+import { type subscriptions } from "~/server/db/schema";
 
 interface VerifyEmailProps {
-  subscriptionId: string;
+  subscription: Pick<
+    InferSelectModel<typeof subscriptions>,
+    "id" | "windDirections" | "windSpeedMin" | "windSpeedMax"
+  >;
   spotName: string;
 }
 
-// TODO? can we get this from ~env?
-const baseUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "";
+const baseUrl = getBaseUrl();
 
 const VerifySpotSubscriptionEmail = ({
-  subscriptionId,
+  subscription,
   spotName,
 }: VerifyEmailProps) => (
   <Html>
@@ -45,30 +47,43 @@ const VerifySpotSubscriptionEmail = ({
           </Text>
         </Heading>
 
-        <Section style={buttonContainer}>
-          <Button
-            style={button}
-            href={`${baseUrl}/verify-spot/${subscriptionId}`}
-          >
-            Verify subscription
-          </Button>
-        </Section>
+        <Text style={paragraph}>
+          You are subscribing to wind conditions at {spotName} that match
+        </Text>
+
+        <Table
+          data={[
+            {
+              label: "Wind speed",
+              value: `${subscription.windSpeedMin} - ${subscription.windSpeedMax} m/s`,
+            },
+            {
+              label: "Wind directions",
+              value: subscription.windDirections.join(", "),
+            },
+          ]}
+        />
 
         <Text style={paragraph}>
           Once you verify your subscription to {spotName}, you will be notified
           about suitable wind conditions for your spot.
         </Text>
 
+        <Section style={buttonContainer}>
+          <Button
+            style={button}
+            href={`${baseUrl}/verify-spot/${subscription.id}`}
+          >
+            Verify subscription
+          </Button>
+        </Section>
+
         <Text style={paragraph}>
           You can unsubscribe at any time by clicking the link at the bottom of
           a notification email.
         </Text>
 
-        <Hr style={hr} />
-
-        <Link href={`${baseUrl}`} style={spotterLink}>
-          Spotter
-        </Link>
+        <Footer spotName={spotName} subscriptionId={subscription.id} />
       </Container>
     </Body>
   </Html>
@@ -77,9 +92,14 @@ const VerifySpotSubscriptionEmail = ({
 export default VerifySpotSubscriptionEmail;
 
 VerifySpotSubscriptionEmail.PreviewProps = {
-  subscriptionId: "65356434-ca00-4273-afff-af6354dcb731",
+  subscription: {
+    id: "65356434-ca00-4273-afff-af6354dcb731",
+    windDirections: ["N", "NE"],
+    windSpeedMin: 5,
+    windSpeedMax: 10,
+  },
   spotName: "Aukrog",
-};
+} satisfies VerifyEmailProps;
 
 const main = {
   backgroundColor: "#ffffff",
@@ -123,14 +143,4 @@ const button = {
   textAlign: "center" as const,
   display: "block",
   padding: "11px 23px",
-};
-
-const spotterLink = {
-  fontSize: "14px",
-  color: "#35b8e0",
-};
-
-const hr = {
-  borderColor: "#dfe1e4",
-  margin: "26px 0 26px",
 };
