@@ -105,11 +105,11 @@ export const subscriptionRouter = createTRPCRouter({
             windSpeedMax: input.windSpeedMin,
             windSpeedMin: input.windSpeedMax,
           })
-          .returning({ id: subscriptions.id });
+          .returning();
 
-        const subscriptionId = subscription.at(0)?.id;
+        const newSubscription = subscription.at(0);
 
-        if (subscriptionId === undefined) {
+        if (newSubscription === undefined) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Failed to create subscription.",
@@ -124,10 +124,10 @@ export const subscriptionRouter = createTRPCRouter({
             subject: `Verify your subscription to ${spot.name}`,
             react: VerifySpotSubscriptionEmail({
               spotName: spot.name,
-              subscriptionId,
+              subscription: newSubscription,
             }),
             headers: {
-              "List-Unsubscribe": `${getBaseUrl()}/unsubscribe-spot/${subscriptionId}`,
+              "List-Unsubscribe": `${getBaseUrl()}/unsubscribe-spot/${newSubscription.id}`,
             },
           });
 
