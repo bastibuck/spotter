@@ -7,17 +7,23 @@ import {
   Preview,
   Text,
 } from "@react-email/components";
+import { type InferSelectModel } from "drizzle-orm";
 import { DateTime } from "luxon";
 import Footer from "~/components/emails/Footer";
+import Table from "~/components/emails/Table";
+import { type subscriptions } from "~/server/db/schema";
 
 interface VerifyEmailProps {
-  subscriptionId: string;
+  subscription: Pick<
+    InferSelectModel<typeof subscriptions>,
+    "id" | "windDirections" | "windSpeedMin" | "windSpeedMax"
+  >;
   spotName: string;
   date: Date;
 }
 
 const SpotNotificationEmail = ({
-  subscriptionId,
+  subscription,
   spotName,
   date,
 }: VerifyEmailProps) => {
@@ -39,17 +45,39 @@ const SpotNotificationEmail = ({
             <Text style={{ ...heading, display: "inline", fontWeight: "bold" }}>
               {spotName}
             </Text>
-            <Text style={{ ...heading, display: "inline" }}>
-              suitable on {day}
+            <Text style={{ ...heading, display: "inline" }}>suitable on</Text>
+            <Text style={{ ...heading, display: "inline", fontWeight: "bold" }}>
+              {day}
             </Text>
           </Heading>
 
           <Text style={paragraph}>
-            The requested wind conditions for {spotName} are suitable. Check
-            your calendar and get ready to go kite surfing!
+            You subscribed for wind conditions at {spotName} that match
           </Text>
 
-          <Footer spotName={spotName} subscriptionId={subscriptionId} />
+          <Table
+            data={[
+              {
+                label: "Wind speed",
+                value: `${subscription.windSpeedMin} - ${subscription.windSpeedMax} m/s`,
+              },
+              {
+                label: "Wind directions",
+                value: subscription.windDirections.join(", "),
+              },
+            ]}
+          />
+
+          <Text style={paragraph}>
+            The requested wind conditions for {spotName} are projected to be
+            suitable on{" "}
+            <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+              {day}
+            </span>
+            . Check your calendar and get ready to go kite surfing!
+          </Text>
+
+          <Footer spotName={spotName} subscriptionId={subscription.id} />
         </Container>
       </Body>
     </Html>
@@ -59,10 +87,15 @@ const SpotNotificationEmail = ({
 export default SpotNotificationEmail;
 
 SpotNotificationEmail.PreviewProps = {
-  subscriptionId: "65356434-ca00-4273-afff-af6354dcb731",
+  subscription: {
+    id: "65356434-ca00-4273-afff-af6354dcb731",
+    windDirections: ["N", "NE", "E"],
+    windSpeedMin: 5,
+    windSpeedMax: 10,
+  },
   spotName: "Aukrog",
   date: new Date(),
-};
+} satisfies VerifyEmailProps;
 
 const main = {
   backgroundColor: "#ffffff",
