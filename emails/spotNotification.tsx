@@ -74,7 +74,7 @@ const SpotNotificationEmail = ({
             <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
               {day}
             </span>
-            . Check your calendar and get ready to go kite surfing!
+            . Check your calendar and get ready to go kitesurfing!
           </Text>
 
           <Footer spotName={spotName} subscriptionId={subscription.id} />
