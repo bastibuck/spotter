@@ -4,24 +4,23 @@ import {
   Container,
   Head,
   Heading,
-  Hr,
   Html,
   Link,
   Preview,
   Section,
   Text,
+  Row,
+  Column,
 } from "@react-email/components";
 import * as React from "react";
+import { getBaseUrl } from "~/lib/url";
 
 interface VerifyEmailProps {
   subscriptionId: string;
   spotName: string;
 }
 
-// TODO? can we get this from ~env?
-const baseUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "";
+const baseUrl = getBaseUrl();
 
 const VerifySpotSubscriptionEmail = ({
   subscriptionId,
@@ -64,11 +63,35 @@ const VerifySpotSubscriptionEmail = ({
           a notification email.
         </Text>
 
-        <Hr style={hr} />
+        <Section style={footer}>
+          <Row style={{ height: "3em" }}>
+            <Column>
+              <Link href={`${baseUrl}`} style={spotterLink}>
+                Spotter
+              </Link>
+            </Column>
+          </Row>
 
-        <Link href={`${baseUrl}`} style={spotterLink}>
-          Spotter
-        </Link>
+          <Row>
+            <Column>
+              <Link
+                href={`${baseUrl}/unsubscribe-spot/${subscriptionId}`}
+                style={metaLink}
+              >
+                Unsubscribe {spotName}
+              </Link>
+            </Column>
+
+            <Column>
+              <Link
+                href={`${baseUrl}/unsubscribe-all-spots/${subscriptionId}`}
+                style={metaLink}
+              >
+                Unsubscribe all spots
+              </Link>
+            </Column>
+          </Row>
+        </Section>
       </Container>
     </Body>
   </Html>
@@ -125,12 +148,18 @@ const button = {
   padding: "11px 23px",
 };
 
+const footer = {
+  marginTop: 26,
+  padding: "20px 20px 40px",
+  background: "#f9fafb",
+};
+
 const spotterLink = {
   fontSize: "14px",
   color: "#35b8e0",
 };
 
-const hr = {
-  borderColor: "#dfe1e4",
-  margin: "26px 0 26px",
+const metaLink = {
+  fontSize: "14px",
+  color: "#cececf",
 };

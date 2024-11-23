@@ -4,6 +4,7 @@ import VerifySpotSubscriptionEmail from "emails/verifySpot";
 import { Resend } from "resend";
 import { z } from "zod";
 import { env } from "~/env";
+import { getBaseUrl } from "~/lib/url";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import {
   kiters,
@@ -123,6 +124,9 @@ export const subscriptionRouter = createTRPCRouter({
               spotName: spot.name,
               subscriptionId,
             }),
+            headers: {
+              "List-Unsubscribe": `${getBaseUrl()}/unsubscribe-spot/${subscriptionId}`,
+            },
           });
 
           // TODO? add logging service/vercel for errors
