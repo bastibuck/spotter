@@ -211,10 +211,10 @@ export const subscriptions = createTable(
       .$defaultFn(() => crypto.randomUUID()),
     spotId: integer()
       .notNull()
-      .references(() => spots.id),
+      .references(() => spots.id, { onDelete: "cascade" }),
     kiterId: varchar()
       .notNull()
-      .references(() => kiters.id),
+      .references(() => kiters.id, { onDelete: "cascade" }),
 
     // activated?
     verifiedAt: timestamp(),
