@@ -42,12 +42,12 @@ const SpotNotificationEmail = ({
         <Container style={container}>
           <Heading style={heading}>
             <Text style={{ ...heading, display: "inline" }}>
-              Wind conditions for
+              Wind conditions for{" "}
             </Text>
             <Text style={{ ...heading, display: "inline", fontWeight: "bold" }}>
-              {spotName}
+              {spotName}{" "}
             </Text>
-            <Text style={{ ...heading, display: "inline" }}>suitable on</Text>
+            <Text style={{ ...heading, display: "inline" }}>suitable on </Text>
             <Text style={{ ...heading, display: "inline", fontWeight: "bold" }}>
               {day}
             </Text>
