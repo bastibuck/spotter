@@ -110,7 +110,7 @@ export const subscriptionRouter = createTRPCRouter({
               kiter,
             }),
             headers: {
-              "List-Unsubscribe": `${getBaseUrl()}/unsubscribe-spot/${newSubscription.id}`,
+              "List-Unsubscribe": `${getBaseUrl()}/${newSubscription.id}/unsubscribe`,
             },
           });
 
