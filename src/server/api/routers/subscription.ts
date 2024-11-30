@@ -80,8 +80,8 @@ export const subscriptionRouter = createTRPCRouter({
             kiterId: kiter.id,
             spotId: spot.id,
             windDirections: input.windDirections,
-            windSpeedMax: input.windSpeedMin,
-            windSpeedMin: input.windSpeedMax,
+            windSpeedMin: input.windSpeedMin,
+            windSpeedMax: input.windSpeedMax,
           })
           .returning();
 
