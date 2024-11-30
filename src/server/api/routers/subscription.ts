@@ -183,29 +183,26 @@ export const subscriptionRouter = createTRPCRouter({
   unsubscribeAll: publicProcedure
     .input(
       z.object({
-        id: z.string().uuid(),
+        kiterId: z.string().uuid(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const subscription = await ctx.db.query.subscriptions.findFirst({
-        where: eq(subscriptions.id, input.id),
-        with: { kiter: true },
+      const kiter = await ctx.db.query.kiters.findFirst({
+        where: eq(subscriptions.id, input.kiterId),
       });
 
-      if (subscription === undefined) {
+      if (kiter === undefined) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Subscription not found.",
+          message: "Kiter not found.",
         });
       }
 
       const allSubscriptions = await ctx.db.query.subscriptions.findMany({
-        where: eq(subscriptions.kiterId, subscription.kiter.id),
+        where: eq(subscriptions.kiterId, kiter.id),
       });
 
-      await ctx.db
-        .delete(subscriptions)
-        .where(eq(subscriptions.kiterId, subscription.kiter.id));
+      await ctx.db.delete(kiters).where(eq(kiters.id, kiter.id));
 
       return allSubscriptions.length;
     }),

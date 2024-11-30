@@ -2,18 +2,19 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { api } from "~/trpc/server";
 
-const UnsubscribeAllSpotsPage = async ({
+const UnsubscribeAllSpotsPage = ({
   params,
 }: {
-  params: { id: string };
+  params: { kiterId: string };
 }) => {
-  const subscription = await api.subscription.get({ id: params.id });
-
-  if (!subscription) {
-    return redirect("/404"); // TODO! add more specific error handling
-  }
-
-  const deletions = await api.subscription.unsubscribeAll({ id: params.id });
+  const deletions = api.subscription
+    .unsubscribeAll({
+      kiterId: params.kiterId,
+    })
+    .then((res) => res)
+    .catch(() => {
+      redirect("/404");
+    });
 
   return (
     <div className="flex flex-col gap-6">
