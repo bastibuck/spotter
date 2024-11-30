@@ -16,28 +16,6 @@ import {
 const resend = new Resend(env.RESEND_API_KEY);
 
 export const subscriptionRouter = createTRPCRouter({
-  get: publicProcedure
-    .input(
-      z.object({
-        id: z.string().uuid(),
-      }),
-    )
-    .query(({ ctx, input }) =>
-      ctx.db.query.subscriptions.findFirst({
-        where: eq(subscriptions.id, input.id),
-        columns: {
-          id: true,
-        },
-        with: {
-          spot: {
-            columns: {
-              name: true,
-            },
-          },
-        },
-      }),
-    ),
-
   subscribe: publicProcedure
     .input(
       z
@@ -158,8 +136,20 @@ export const subscriptionRouter = createTRPCRouter({
         subscriptionId: z.string().uuid(),
       }),
     )
-    .mutation(({ ctx, input }) =>
-      ctx.db
+    .mutation(async ({ ctx, input }) => {
+      const subscription = await ctx.db.query.subscriptions.findFirst({
+        where: eq(subscriptions.id, input.subscriptionId),
+        with: { spot: { columns: { name: true } } },
+      });
+
+      if (subscription === undefined) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Subscription not found.",
+        });
+      }
+
+      await ctx.db
         .update(subscriptions)
         .set({ verifiedAt: new Date() })
         .where(
@@ -167,9 +157,12 @@ export const subscriptionRouter = createTRPCRouter({
             eq(subscriptions.id, input.subscriptionId),
             isNull(subscriptions.verifiedAt),
           ),
-        )
-        .returning({ id: subscriptions.id }),
-    ),
+        );
+
+      return {
+        name: subscription.spot.name,
+      };
+    }),
 
   unsubscribe: publicProcedure
     .input(
