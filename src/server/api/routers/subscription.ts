@@ -118,6 +118,10 @@ export const subscriptionRouter = createTRPCRouter({
 
         // send verification email
         try {
+          if (env.SKIP_EMAIL_DELIVERY) {
+            return;
+          }
+
           const { error } = await resend.emails.send({
             from: env.FROM_EMAIL,
             to: emailLowerCased,

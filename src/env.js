@@ -26,6 +26,7 @@ export const env = createEnv({
     GITHUB_CLIENT_SECRET: z.string(),
     RESEND_API_KEY: z.string(),
     FROM_EMAIL: z.string(),
+    SKIP_EMAIL_DELIVERY: z.boolean({ coerce: true }).default(false),
   },
 
   /**
@@ -50,6 +51,7 @@ export const env = createEnv({
     GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     FROM_EMAIL: process.env.FROM_EMAIL,
+    SKIP_EMAIL_DELIVERY: process.env.SKIP_EMAIL_DELIVERY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
