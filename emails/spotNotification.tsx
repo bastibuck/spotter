@@ -11,7 +11,7 @@ import { type InferSelectModel } from "drizzle-orm";
 import { DateTime } from "luxon";
 import Footer from "~/components/emails/Footer";
 import Table from "~/components/emails/Table";
-import { type subscriptions } from "~/server/db/schema";
+import { type kiters, type subscriptions } from "~/server/db/schema";
 
 interface VerifyEmailProps {
   subscription: Pick<
@@ -20,12 +20,14 @@ interface VerifyEmailProps {
   >;
   spotName: string;
   date: Date;
+  kiter: Pick<InferSelectModel<typeof kiters>, "id">;
 }
 
 const SpotNotificationEmail = ({
   subscription,
   spotName,
   date,
+  kiter,
 }: VerifyEmailProps) => {
   const day = DateTime.fromJSDate(date).toFormat("dd. LLL yyyy");
 
@@ -77,7 +79,11 @@ const SpotNotificationEmail = ({
             . Check your calendar and get ready to go kitesurfing!
           </Text>
 
-          <Footer spotName={spotName} subscriptionId={subscription.id} />
+          <Footer
+            spotName={spotName}
+            subscriptionId={subscription.id}
+            kiterId={kiter.id}
+          />
         </Container>
       </Body>
     </Html>
@@ -95,6 +101,9 @@ SpotNotificationEmail.PreviewProps = {
   },
   spotName: "Aukrog",
   date: new Date(),
+  kiter: {
+    id: "6830aeb4-c723-43ab-8761-a383c4e1c4a0",
+  },
 } satisfies VerifyEmailProps;
 
 const main = {

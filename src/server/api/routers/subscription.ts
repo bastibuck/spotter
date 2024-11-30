@@ -16,28 +16,6 @@ import {
 const resend = new Resend(env.RESEND_API_KEY);
 
 export const subscriptionRouter = createTRPCRouter({
-  get: publicProcedure
-    .input(
-      z.object({
-        id: z.string().uuid(),
-      }),
-    )
-    .query(({ ctx, input }) =>
-      ctx.db.query.subscriptions.findFirst({
-        where: eq(subscriptions.id, input.id),
-        columns: {
-          id: true,
-        },
-        with: {
-          spot: {
-            columns: {
-              name: true,
-            },
-          },
-        },
-      }),
-    ),
-
   subscribe: publicProcedure
     .input(
       z
@@ -118,6 +96,10 @@ export const subscriptionRouter = createTRPCRouter({
 
         // send verification email
         try {
+          if (env.SKIP_EMAIL_DELIVERY) {
+            return;
+          }
+
           const { error } = await resend.emails.send({
             from: env.FROM_EMAIL,
             to: emailLowerCased,
@@ -125,6 +107,7 @@ export const subscriptionRouter = createTRPCRouter({
             react: VerifySpotSubscriptionEmail({
               spotName: spot.name,
               subscription: newSubscription,
+              kiter,
             }),
             headers: {
               "List-Unsubscribe": `${getBaseUrl()}/unsubscribe-spot/${newSubscription.id}`,
@@ -150,42 +133,13 @@ export const subscriptionRouter = createTRPCRouter({
   verify: publicProcedure
     .input(
       z.object({
-        id: z.string().uuid(),
-      }),
-    )
-    .mutation(({ ctx, input }) =>
-      ctx.db
-        .update(subscriptions)
-        .set({ verifiedAt: new Date() })
-        .where(
-          and(eq(subscriptions.id, input.id), isNull(subscriptions.verifiedAt)),
-        )
-        .returning({ id: subscriptions.id }),
-    ),
-
-  unsubscribe: publicProcedure
-    .input(
-      z.object({
-        id: z.string().uuid(),
-      }),
-    )
-    .mutation(({ ctx, input }) =>
-      ctx.db
-        .delete(subscriptions)
-        .where(eq(subscriptions.id, input.id))
-        .returning({ id: subscriptions.id }),
-    ),
-
-  unsubscribeAll: publicProcedure
-    .input(
-      z.object({
-        id: z.string().uuid(),
+        subscriptionId: z.string().uuid(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const subscription = await ctx.db.query.subscriptions.findFirst({
-        where: eq(subscriptions.id, input.id),
-        with: { kiter: true },
+        where: eq(subscriptions.id, input.subscriptionId),
+        with: { spot: { columns: { name: true } } },
       });
 
       if (subscription === undefined) {
@@ -195,13 +149,81 @@ export const subscriptionRouter = createTRPCRouter({
         });
       }
 
-      const allSubscriptions = await ctx.db.query.subscriptions.findMany({
-        where: eq(subscriptions.kiterId, subscription.kiter.id),
+      await ctx.db
+        .update(subscriptions)
+        .set({ verifiedAt: new Date() })
+        .where(
+          and(
+            eq(subscriptions.id, input.subscriptionId),
+            isNull(subscriptions.verifiedAt),
+          ),
+        );
+
+      return {
+        name: subscription.spot.name,
+      };
+    }),
+
+  unsubscribe: publicProcedure
+    .input(
+      z.object({
+        subscriptionId: z.string().uuid(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const subscription = await ctx.db.query.subscriptions.findFirst({
+        where: eq(subscriptions.id, input.subscriptionId),
+        with: {
+          spot: { columns: { name: true } },
+          kiter: { with: { subscriptions: true } },
+        },
       });
 
-      await ctx.db
-        .delete(subscriptions)
-        .where(eq(subscriptions.kiterId, subscription.kiter.id));
+      if (subscription === undefined) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Subscription not found.",
+        });
+      }
+
+      // delete kiter if it's the last subscription, otherwise delete a single subscription
+      const isLastSubscription = subscription.kiter.subscriptions.length === 1;
+      if (isLastSubscription) {
+        await ctx.db.delete(kiters).where(eq(kiters.id, subscription.kiter.id));
+      } else {
+        await ctx.db
+          .delete(subscriptions)
+          .where(eq(subscriptions.id, subscription.id));
+      }
+
+      return {
+        name: subscription.spot.name,
+      };
+    }),
+
+  unsubscribeAll: publicProcedure
+    .input(
+      z.object({
+        kiterId: z.string().uuid(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const kiter = await ctx.db.query.kiters.findFirst({
+        where: eq(subscriptions.id, input.kiterId),
+      });
+
+      if (kiter === undefined) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Kiter not found.",
+        });
+      }
+
+      const allSubscriptions = await ctx.db.query.subscriptions.findMany({
+        where: eq(subscriptions.kiterId, kiter.id),
+      });
+
+      await ctx.db.delete(kiters).where(eq(kiters.id, kiter.id));
 
       return allSubscriptions.length;
     }),
