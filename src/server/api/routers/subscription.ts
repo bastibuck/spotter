@@ -173,7 +173,10 @@ export const subscriptionRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const subscription = await ctx.db.query.subscriptions.findFirst({
         where: eq(subscriptions.id, input.subscriptionId),
-        with: { spot: { columns: { name: true } } },
+        with: {
+          spot: { columns: { name: true } },
+          kiter: { with: { subscriptions: true } },
+        },
       });
 
       if (subscription === undefined) {
@@ -183,9 +186,15 @@ export const subscriptionRouter = createTRPCRouter({
         });
       }
 
-      await ctx.db
-        .delete(subscriptions)
-        .where(eq(subscriptions.id, subscription.id));
+      // delete kiter if it's the last subscription, otherwise delete a single subscription
+      const isLastSubscription = subscription.kiter.subscriptions.length === 1;
+      if (isLastSubscription) {
+        await ctx.db.delete(kiters).where(eq(kiters.id, subscription.kiter.id));
+      } else {
+        await ctx.db
+          .delete(subscriptions)
+          .where(eq(subscriptions.id, subscription.id));
+      }
 
       return {
         name: subscription.spot.name,
