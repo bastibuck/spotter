@@ -4,10 +4,11 @@ import { getBaseUrl } from "~/lib/url";
 
 const baseUrl = getBaseUrl();
 
-const Footer: React.FC<{ spotName: string; subscriptionId: string }> = ({
-  spotName,
-  subscriptionId,
-}) => {
+const Footer: React.FC<{
+  spotName: string;
+  subscriptionId: string;
+  kiterId: string;
+}> = ({ spotName, subscriptionId, kiterId }) => {
   return (
     <Section style={footer}>
       <Row style={{ height: "3em" }}>
@@ -21,7 +22,7 @@ const Footer: React.FC<{ spotName: string; subscriptionId: string }> = ({
       <Row>
         <Column>
           <Link
-            href={`${baseUrl}/unsubscribe-spot/${subscriptionId}`}
+            href={`${baseUrl}/subscription/${subscriptionId}/unsubscribe`}
             style={metaLink}
           >
             Unsubscribe {spotName}
@@ -30,7 +31,7 @@ const Footer: React.FC<{ spotName: string; subscriptionId: string }> = ({
 
         <Column>
           <Link
-            href={`${baseUrl}/unsubscribe-all-spots/${subscriptionId}`}
+            href={`${baseUrl}/kiter/${kiterId}/unsubscribe-all`}
             style={metaLink}
           >
             Unsubscribe all spots

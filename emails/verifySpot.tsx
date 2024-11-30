@@ -13,7 +13,7 @@ import { type InferSelectModel } from "drizzle-orm";
 import Footer from "~/components/emails/Footer";
 import Table from "~/components/emails/Table";
 import { getBaseUrl } from "~/lib/url";
-import { type subscriptions } from "~/server/db/schema";
+import { type kiters, type subscriptions } from "~/server/db/schema";
 
 interface VerifyEmailProps {
   subscription: Pick<
@@ -21,6 +21,7 @@ interface VerifyEmailProps {
     "id" | "windDirections" | "windSpeedMin" | "windSpeedMax"
   >;
   spotName: string;
+  kiter: Pick<InferSelectModel<typeof kiters>, "id">;
 }
 
 const baseUrl = getBaseUrl();
@@ -28,6 +29,7 @@ const baseUrl = getBaseUrl();
 const VerifySpotSubscriptionEmail = ({
   subscription,
   spotName,
+  kiter,
 }: VerifyEmailProps) => (
   <Html>
     <Head />
@@ -72,7 +74,7 @@ const VerifySpotSubscriptionEmail = ({
         <Section style={buttonContainer}>
           <Button
             style={button}
-            href={`${baseUrl}/verify-spot/${subscription.id}`}
+            href={`${baseUrl}/subscription/${subscription.id}/verify`}
           >
             Verify subscription
           </Button>
@@ -83,7 +85,11 @@ const VerifySpotSubscriptionEmail = ({
           a notification email.
         </Text>
 
-        <Footer spotName={spotName} subscriptionId={subscription.id} />
+        <Footer
+          spotName={spotName}
+          subscriptionId={subscription.id}
+          kiterId={kiter.id}
+        />
       </Container>
     </Body>
   </Html>
@@ -99,6 +105,9 @@ VerifySpotSubscriptionEmail.PreviewProps = {
     windSpeedMax: 10,
   },
   spotName: "Aukrog",
+  kiter: {
+    id: "f6076292-7fb6-460e-9432-5919830f0ba8",
+  },
 } satisfies VerifyEmailProps;
 
 const main = {

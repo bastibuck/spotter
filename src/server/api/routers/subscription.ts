@@ -129,6 +129,7 @@ export const subscriptionRouter = createTRPCRouter({
             react: VerifySpotSubscriptionEmail({
               spotName: spot.name,
               subscription: newSubscription,
+              kiter,
             }),
             headers: {
               "List-Unsubscribe": `${getBaseUrl()}/unsubscribe-spot/${newSubscription.id}`,
