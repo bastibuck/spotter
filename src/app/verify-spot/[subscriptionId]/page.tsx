@@ -5,15 +5,17 @@ import { api } from "~/trpc/server";
 const VerifySubscriptionPage = async ({
   params,
 }: {
-  params: { id: string };
+  params: { subscriptionId: string };
 }) => {
-  const subscription = await api.subscription.get({ id: params.id });
+  const subscription = await api.subscription.get({
+    id: params.subscriptionId,
+  });
 
   if (!subscription) {
     return redirect("/404"); // TODO! add more specific error handling
   }
 
-  await api.subscription.verify({ id: params.id });
+  await api.subscription.verify({ subscriptionId: params.subscriptionId });
 
   return (
     <div className="flex flex-col gap-6">

@@ -154,7 +154,7 @@ export const subscriptionRouter = createTRPCRouter({
   verify: publicProcedure
     .input(
       z.object({
-        id: z.string().uuid(),
+        subscriptionId: z.string().uuid(),
       }),
     )
     .mutation(({ ctx, input }) =>
@@ -162,7 +162,10 @@ export const subscriptionRouter = createTRPCRouter({
         .update(subscriptions)
         .set({ verifiedAt: new Date() })
         .where(
-          and(eq(subscriptions.id, input.id), isNull(subscriptions.verifiedAt)),
+          and(
+            eq(subscriptions.id, input.subscriptionId),
+            isNull(subscriptions.verifiedAt),
+          ),
         )
         .returning({ id: subscriptions.id }),
     ),
@@ -170,15 +173,30 @@ export const subscriptionRouter = createTRPCRouter({
   unsubscribe: publicProcedure
     .input(
       z.object({
-        id: z.string().uuid(),
+        subscriptionId: z.string().uuid(),
       }),
     )
-    .mutation(({ ctx, input }) =>
-      ctx.db
+    .mutation(async ({ ctx, input }) => {
+      const subscription = await ctx.db.query.subscriptions.findFirst({
+        where: eq(subscriptions.id, input.subscriptionId),
+        with: { spot: { columns: { name: true } } },
+      });
+
+      if (subscription === undefined) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Subscription not found.",
+        });
+      }
+
+      await ctx.db
         .delete(subscriptions)
-        .where(eq(subscriptions.id, input.id))
-        .returning({ id: subscriptions.id }),
-    ),
+        .where(eq(subscriptions.id, subscription.id));
+
+      return {
+        name: subscription.spot.name,
+      };
+    }),
 
   unsubscribeAll: publicProcedure
     .input(
