@@ -10,7 +10,7 @@ import { getBaseUrl } from "~/lib/url";
 import { db } from "~/server/db";
 import { subscriptions } from "~/server/db/schema";
 
-const DAYS_IN_FUTURE = 5;
+const DAYS_IN_FUTURE = 3;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 const OPEN_METEO_API_URL = "https://api.open-meteo.com/v1/forecast";
