@@ -93,34 +93,65 @@ export const GET = async (request: Request) => {
 
     // check conditions for each subscription
     spot.subscriptions.forEach((subscription) => {
-      const { windSpeedMin, windSpeedMax, kiter } = subscription;
+      const { windSpeedMin, windSpeedMax, windDirections, kiter } =
+        subscription;
 
       const suitableHours = onlyDaytime
-        // check required windSpeed conditions for 4 consecutive hours
+        // check required conditions for 4 consecutive hours
         .filter((_, idx, hours) => {
           return (
             idx <= hours.length - 4 &&
+            // -----------------------------------
+            // day 1
+            // -----------------------------------
             checkWindSpeed(
               hours[idx + 0]?.windSpeed10m,
               windSpeedMin,
               windSpeedMax,
             ) &&
+            isAllowedDirection(
+              hours[idx + 0]?.windDirection10m,
+              windDirections,
+            ) &&
+            // checkSameDay() => is always same day - duh!
+
+            // -----------------------------------
+            // day 2
+            // -----------------------------------
             checkWindSpeed(
               hours[idx + 1]?.windSpeed10m,
               windSpeedMin,
               windSpeedMax,
             ) &&
+            isAllowedDirection(
+              hours[idx + 1]?.windDirection10m,
+              windDirections,
+            ) &&
             checkSameDay(hours[idx + 0].time, hours[idx + 1].time) &&
+            // -----------------------------------
+            // day 3
+            // -----------------------------------
             checkWindSpeed(
               hours[idx + 2]?.windSpeed10m,
               windSpeedMin,
               windSpeedMax,
             ) &&
+            isAllowedDirection(
+              hours[idx + 2]?.windDirection10m,
+              windDirections,
+            ) &&
             checkSameDay(hours[idx + 0].time, hours[idx + 2].time) &&
+            // -----------------------------------
+            // day 4
+            // -----------------------------------
             checkWindSpeed(
               hours[idx + 3]?.windSpeed10m,
               windSpeedMin,
               windSpeedMax,
+            ) &&
+            isAllowedDirection(
+              hours[idx + 3]?.windDirection10m,
+              windDirections,
             ) &&
             checkSameDay(hours[idx + 0].time, hours[idx + 3].time)
           );
@@ -172,6 +203,37 @@ const checkWindSpeed = (windSpeed: number, min: number, max: number) => {
 
 const checkSameDay = (date1: Date, date2: Date) => {
   return date1.getDate() === date2.getDate();
+};
+
+const directionMap = new Map<number, string>([
+  [0, "N"],
+  [22.5, "NNE"],
+  [45, "NE"],
+  [67.5, "ENE"],
+  [90, "E"],
+  [112.5, "ESE"],
+  [135, "SE"],
+  [157.5, "SSE"],
+  [180, "S"],
+  [202.5, "SSW"],
+  [225, "SW"],
+  [247.5, "WSW"],
+  [270, "W"],
+  [292.5, "WNW"],
+  [315, "NW"],
+  [337.5, "NNW"],
+]);
+
+const getCardinalDirection = (degree: number) => {
+  const closestDegree = Array.from(directionMap.keys()).reduce((prev, curr) =>
+    Math.abs(curr - degree) < Math.abs(prev - degree) ? curr : prev,
+  );
+  return directionMap.get(closestDegree) ?? "";
+};
+
+const isAllowedDirection = (degree: number, allowedDirections: string[]) => {
+  const direction = getCardinalDirection(degree);
+  return allowedDirections.includes(direction);
 };
 
 // Helper function to form time ranges
