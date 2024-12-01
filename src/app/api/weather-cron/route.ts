@@ -8,7 +8,7 @@ import { Resend } from "resend";
 import { env } from "~/env";
 import { getBaseUrl } from "~/lib/url";
 import { db } from "~/server/db";
-import { subscriptions } from "~/server/db/schema";
+import { subscriptions, WindDirection } from "~/server/db/schema";
 
 const DAYS_IN_FUTURE = 3;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -205,37 +205,19 @@ const checkSameDay = (date1: Date, date2: Date) => {
   return date1.getDate() === date2.getDate();
 };
 
-const directionMap = new Map<number, string>([
-  [0, "N"],
-  [22.5, "NNE"],
-  [45, "NE"],
-  [67.5, "ENE"],
-  [90, "E"],
-  [112.5, "ESE"],
-  [135, "SE"],
-  [157.5, "SSE"],
-  [180, "S"],
-  [202.5, "SSW"],
-  [225, "SW"],
-  [247.5, "WSW"],
-  [270, "W"],
-  [292.5, "WNW"],
-  [315, "NW"],
-  [337.5, "NNW"],
-]);
-
-const getCardinalDirection = (degree: number) => {
-  const closestDegree = Array.from(directionMap.keys()).reduce((prev, curr) =>
-    Math.abs(curr - degree) < Math.abs(prev - degree) ? curr : prev,
-  );
-  return directionMap.get(closestDegree) ?? "";
-};
-
-const isAllowedDirection = (degree: number, allowedDirections: string[]) => {
-  const direction = getCardinalDirection(degree);
-  return allowedDirections.includes(direction);
-};
-
 // Helper function to form time ranges
 const range = (start: number, stop: number, step: number) =>
   Array.from({ length: (stop - start) / step }, (_, i) => start + i * step);
+
+const getCardinalDirection = (degree: number) => {
+  const index = Math.round(degree / 22.5) % 16;
+  return WindDirection.options[index]!;
+};
+
+const isAllowedDirection = (
+  degree: number,
+  allowedDirections: (typeof WindDirection.options)[number][],
+): boolean => {
+  const direction = getCardinalDirection(degree);
+  return allowedDirections.includes(direction);
+};
