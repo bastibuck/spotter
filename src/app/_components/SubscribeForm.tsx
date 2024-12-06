@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { type spots } from "~/server/db/schema";
+import { WindDirection, type spots } from "~/server/db/schema";
 
 import { api } from "~/trpc/react";
 
@@ -10,11 +10,26 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
   const [windSpeedMin, setWindSpeedMin] = useState<number | "">("");
   const [windSpeedMax, setWindSpeedMax] = useState<number | "">("");
 
+  const [windDirections, setWindDirections] = useState(
+    spot.defaultWindDirections,
+  );
+
+  const toggleWindDirection = (direction: (typeof windDirections)[number]) => {
+    setWindDirections((prev) => {
+      if (prev.includes(direction)) {
+        return prev.filter((d) => d !== direction);
+      } else {
+        return [...prev, direction];
+      }
+    });
+  };
+
   const subscribe = api.subscription.subscribe.useMutation({
     onSuccess: async () => {
       setEmail("");
       setWindSpeedMin("");
       setWindSpeedMax("");
+      setWindDirections(spot.defaultWindDirections);
     },
     onError: (error) => {
       console.log(error.message);
@@ -31,7 +46,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
             spotId: spot.id,
             windSpeedMin: windSpeedMin as number,
             windSpeedMax: windSpeedMax as number,
-            windDirections: spot.defaultWindDirections,
+            windDirections,
           });
         }}
         className="flex flex-col gap-2"
@@ -70,6 +85,23 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
           className="w-full px-4 py-2 text-black"
           required
         />
+
+        <div className="flex flex-wrap gap-2">
+          {WindDirection.options.map((direction) => (
+            <button
+              key={direction}
+              type="button"
+              onClick={() => toggleWindDirection(direction)}
+              className={`${
+                windDirections.includes(direction)
+                  ? "bg-blue-500 text-white"
+                  : "bg-white/10 text-white/50"
+              } rounded-md px-4 py-2`}
+            >
+              {direction}
+            </button>
+          ))}
+        </div>
 
         <button
           type="submit"
