@@ -1,5 +1,4 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 
 import { isNotNull } from "drizzle-orm";
 import SpotNotificationEmail from "emails/spotNotification";
@@ -60,10 +59,20 @@ export const GET = async (request: Request) => {
   allSpotsWithSubscriptions.forEach((spot, idx) => {
     const response = responses[idx];
 
+    if (!response) {
+      return;
+    }
+
     const utcOffsetSeconds = response.utcOffsetSeconds();
     const hourly = response.hourly();
 
-    // Note: The order of weather variables in the URL query and the indices below need to match!
+    const windSpeed10m = hourly?.variables(0)?.valuesArray();
+    const windDirection10m = hourly?.variables(1)?.valuesArray();
+
+    if (!hourly || !windSpeed10m || !windDirection10m) {
+      return;
+    }
+
     const weatherData = {
       hourly: {
         time: range(
@@ -71,23 +80,31 @@ export const GET = async (request: Request) => {
           Number(hourly.timeEnd()),
           hourly.interval(),
         ).map((t) => new Date((t + utcOffsetSeconds) * 1000)),
-        windSpeed10m: hourly.variables(0).valuesArray(),
-        windDirection10m: hourly.variables(1).valuesArray(),
+        windSpeed10m,
+        windDirection10m,
       },
     };
 
-    const structured = [];
+    const hourlyValues = [];
 
     for (let i = 0; i < weatherData.hourly.time.length; i++) {
-      structured.push({
-        time: weatherData.hourly.time[i],
-        windSpeed10m: weatherData.hourly.windSpeed10m[i],
-        windDirection10m: weatherData.hourly.windDirection10m[i],
+      const time = weatherData.hourly.time[i];
+      const windSpeed10m = weatherData.hourly.windSpeed10m[i];
+      const windDirection10m = weatherData.hourly.windDirection10m[i];
+
+      if (!time || !windSpeed10m || !windDirection10m) {
+        continue;
+      }
+
+      hourlyValues.push({
+        time,
+        windSpeed10m,
+        windDirection10m,
       });
     }
 
     // only consider hours between 8am and 8pm
-    const onlyDaytime = structured.filter(
+    const onlyDaytime = hourlyValues.filter(
       ({ time }) => time?.getHours() > 8 && time?.getHours() <= 20,
     );
 
@@ -102,58 +119,58 @@ export const GET = async (request: Request) => {
           return (
             idx <= hours.length - 4 &&
             // -----------------------------------
-            // day 1
+            // hour 1
             // -----------------------------------
             checkWindSpeed(
-              hours[idx + 0]?.windSpeed10m,
               windSpeedMin,
               windSpeedMax,
+              hours[idx + 0]?.windSpeed10m,
             ) &&
             isAllowedDirection(
-              hours[idx + 0]?.windDirection10m,
               windDirections,
+              hours[idx + 0]?.windDirection10m,
             ) &&
             // checkSameDay() => is always same day - duh!
 
             // -----------------------------------
-            // day 2
+            // hour 2
             // -----------------------------------
             checkWindSpeed(
+              windSpeedMin,
+              windSpeedMax,
               hours[idx + 1]?.windSpeed10m,
-              windSpeedMin,
-              windSpeedMax,
             ) &&
             isAllowedDirection(
+              windDirections,
               hours[idx + 1]?.windDirection10m,
-              windDirections,
             ) &&
-            checkSameDay(hours[idx + 0].time, hours[idx + 1].time) &&
+            checkSameDay(hours[idx + 0]?.time, hours[idx + 1]?.time) &&
             // -----------------------------------
-            // day 3
+            // hour 3
             // -----------------------------------
             checkWindSpeed(
+              windSpeedMin,
+              windSpeedMax,
               hours[idx + 2]?.windSpeed10m,
-              windSpeedMin,
-              windSpeedMax,
             ) &&
             isAllowedDirection(
-              hours[idx + 2]?.windDirection10m,
               windDirections,
+              hours[idx + 2]?.windDirection10m,
             ) &&
-            checkSameDay(hours[idx + 0].time, hours[idx + 2].time) &&
+            checkSameDay(hours[idx + 0]?.time, hours[idx + 2]?.time) &&
             // -----------------------------------
-            // day 4
+            // hour 4
             // -----------------------------------
             checkWindSpeed(
-              hours[idx + 3]?.windSpeed10m,
               windSpeedMin,
               windSpeedMax,
+              hours[idx + 3]?.windSpeed10m,
             ) &&
             isAllowedDirection(
-              hours[idx + 3]?.windDirection10m,
               windDirections,
+              hours[idx + 3]?.windDirection10m,
             ) &&
-            checkSameDay(hours[idx + 0].time, hours[idx + 3].time)
+            checkSameDay(hours[idx + 0]?.time, hours[idx + 3]?.time)
           );
         });
 
@@ -180,7 +197,7 @@ export const GET = async (request: Request) => {
             date: targetDayDate,
           }),
           headers: {
-            "List-Unsubscribe": `${getBaseUrl()}/${subscription.id}/unsubscribe`,
+            "List-Unsubscribe": `${getBaseUrl()}/subscription/${subscription.id}/unsubscribe`,
           },
         })
         .then((res) => {
@@ -197,11 +214,19 @@ export const GET = async (request: Request) => {
   return new Response("Ok");
 };
 
-const checkWindSpeed = (windSpeed: number, min: number, max: number) => {
+const checkWindSpeed = (min: number, max: number, windSpeed?: number) => {
+  if (windSpeed === undefined) {
+    return false;
+  }
+
   return windSpeed >= min && windSpeed <= max;
 };
 
-const checkSameDay = (date1: Date, date2: Date) => {
+const checkSameDay = (date1?: Date, date2?: Date) => {
+  if (!date1 || !date2) {
+    return false;
+  }
+
   return date1.getDate() === date2.getDate();
 };
 
@@ -215,9 +240,13 @@ const getCardinalDirection = (degree: number) => {
 };
 
 const isAllowedDirection = (
-  degree: number,
   allowedDirections: (typeof WindDirection.options)[number][],
+  degree?: number,
 ): boolean => {
+  if (degree === undefined) {
+    return false;
+  }
+
   const direction = getCardinalDirection(degree);
   return allowedDirections.includes(direction);
 };
