@@ -80,8 +80,8 @@ export const subscriptionRouter = createTRPCRouter({
             kiterId: kiter.id,
             spotId: spot.id,
             windDirections: input.windDirections,
-            windSpeedMax: input.windSpeedMin,
-            windSpeedMin: input.windSpeedMax,
+            windSpeedMin: input.windSpeedMin,
+            windSpeedMax: input.windSpeedMax,
           })
           .returning();
 
@@ -110,7 +110,7 @@ export const subscriptionRouter = createTRPCRouter({
               kiter,
             }),
             headers: {
-              "List-Unsubscribe": `${getBaseUrl()}/unsubscribe-spot/${newSubscription.id}`,
+              "List-Unsubscribe": `${getBaseUrl()}/subscription/${newSubscription.id}/unsubscribe`,
             },
           });
 
