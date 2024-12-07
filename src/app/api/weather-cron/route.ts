@@ -42,6 +42,8 @@ export const GET = async (request: Request) => {
   const targetDayDate = new Date(Date.now() + DAYS_IN_FUTURE * DAY_MS);
   const targetDayDateStr = targetDayDate.toISOString().substring(0, 10);
 
+  console.log("target", targetDayDateStr);
+
   // Load weather data for all spots
   const responses = await fetchWeatherApi(OPEN_METEO_API_URL, {
     latitude: allSpotsWithSubscriptions.map((spot) => spot.lat),
@@ -55,11 +57,14 @@ export const GET = async (request: Request) => {
     wind_speed_unit: "kn",
   });
 
+  console.log("num of spots", allSpotsWithSubscriptions.length);
+
   // check conditions for each spot and send email to kiters if matched
   allSpotsWithSubscriptions.forEach((spot, idx) => {
     const response = responses[idx];
 
     if (!response) {
+      console.log("no response for spot", spot.name);
       return;
     }
 
@@ -70,6 +75,7 @@ export const GET = async (request: Request) => {
     const windDirection10m = hourly?.variables(1)?.valuesArray();
 
     if (!hourly || !windSpeed10m || !windDirection10m) {
+      console.log("error fetching data for spot", spot.name);
       return;
     }
 
@@ -93,6 +99,7 @@ export const GET = async (request: Request) => {
       const windDirection10m = weatherData.hourly.windDirection10m[i];
 
       if (!time || !windSpeed10m || !windDirection10m) {
+        console.log("error extracting data", spot.name);
         continue;
       }
 
@@ -176,38 +183,35 @@ export const GET = async (request: Request) => {
 
       const hasSuitableConditions = suitableHours.length > 0;
 
+      console.log(
+        `spot ${spot.name} for ${subscription.id} has suitable conditions`,
+        hasSuitableConditions,
+      );
+
       if (!hasSuitableConditions) {
         return;
       }
 
       // send email to kiter
-      if (env.SKIP_EMAIL_DELIVERY) {
+      if (env.SKIP_EMAIL_DELIVERY || !kiter.email.includes("basti")) {
+        console.log("skipping email delivery");
         return;
       }
 
-      resend.emails
-        .send({
-          from: env.FROM_EMAIL,
-          to: kiter.email,
-          subject: `Suitable conditions for ${spot.name}`,
-          react: SpotNotificationEmail({
-            spotName: spot.name,
-            subscription,
-            kiter: subscription.kiter,
-            date: targetDayDate,
-          }),
-          headers: {
-            "List-Unsubscribe": `${getBaseUrl()}/subscription/${subscription.id}/unsubscribe`,
-          },
-        })
-        .then((res) => {
-          if (res.error) {
-            throw new Error(res.error.message);
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      void resend.emails.send({
+        from: env.FROM_EMAIL,
+        to: kiter.email,
+        subject: `Suitable conditions for ${spot.name}`,
+        react: SpotNotificationEmail({
+          spotName: spot.name,
+          subscription,
+          kiter: subscription.kiter,
+          date: targetDayDate,
+        }),
+        headers: {
+          "List-Unsubscribe": `${getBaseUrl()}/subscription/${subscription.id}/unsubscribe`,
+        },
+      });
     });
   });
 
