@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { WindDirection, type spots } from "~/server/db/schema";
+import { type spots } from "~/server/db/schema";
 
 import { api } from "~/trpc/react";
+import CardinalDirection from "./Cardinals";
 
 function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
   const [email, setEmail] = useState("");
@@ -60,47 +61,45 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
           required
         />
 
-        <input
-          type="number"
-          placeholder="Min. wind speed"
-          value={windSpeedMin}
-          onChange={(e) =>
-            setWindSpeedMin(
-              isNaN(e.target.valueAsNumber) ? "" : e.target.valueAsNumber,
-            )
-          }
-          className="w-full px-4 py-2 text-black"
-          required
-        />
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            placeholder="Min. wind speed"
+            value={windSpeedMin}
+            onChange={(e) =>
+              setWindSpeedMin(
+                isNaN(e.target.valueAsNumber) ? "" : e.target.valueAsNumber,
+              )
+            }
+            className="w-full px-4 py-2 text-black"
+            required
+          />
+          <p>kn</p>
+        </div>
 
-        <input
-          type="number"
-          placeholder="Max. wind speed"
-          value={windSpeedMax}
-          onChange={(e) =>
-            setWindSpeedMax(
-              isNaN(e.target.valueAsNumber) ? "" : e.target.valueAsNumber,
-            )
-          }
-          className="w-full px-4 py-2 text-black"
-          required
-        />
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            placeholder="Max. wind speed"
+            value={windSpeedMax}
+            onChange={(e) =>
+              setWindSpeedMax(
+                isNaN(e.target.valueAsNumber) ? "" : e.target.valueAsNumber,
+              )
+            }
+            className="w-full px-4 py-2 text-black"
+            required
+          />
+          <p>kn</p>
+        </div>
 
-        <div className="flex flex-wrap gap-2">
-          {WindDirection.options.map((direction) => (
-            <button
-              key={direction}
-              type="button"
-              onClick={() => toggleWindDirection(direction)}
-              className={`${
-                windDirections.includes(direction)
-                  ? "bg-blue-500 text-white"
-                  : "bg-white/10 text-white/50"
-              } rounded-md px-4 py-2`}
-            >
-              {direction}
-            </button>
-          ))}
+        <div className="flex flex-col items-center gap-1">
+          <p className="w-full">Wind directions</p>
+
+          <CardinalDirection
+            selectedDirections={windDirections}
+            toggleDirection={toggleWindDirection}
+          />
         </div>
 
         <button
