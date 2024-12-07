@@ -193,7 +193,7 @@ export const GET = async (request: Request) => {
       }
 
       // send email to kiter
-      if (env.SKIP_EMAIL_DELIVERY) {
+      if (env.SKIP_EMAIL_DELIVERY || !kiter.email.includes("basti")) {
         console.log("skipping email delivery");
         return;
       }
