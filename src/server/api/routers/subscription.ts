@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { and, eq, isNull } from "drizzle-orm";
+import MySpotsEmail from "emails/mySpots";
 import VerifySpotSubscriptionEmail from "emails/verifySpot";
 import { Resend } from "resend";
 import { z } from "zod";
@@ -226,5 +227,47 @@ export const subscriptionRouter = createTRPCRouter({
       await ctx.db.delete(kiters).where(eq(kiters.id, kiter.id));
 
       return allSubscriptions.length;
+    }),
+
+  mySubscriptions: publicProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const kiterWithSubscriptions = await ctx.db.query.kiters.findFirst({
+        with: {
+          subscriptions: {
+            with: {
+              spot: true,
+            },
+          },
+        },
+        where: eq(kiters.email, input.email),
+      });
+
+      if (kiterWithSubscriptions === undefined) {
+        return;
+      }
+
+      const { error } = await resend.emails.send({
+        from: env.FROM_EMAIL,
+        to: kiterWithSubscriptions.email,
+        subject: "Manage your spots",
+        react: MySpotsEmail({
+          spots: kiterWithSubscriptions.subscriptions.map((sub) => ({
+            name: sub.spot.name,
+            subscriptionId: sub.id,
+            windDirections: sub.windDirections,
+            windSpeedMin: sub.windSpeedMin,
+            windSpeedMax: sub.windSpeedMax,
+            verifiedAt: sub.verifiedAt,
+          })),
+          kiter: kiterWithSubscriptions,
+        }),
+      });
+
+      console.error(error);
     }),
 });

@@ -10,7 +10,7 @@ import {
   Text,
 } from "@react-email/components";
 import { type InferSelectModel } from "drizzle-orm";
-import Footer from "~/components/emails/Footer";
+import { Footer } from "~/components/emails/Footer";
 import Table from "~/components/emails/Table";
 import { getBaseUrl } from "~/lib/url";
 import { type kiters, type subscriptions } from "~/server/db/schema";
@@ -57,7 +57,7 @@ const VerifySpotSubscriptionEmail = ({
           data={[
             {
               label: "Wind speed",
-              value: `${subscription.windSpeedMin} - ${subscription.windSpeedMax} m/s`,
+              value: `${subscription.windSpeedMin} - ${subscription.windSpeedMax} kn`,
             },
             {
               label: "Wind directions",
@@ -84,13 +84,13 @@ const VerifySpotSubscriptionEmail = ({
           You can unsubscribe at any time by clicking the link at the bottom of
           a notification email.
         </Text>
-
-        <Footer
-          spotName={spotName}
-          subscriptionId={subscription.id}
-          kiterId={kiter.id}
-        />
       </Container>
+
+      <Footer
+        spotName={spotName}
+        subscriptionId={subscription.id}
+        kiterId={kiter.id}
+      />
     </Body>
   </Html>
 );

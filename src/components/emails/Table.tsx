@@ -1,9 +1,9 @@
 import { Section, Row, Column } from "@react-email/components";
 import React from "react";
 
-const Table: React.FC<{ data: { label: string; value: string }[] }> = ({
-  data,
-}) => {
+const Table: React.FC<{
+  data: { label: string; value: React.ReactNode }[];
+}> = ({ data }) => {
   return (
     <Section style={tableContainer}>
       {data.map((row, idx) => (

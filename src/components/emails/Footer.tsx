@@ -1,4 +1,4 @@
-import { Link, Section, Row, Column } from "@react-email/components";
+import { Link, Section, Row, Column, Container } from "@react-email/components";
 import React from "react";
 import { getBaseUrl } from "~/lib/url";
 
@@ -10,15 +10,7 @@ const Footer: React.FC<{
   kiterId: string;
 }> = ({ spotName, subscriptionId, kiterId }) => {
   return (
-    <Section style={footer}>
-      <Row style={{ height: "3em" }}>
-        <Column>
-          <Link href={`${baseUrl}`} style={spotterLink}>
-            Spotter
-          </Link>
-        </Column>
-      </Row>
-
+    <FooterBase>
       <Row>
         <Column>
           <Link
@@ -28,7 +20,6 @@ const Footer: React.FC<{
             Unsubscribe {spotName}
           </Link>
         </Column>
-
         <Column>
           <Link
             href={`${baseUrl}/kiter/${kiterId}/unsubscribe-all`}
@@ -38,11 +29,35 @@ const Footer: React.FC<{
           </Link>
         </Column>
       </Row>
+    </FooterBase>
+  );
+};
+
+const FooterBase: React.FC<React.PropsWithChildren> = ({ children }) => {
+  return (
+    <Section style={footer}>
+      <Container style={container}>
+        <Row style={{ height: "3em" }}>
+          <Column>
+            <Link href={`${baseUrl}`} style={spotterLink}>
+              Spotter
+            </Link>
+          </Column>
+        </Row>
+
+        {children}
+      </Container>
     </Section>
   );
 };
 
-export default Footer;
+export { FooterBase, Footer };
+
+const container = {
+  margin: "0 auto",
+  padding: "20px 0 48px",
+  maxWidth: "560px",
+};
 
 const footer = {
   marginTop: 26,
