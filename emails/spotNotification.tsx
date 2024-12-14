@@ -9,7 +9,7 @@ import {
 } from "@react-email/components";
 import { type InferSelectModel } from "drizzle-orm";
 import { DateTime } from "luxon";
-import Footer from "~/components/emails/Footer";
+import { Footer } from "~/components/emails/Footer";
 import Table from "~/components/emails/Table";
 import { type kiters, type subscriptions } from "~/server/db/schema";
 
@@ -61,7 +61,7 @@ const SpotNotificationEmail = ({
             data={[
               {
                 label: "Wind speed",
-                value: `${subscription.windSpeedMin} - ${subscription.windSpeedMax} m/s`,
+                value: `${subscription.windSpeedMin} - ${subscription.windSpeedMax} kn`,
               },
               {
                 label: "Wind directions",
@@ -78,13 +78,13 @@ const SpotNotificationEmail = ({
             </span>
             . Check your calendar and get ready to go kitesurfing!
           </Text>
-
-          <Footer
-            spotName={spotName}
-            subscriptionId={subscription.id}
-            kiterId={kiter.id}
-          />
         </Container>
+
+        <Footer
+          spotName={spotName}
+          subscriptionId={subscription.id}
+          kiterId={kiter.id}
+        />
       </Body>
     </Html>
   );
