@@ -55,6 +55,13 @@ export const GET = async (request: Request) => {
     wind_speed_unit: "kn",
   });
 
+  const emails: {
+    email: string;
+    spotName: string;
+    body: JSX.Element;
+    subscriptionId: string;
+  }[] = [];
+
   // check conditions for each spot and send email to kiters if matched
   allSpotsWithSubscriptions.forEach((spot, idx) => {
     const response = responses[idx];
@@ -176,52 +183,47 @@ export const GET = async (request: Request) => {
 
       const hasSuitableConditions = suitableHours.length > 0;
 
-      console.log(
-        `subscription ${subscription.id} has suitable conditions: ${hasSuitableConditions}`,
-        suitableHours,
-      );
-
       if (!hasSuitableConditions) {
-        console.log("returned due to no suitable conditions");
         return;
       }
 
-      // send email to kiter
-      if (
-        env.SKIP_EMAIL_DELIVERY ||
-        !kiter.email.includes("mail@bastibuck.de")
-      ) {
-        console.log("returned due to skip or falsy email");
+      if (env.SKIP_EMAIL_DELIVERY) {
         return;
       }
 
-      resend.emails
-        .send({
-          from: env.FROM_EMAIL,
-          to: kiter.email,
-          subject: `Suitable conditions for ${spot.name}`,
-          react: SpotNotificationEmail({
-            spotName: spot.name,
-            subscription,
-            kiter: subscription.kiter,
-            date: targetDayDate,
-          }),
-          headers: {
-            "List-Unsubscribe": `${getBaseUrl()}/subscription/${subscription.id}/unsubscribe`,
-          },
-        })
-        .then((asd) => {
-          console.log("successfully sent email", asd);
-        })
-        .catch((err) => {
-          console.error("Failed to send email", err);
-        });
-
-      console.log(`finished for subscription ${subscription.id}`);
+      emails.push({
+        email: kiter.email,
+        subscriptionId: subscription.id,
+        spotName: spot.name,
+        body: SpotNotificationEmail({
+          spotName: spot.name,
+          subscription,
+          kiter: subscription.kiter,
+          date: targetDayDate,
+        }),
+      });
     });
   });
 
-  console.log("finished processing all spots");
+  if (emails.length === 0) {
+    return new Response("No emails to send");
+  }
+
+  const { error } = await resend.batch.send(
+    emails.map((email) => ({
+      from: env.FROM_EMAIL,
+      to: email.email,
+      subject: `Suitable conditions for ${email.spotName}`,
+      react: email.body,
+      headers: {
+        "List-Unsubscribe": `${getBaseUrl()}/subscription/${email.subscriptionId}/unsubscribe`,
+      },
+    })),
+  );
+
+  if (error) {
+    return new Response("Error sending emails", { status: 500 });
+  }
 
   return new Response("Ok");
 };
