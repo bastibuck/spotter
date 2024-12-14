@@ -14,6 +14,9 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 const OPEN_METEO_API_URL = "https://api.open-meteo.com/v1/forecast";
 
+// resend API has a limit of 100 emails per batch
+const EMAIL_BATCH_SIZE = 100;
+
 const resend = new Resend(env.RESEND_API_KEY);
 
 export const GET = async (request: Request) => {
@@ -209,20 +212,24 @@ export const GET = async (request: Request) => {
     return new Response("No emails to send");
   }
 
-  const { error } = await resend.batch.send(
-    emails.map((email) => ({
-      from: env.FROM_EMAIL,
-      to: email.email,
-      subject: `Suitable conditions for ${email.spotName}`,
-      react: email.body,
-      headers: {
-        "List-Unsubscribe": `${getBaseUrl()}/subscription/${email.subscriptionId}/unsubscribe`,
-      },
-    })),
-  );
+  for (let i = 0; i < emails.length; i += EMAIL_BATCH_SIZE) {
+    const emailBatch = emails.slice(i, i + EMAIL_BATCH_SIZE);
 
-  if (error) {
-    return new Response("Error sending emails", { status: 500 });
+    const { error } = await resend.batch.send(
+      emailBatch.map((email) => ({
+        from: env.FROM_EMAIL,
+        to: email.email,
+        subject: `Suitable conditions for ${email.spotName}`,
+        react: email.body,
+        headers: {
+          "List-Unsubscribe": `${getBaseUrl()}/subscription/${email.subscriptionId}/unsubscribe`,
+        },
+      })),
+    );
+
+    if (error) {
+      return new Response("Error sending emails", { status: 500 });
+    }
   }
 
   return new Response("Ok");
