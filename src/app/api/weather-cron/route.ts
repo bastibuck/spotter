@@ -186,24 +186,34 @@ export const GET = async (request: Request) => {
       }
 
       // send email to kiter
-      if (env.SKIP_EMAIL_DELIVERY) {
+      if (
+        env.SKIP_EMAIL_DELIVERY ||
+        !kiter.email.includes("mail@bastibuck.de")
+      ) {
         return;
       }
 
-      void resend.emails.send({
-        from: env.FROM_EMAIL,
-        to: kiter.email,
-        subject: `Suitable conditions for ${spot.name}`,
-        react: SpotNotificationEmail({
-          spotName: spot.name,
-          subscription,
-          kiter: subscription.kiter,
-          date: targetDayDate,
-        }),
-        headers: {
-          "List-Unsubscribe": `${getBaseUrl()}/subscription/${subscription.id}/unsubscribe`,
-        },
-      });
+      resend.emails
+        .send({
+          from: env.FROM_EMAIL,
+          to: kiter.email,
+          subject: `Suitable conditions for ${spot.name}`,
+          react: SpotNotificationEmail({
+            spotName: spot.name,
+            subscription,
+            kiter: subscription.kiter,
+            date: targetDayDate,
+          }),
+          headers: {
+            "List-Unsubscribe": `${getBaseUrl()}/subscription/${subscription.id}/unsubscribe`,
+          },
+        })
+        .then((asd) => {
+          console.log("successfully sent email", asd);
+        })
+        .catch((err) => {
+          console.error("Failed to send email", err);
+        });
     });
   });
 
