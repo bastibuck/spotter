@@ -182,6 +182,7 @@ export const GET = async (request: Request) => {
       );
 
       if (!hasSuitableConditions) {
+        console.log("returned due to no suitable conditions");
         return;
       }
 
@@ -190,6 +191,7 @@ export const GET = async (request: Request) => {
         env.SKIP_EMAIL_DELIVERY ||
         !kiter.email.includes("mail@bastibuck.de")
       ) {
+        console.log("returned due to skip or falsy email");
         return;
       }
 
@@ -214,8 +216,12 @@ export const GET = async (request: Request) => {
         .catch((err) => {
           console.error("Failed to send email", err);
         });
+
+      console.log(`finished for subscription ${subscription.id}`);
     });
   });
+
+  console.log("finished processing all spots");
 
   return new Response("Ok");
 };
