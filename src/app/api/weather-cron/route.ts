@@ -9,7 +9,7 @@ import { getBaseUrl } from "~/lib/url";
 import { db } from "~/server/db";
 import { subscriptions, WindDirection } from "~/server/db/schema";
 
-const DAYS_IN_FUTURE = 3;
+const DAYS_IN_FUTURE = 2;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 const OPEN_METEO_API_URL = "https://api.open-meteo.com/v1/forecast";
@@ -203,6 +203,12 @@ export const GET = async (request: Request) => {
           subscription,
           kiter: subscription.kiter,
           date: targetDayDate,
+          suitableHours: suitableHours.map((hour) => ({
+            windSpeed: hour.windSpeed10m,
+            windDirection: getCardinalDirection(hour.windDirection10m),
+            from: hour.time.getHours(),
+            to: hour.time.getHours() + 1,
+          })),
         }),
       });
     });
