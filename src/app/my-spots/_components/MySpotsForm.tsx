@@ -28,7 +28,7 @@ const MySpotsForm: React.FC = () => {
         className="flex flex-col gap-2"
       >
         <input
-          type="text"
+          type="email"
           placeholder="E-Mail"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
