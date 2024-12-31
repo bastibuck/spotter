@@ -21,7 +21,10 @@ export const subscriptionRouter = createTRPCRouter({
     .input(
       z
         .object({
-          email: z.string().email(),
+          email: z
+            .string()
+            .email()
+            .transform((v) => v.toLowerCase()),
           spotId: z.number().int(),
           windSpeedMin: z.number().int().positive(),
           windSpeedMax: z.number().int().positive(),
@@ -45,18 +48,16 @@ export const subscriptionRouter = createTRPCRouter({
         });
       }
 
-      const emailLowerCased = input.email.toLowerCase();
-
       // start transaction for mutations
       await ctx.db.transaction(async (tx) => {
         // create and get kiter if it doesn't exist
         await tx
           .insert(kiters)
-          .values({ email: emailLowerCased })
+          .values({ email: input.email })
           .onConflictDoNothing();
 
         const kiter = await tx.query.kiters.findFirst({
-          where: eq(kiters.email, emailLowerCased),
+          where: eq(kiters.email, input.email),
           with: { subscriptions: true },
         });
 
@@ -103,7 +104,7 @@ export const subscriptionRouter = createTRPCRouter({
 
           const { error } = await resend.emails.send({
             from: env.FROM_EMAIL,
-            to: emailLowerCased,
+            to: input.email,
             subject: `Verify your subscription to ${spot.name}`,
             react: VerifySpotSubscriptionEmail({
               spotName: spot.name,
@@ -232,7 +233,10 @@ export const subscriptionRouter = createTRPCRouter({
   mySubscriptions: publicProcedure
     .input(
       z.object({
-        email: z.string().email(),
+        email: z
+          .string()
+          .email()
+          .transform((v) => v.toLowerCase()),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -253,7 +257,7 @@ export const subscriptionRouter = createTRPCRouter({
             },
           },
         },
-        where: eq(kiters.email, input.email.toLowerCase()),
+        where: eq(kiters.email, input.email),
       });
 
       if (kiterWithSubscriptions === undefined || env.SKIP_EMAIL_DELIVERY) {
@@ -288,7 +292,7 @@ const rateLimitMap = new Map<string, { lastCall: Date }>();
 const RATE_LIMIT_TIMEOUT = 1000 * 60 * 5; // 5 minutes
 
 const isRateLimited = (email: string) => {
-  const rateLimit = rateLimitMap.get(email.toLowerCase());
+  const rateLimit = rateLimitMap.get(email);
 
   if (
     rateLimit !== undefined &&
