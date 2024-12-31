@@ -21,6 +21,12 @@ interface VerifyEmailProps {
   spotName: string;
   date: Date;
   kiter: Pick<InferSelectModel<typeof kiters>, "id">;
+  suitableHours: {
+    windSpeed: number;
+    windDirection: string;
+    from: number;
+    to: number;
+  }[];
 }
 
 const SpotNotificationEmail = ({
@@ -28,6 +34,7 @@ const SpotNotificationEmail = ({
   spotName,
   date,
   kiter,
+  suitableHours,
 }: VerifyEmailProps) => {
   const day = DateTime.fromJSDate(date).toFormat("dd. LLL yyyy");
 
@@ -76,7 +83,20 @@ const SpotNotificationEmail = ({
             <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
               {day}
             </span>
-            . Check your calendar and get ready to go kitesurfing!
+            .
+          </Text>
+
+          <Heading style={{ ...heading, ...subline }}>Conditions</Heading>
+
+          <Table
+            data={suitableHours.map((hour) => ({
+              label: `${DateTime.fromFormat(hour.from.toString(), "H").toFormat("T")} - ${DateTime.fromFormat(hour.to.toString(), "H").toFormat("T")}`,
+              value: `${hour.windSpeed} kn, ${hour.windDirection}`,
+            }))}
+          />
+
+          <Text style={paragraph}>
+            Check your calendar and get ready to go kitesurfing!
           </Text>
         </Container>
 
@@ -104,6 +124,32 @@ SpotNotificationEmail.PreviewProps = {
   kiter: {
     id: "6830aeb4-c723-43ab-8761-a383c4e1c4a0",
   },
+  suitableHours: [
+    {
+      windDirection: "N",
+      windSpeed: 18,
+      from: 8,
+      to: 9,
+    },
+    {
+      windDirection: "NE",
+      windSpeed: 20,
+      from: 9,
+      to: 10,
+    },
+    {
+      windDirection: "E",
+      windSpeed: 22,
+      from: 10,
+      to: 11,
+    },
+    {
+      windDirection: "E",
+      windSpeed: 22,
+      from: 11,
+      to: 12,
+    },
+  ],
 } satisfies VerifyEmailProps;
 
 const main = {
@@ -125,6 +171,10 @@ const heading = {
   fontWeight: "400",
   color: "#484848",
   padding: "17px 0 0",
+};
+
+const subline = {
+  fontSize: "18px",
 };
 
 const paragraph = {
