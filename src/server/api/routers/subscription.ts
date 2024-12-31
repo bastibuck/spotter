@@ -244,10 +244,10 @@ export const subscriptionRouter = createTRPCRouter({
             },
           },
         },
-        where: eq(kiters.email, input.email),
+        where: eq(kiters.email, input.email.toLowerCase()),
       });
 
-      if (kiterWithSubscriptions === undefined) {
+      if (kiterWithSubscriptions === undefined || env.SKIP_EMAIL_DELIVERY) {
         return;
       }
 
@@ -268,6 +268,8 @@ export const subscriptionRouter = createTRPCRouter({
         }),
       });
 
-      console.error(error);
+      if (error !== null) {
+        console.error(error);
+      }
     }),
 });
