@@ -237,7 +237,6 @@ export const subscriptionRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const rateLimited = isRateLimited(input.email);
-      console.log("🚀 ~ .mutation ~ rateLimited:", rateLimited);
 
       if (rateLimited) {
         throw new TRPCError({
@@ -285,17 +284,16 @@ export const subscriptionRouter = createTRPCRouter({
 });
 
 const rateLimitMap = new Map<string, { lastCall: Date }>();
+
 const RATE_LIMIT_TIMEOUT = 1000 * 60 * 5; // 5 minutes
 
 const isRateLimited = (email: string) => {
-  const rateLimit = rateLimitMap.get(email);
+  const rateLimit = rateLimitMap.get(email.toLowerCase());
 
-  if (rateLimit === undefined) {
-    rateLimitMap.set(email, { lastCall: new Date() });
-    return false;
-  }
-
-  if (rateLimit.lastCall > new Date(Date.now() - RATE_LIMIT_TIMEOUT)) {
+  if (
+    rateLimit !== undefined &&
+    rateLimit.lastCall > new Date(Date.now() - RATE_LIMIT_TIMEOUT)
+  ) {
     return true;
   }
 
