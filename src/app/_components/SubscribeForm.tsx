@@ -53,7 +53,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
         className="flex flex-col gap-2"
       >
         <input
-          type="text"
+          type="email"
           placeholder="E-Mail"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
