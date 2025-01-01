@@ -91,7 +91,7 @@ const SpotNotificationEmail = ({
           <Table
             data={suitableHours.map((hour) => ({
               label: `${DateTime.fromFormat(hour.from.toString(), "H").toFormat("T")} - ${DateTime.fromFormat(hour.to.toString(), "H").toFormat("T")}`,
-              value: `${hour.windSpeed} kn, ${hour.windDirection}`,
+              value: `${Math.floor(hour.windSpeed)} kn, ${hour.windDirection}`,
             }))}
           />
 
