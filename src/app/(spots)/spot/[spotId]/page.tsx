@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import React from "react";
-import CardinalDirection from "../../_components/Cardinals";
+import CardinalDirection from "../../../../components/spots/Cardinals";
 import { db } from "~/server/db";
 import { eq } from "drizzle-orm";
 import { spots } from "~/server/db/schema";

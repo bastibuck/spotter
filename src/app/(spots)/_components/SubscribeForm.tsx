@@ -4,7 +4,7 @@ import { useState } from "react";
 import { type spots } from "~/server/db/schema";
 
 import { api } from "~/trpc/react";
-import CardinalDirection from "./Cardinals";
+import CardinalDirection from "../../../components/spots/Cardinals";
 
 function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
   const [email, setEmail] = useState("");

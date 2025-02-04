@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import CardinalDirection from "~/app/(spots)/_components/Cardinals";
+import CardinalDirection from "~/components/spots/Cardinals";
 import { db } from "~/server/db";
 import { spots } from "~/server/db/schema";
 
