@@ -39,7 +39,7 @@ const FooterBase: React.FC<React.PropsWithChildren> = ({ children }) => {
       <Container style={container}>
         <Row style={{ height: "3em" }}>
           <Column>
-            <Link href={`${baseUrl}`} style={spotterLink}>
+            <Link href={baseUrl} style={spotterLink}>
               Spotter
             </Link>
           </Column>

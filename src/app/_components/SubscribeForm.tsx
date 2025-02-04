@@ -26,7 +26,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
   };
 
   const subscribe = api.subscription.subscribe.useMutation({
-    onSuccess: async () => {
+    onSuccess: () => {
       setEmail("");
       setWindSpeedMin("");
       setWindSpeedMax("");
@@ -56,7 +56,9 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
           type="email"
           placeholder="E-Mail"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setEmail(e.target.value);
+          }}
           className="w-full bg-white px-4 py-2 text-black"
           required
         />
@@ -66,11 +68,11 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
             type="number"
             placeholder="Min. wind speed"
             value={windSpeedMin}
-            onChange={(e) =>
+            onChange={(e) => {
               setWindSpeedMin(
                 isNaN(e.target.valueAsNumber) ? "" : e.target.valueAsNumber,
-              )
-            }
+              );
+            }}
             className="w-full bg-white px-4 py-2 text-black"
             required
           />
@@ -82,11 +84,11 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
             type="number"
             placeholder="Max. wind speed"
             value={windSpeedMax}
-            onChange={(e) =>
+            onChange={(e) => {
               setWindSpeedMax(
                 isNaN(e.target.valueAsNumber) ? "" : e.target.valueAsNumber,
-              )
-            }
+              );
+            }}
             className="w-full bg-white px-4 py-2 text-black"
             required
           />

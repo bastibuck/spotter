@@ -1,10 +1,10 @@
 import Link from "next/link";
 import MySpotsForm from "./_components/MySpotsForm";
 
-export default async function MySpots() {
+export default function MySpots() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-start bg-linear-to-b from-[#2e026d] to-[#15162c] text-white">
-      <div className="absolute left-4 top-4">
+      <div className="absolute top-4 left-4">
         <Link href="/">← Back</Link>
       </div>
 

@@ -13,7 +13,9 @@
     "lint": "next lint",
     "start": "next start",
     "tsc:check": "tsc --noEmit",
-    "email:dev": "email dev"
+    "email:dev": "email dev",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write ."
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.7.4",
@@ -38,23 +40,26 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.19.0",
     "@tailwindcss/postcss": "^4.0.3",
-    "@types/eslint": "^8.56.12",
     "@types/luxon": "^3.4.2",
-    "@types/node": "^22.9.3",
+    "@types/node": "^22.13.1",
     "@types/react": "19.0.8",
     "@types/react-dom": "19.0.3",
-    "@typescript-eslint/eslint-plugin": "^8.15.0",
-    "@typescript-eslint/parser": "^8.15.0",
     "drizzle-kit": "^0.30.4",
-    "eslint": "^8.57.0",
+    "eslint": "^9.19.0",
     "eslint-config-next": "15.1.6",
+    "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-drizzle": "^0.2.3",
+    "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-react-compiler": "^19.0.0-beta-714736e-20250131",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "react-email": "3.0.6",
     "tailwindcss": "^4.0.3",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.23.0"
   },
   "ct3aMetadata": {
     "initVersion": "7.37.0"

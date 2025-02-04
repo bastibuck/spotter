@@ -1,6 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-
-import React from "react";
+import type React from "react";
 import { isNotNull } from "drizzle-orm";
 import SpotNotificationEmail from "emails/spotNotification";
 import { fetchWeatherApi } from "openmeteo";
@@ -116,7 +114,7 @@ export const GET = async (request: Request) => {
 
     // only consider hours between 8am and 8pm
     const onlyDaytime = hourlyValues.filter(
-      ({ time }) => time?.getHours() > 8 && time?.getHours() <= 20,
+      ({ time }) => time.getHours() > 8 && time.getHours() <= 20,
     );
 
     // check conditions for each subscription
@@ -264,7 +262,8 @@ const range = (start: number, stop: number, step: number) =>
 
 const getCardinalDirection = (degree: number) => {
   const index = Math.round(degree / 22.5) % 16;
-  return WindDirection.options[index]!;
+
+  return WindDirection.options[index] ?? "N"; // TODO? check better way of getting direction. should never happen
 };
 
 const isAllowedDirection = (
