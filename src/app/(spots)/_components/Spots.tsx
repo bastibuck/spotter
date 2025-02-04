@@ -1,10 +1,10 @@
 import React from "react";
-import { api } from "~/trpc/server";
 import SubscribeToSpotForm from "./SubscribeForm";
 import Link from "next/link";
+import { db } from "~/server/db";
 
 const Spots: React.FC = async () => {
-  const allSpots = await api.spot.getAll();
+  const allSpots = await db.query.spots.findMany();
 
   return (
     <ul className="flex w-full flex-col gap-8 md:max-w-md">
