@@ -1,5 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 
+import React from "react";
 import { isNotNull } from "drizzle-orm";
 import SpotNotificationEmail from "emails/spotNotification";
 import { fetchWeatherApi } from "openmeteo";
@@ -61,7 +62,7 @@ export const GET = async (request: Request) => {
   const emails: {
     email: string;
     spotName: string;
-    body: JSX.Element;
+    body: React.ReactElement;
     subscriptionId: string;
   }[] = [];
 

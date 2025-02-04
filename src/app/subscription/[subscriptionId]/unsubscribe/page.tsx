@@ -2,11 +2,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { api } from "~/trpc/server";
 
-const VerifySubscriptionPage = ({
-  params,
-}: {
-  params: { subscriptionId: string };
-}) => {
+const VerifySubscriptionPage = async (
+  props: {
+    params: Promise<{ subscriptionId: string }>;
+  }
+) => {
+  const params = await props.params;
   const name = api.subscription
     .unsubscribe({ subscriptionId: params.subscriptionId })
     .then((res) => res.name)
