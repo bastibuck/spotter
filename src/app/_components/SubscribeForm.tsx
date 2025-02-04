@@ -57,7 +57,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
           placeholder="E-Mail"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-4 py-2 text-black"
+          className="w-full bg-white px-4 py-2 text-black"
           required
         />
 
@@ -71,7 +71,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
                 isNaN(e.target.valueAsNumber) ? "" : e.target.valueAsNumber,
               )
             }
-            className="w-full px-4 py-2 text-black"
+            className="w-full bg-white px-4 py-2 text-black"
             required
           />
           <p>kn</p>
@@ -87,7 +87,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
                 isNaN(e.target.valueAsNumber) ? "" : e.target.valueAsNumber,
               )
             }
-            className="w-full px-4 py-2 text-black"
+            className="w-full bg-white px-4 py-2 text-black"
             required
           />
           <p>kn</p>

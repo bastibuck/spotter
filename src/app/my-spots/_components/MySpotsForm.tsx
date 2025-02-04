@@ -32,7 +32,7 @@ const MySpotsForm: React.FC = () => {
           placeholder="E-Mail"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-4 py-2 text-black"
+          className="w-full bg-white px-4 py-2 text-black"
           required
         />
 
