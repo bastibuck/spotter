@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import { api } from "~/trpc/server";
 import SubscribeToSpotForm from "./SubscribeForm";
+import Link from "next/link";
 
 const Spots: React.FC = async () => {
   const allSpots = await api.spot.getAll();
@@ -10,7 +11,10 @@ const Spots: React.FC = async () => {
       {allSpots.map((spot) => (
         <li key={spot.id}>
           <div className="border p-4">
-            <h2 className="text-2xl">{spot.name}</h2>
+            <Link href={`/spot/${spot.id}`} scroll={false} prefetch>
+              <h2 className="inline text-2xl hover:underline">{spot.name}</h2>
+            </Link>
+
             <p>{spot.description}</p>
             <p className="mb-3">
               {spot.long}, {spot.lat}

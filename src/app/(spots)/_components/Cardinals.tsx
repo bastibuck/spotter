@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { type WindDirection } from "~/server/db/schema";
 
@@ -22,7 +24,7 @@ const directionAngles: { [key in keyof typeof WindDirection.enum]: number } = {
 
 const CardinalDirection: React.FC<{
   selectedDirections: (keyof typeof directionAngles)[];
-  toggleDirection: (direction: keyof typeof directionAngles) => void;
+  toggleDirection?: (direction: keyof typeof directionAngles) => void;
 }> = ({ selectedDirections, toggleDirection }) => {
   return (
     <div className="relative h-72 w-72 -rotate-90">
@@ -37,7 +39,7 @@ const CardinalDirection: React.FC<{
             key={direction}
             type="button"
             onClick={() => {
-              toggleDirection(direction);
+              toggleDirection?.(direction);
             }}
             className={`absolute flex h-3 w-3 -translate-x-1/2 -translate-y-1/2 transform items-center justify-center rounded-full`}
             style={{

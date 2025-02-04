@@ -1,9 +1,9 @@
 import Link from "next/link";
 
-import { CreatePost } from "~/app/_components/post";
 import { getServerAuthSession } from "~/server/auth";
 import { api, HydrateClient } from "~/trpc/server";
-import Spots from "../_components/Spots";
+
+import { CreatePost } from "./_components/post";
 
 export default async function Home() {
   const hello = await api.post.hello({ text: "from tRPC" });
@@ -49,7 +49,7 @@ export default async function Home() {
 
             <div className="flex flex-col items-center justify-center gap-4">
               <p className="text-center text-2xl text-white">
-                {session && <span>Logged in as {session.user?.name}</span>}
+                {session && <span>Logged in as {session.user.name}</span>}
               </p>
               <Link
                 href={session ? "/api/auth/signout" : "/api/auth/signin"}
@@ -61,8 +61,6 @@ export default async function Home() {
           </div>
 
           {session?.user && <CreatePost />}
-
-          <Spots />
         </div>
       </main>
     </HydrateClient>
