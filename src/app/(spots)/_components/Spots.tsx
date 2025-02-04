@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React from "react";
 import { api } from "~/trpc/server";
 import SubscribeToSpotForm from "./SubscribeForm";
 import Link from "next/link";
@@ -30,12 +30,4 @@ const Spots: React.FC = async () => {
   );
 };
 
-const SuspendedSpots: React.FC = () => {
-  return (
-    <Suspense fallback="Loading spots...">
-      <Spots />
-    </Suspense>
-  );
-};
-
-export default SuspendedSpots;
+export default Spots;
