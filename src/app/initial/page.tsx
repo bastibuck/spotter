@@ -4,6 +4,7 @@ import { getServerAuthSession } from "~/server/auth";
 import { api, HydrateClient } from "~/trpc/server";
 
 import { CreatePost } from "./_components/post";
+import LatestPost from "./_components/LatestPost";
 
 export default async function Home() {
   const hello = await api.post.hello({ text: "from tRPC" });
@@ -43,9 +44,7 @@ export default async function Home() {
             </Link>
           </div>
           <div className="flex flex-col items-center gap-2">
-            <p className="text-2xl text-white">
-              {hello ? hello.greeting : "Loading tRPC query..."}
-            </p>
+            <p className="text-2xl text-white">{hello.greeting}</p>
 
             <div className="flex flex-col items-center justify-center gap-4">
               <p className="text-center text-2xl text-white">
@@ -59,6 +58,8 @@ export default async function Home() {
               </Link>
             </div>
           </div>
+
+          <LatestPost />
 
           {session?.user && <CreatePost />}
         </div>
