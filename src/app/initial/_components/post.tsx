@@ -27,8 +27,10 @@ export function CreatePost() {
           type="text"
           placeholder="Title"
           value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-full px-4 py-2 text-black"
+          onChange={(e) => {
+            setName(e.target.value);
+          }}
+          className="w-full rounded-full bg-white px-4 py-2 text-black"
         />
         <button
           type="submit"

@@ -1,6 +1,5 @@
 import { postRouter } from "~/server/api/routers/post";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
-import { spotRouter } from "./routers/spot";
 import { subscriptionRouter } from "./routers/subscription";
 
 /**
@@ -10,7 +9,6 @@ import { subscriptionRouter } from "./routers/subscription";
  */
 export const appRouter = createTRPCRouter({
   post: postRouter,
-  spot: spotRouter,
   subscription: subscriptionRouter,
 });
 

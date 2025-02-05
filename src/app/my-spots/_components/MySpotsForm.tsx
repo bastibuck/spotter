@@ -8,7 +8,7 @@ const MySpotsForm: React.FC = () => {
   const [email, setEmail] = useState("");
 
   const requestManagementEmail = api.subscription.mySubscriptions.useMutation({
-    onSuccess: async () => {
+    onSuccess: () => {
       setEmail("");
     },
     onError: (error) => {
@@ -31,8 +31,10 @@ const MySpotsForm: React.FC = () => {
           type="email"
           placeholder="E-Mail"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-4 py-2 text-black"
+          onChange={(e) => {
+            setEmail(e.target.value);
+          }}
+          className="w-full bg-white px-4 py-2 text-black"
           required
         />
 
