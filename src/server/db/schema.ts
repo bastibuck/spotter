@@ -224,7 +224,7 @@ export const subscriptions = createTable(
     windSpeedMin: smallint().notNull(),
     windSpeedMax: smallint().notNull(),
     windDirections: varchar({ length: 3 })
-      .array()
+      .array() // providing a fixed size does not seem to work by now. It always generates as varchar[] without size but still states it will truncate on a second run...
       .notNull()
       .$type<z.infer<typeof WindDirection>[]>(),
   },
