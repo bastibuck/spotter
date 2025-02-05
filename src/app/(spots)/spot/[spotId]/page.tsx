@@ -4,6 +4,7 @@ import CardinalDirection from "../../../../components/spots/Cardinals";
 import { db } from "~/server/db";
 import { eq } from "drizzle-orm";
 import { spots } from "~/server/db/schema";
+import Link from "next/link";
 
 export const revalidate = 3600;
 export const dynamicParams = true; // statically generate new paths not known during build time
@@ -31,6 +32,10 @@ const SpotDetailsPage: React.FC<{
 
   return (
     <>
+      <div className="w-full">
+        <Link href="/">← All spots</Link>
+      </div>
+
       <h1 className="text-3xl">{spot.name}</h1>
       <p>{spot.description}</p>
 
