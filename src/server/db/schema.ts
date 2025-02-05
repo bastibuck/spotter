@@ -10,7 +10,6 @@ import {
   text,
   timestamp,
   unique,
-  uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
@@ -187,11 +186,13 @@ export const kiters = createTable(
       .notNull()
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    email: varchar().notNull(),
+    email: varchar().notNull().unique(),
   },
-  (kiters) => ({
-    emailUniqueIndex: uniqueIndex("emailUniqueIndex").on(kiters.email),
-  }),
+  (kiters) => [
+    {
+      emailIndex: index().on(kiters.email),
+    },
+  ],
 );
 
 export const kitersRelations = relations(kiters, ({ many }) => ({
@@ -223,7 +224,7 @@ export const subscriptions = createTable(
     windSpeedMin: smallint().notNull(),
     windSpeedMax: smallint().notNull(),
     windDirections: varchar({ length: 3 })
-      .array(16)
+      .array()
       .notNull()
       .$type<z.infer<typeof WindDirection>[]>(),
   },
