@@ -18,11 +18,11 @@ export default async function SpotsPage() {
   const allSpots = await db.query.spots.findMany();
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto">
       {/* Hero Section */}
       <div className="animate-fade-in-up mb-16 text-center">
         <h1 className="mb-6 text-5xl font-bold tracking-tight md:text-7xl">
-          <span className="from-aqua-300 to-ocean-200 bg-gradient-to-r via-white bg-clip-text text-transparent">
+          <span className="from-aqua-300 to-ocean-200 bg-linear-to-r via-white bg-clip-text text-transparent">
             Catch the Perfect Wind
           </span>
         </h1>

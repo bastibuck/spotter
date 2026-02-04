@@ -33,7 +33,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={GeistSans.variable}>
-      <body className="antialiased">
+      <body className="overflow-y-scroll antialiased">
         <TRPCReactProvider>
           <HydrateClient>
             <div className="ocean-gradient min-h-screen text-white">
@@ -49,10 +49,10 @@ export default function RootLayout({
               <nav className="glass-card fixed top-0 right-0 left-0 z-50 border-b border-white/5">
                 <div className="container mx-auto flex items-center justify-between px-4 py-4">
                   <Link href="/" className="group flex items-center gap-2">
-                    <div className="from-aqua-400 to-ocean-500 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br shadow-lg shadow-cyan-500/20">
+                    <div className="from-aqua-400 to-ocean-500 flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br shadow-lg shadow-cyan-500/20">
                       <Wind size={22} className="text-white" strokeWidth={2} />
                     </div>
-                    <span className="to-ocean-200 bg-gradient-to-r from-white bg-clip-text text-xl font-bold text-transparent">
+                    <span className="to-ocean-200 bg-linear-to-r from-white bg-clip-text text-xl font-bold text-transparent">
                       Spotter
                     </span>
                   </Link>
@@ -67,7 +67,7 @@ export default function RootLayout({
               </nav>
 
               {/* Main content */}
-              <main className="pt-20">{children}</main>
+              <main className="px-4 pt-24 pb-12">{children}</main>
             </div>
           </HydrateClient>
         </TRPCReactProvider>

@@ -4,8 +4,8 @@ import { Button } from "~/components/ui/Button";
 
 export default function MySpots() {
   return (
-    <div className="container mx-auto flex min-h-screen flex-col items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
+    <div className="flex flex-col items-center justify-center">
+      <div className="w-full max-w-2xl">
         <div className="mb-8">
           <Link href="/">
             <Button variant="ghost" size="sm">
@@ -29,7 +29,7 @@ export default function MySpots() {
 
         <div className="animate-fade-in-up mb-10 text-center">
           <h1 className="mb-4 text-4xl font-bold md:text-5xl">
-            <span className="from-aqua-300 to-ocean-200 bg-gradient-to-r via-white bg-clip-text text-transparent">
+            <span className="from-aqua-300 to-ocean-200 bg-linear-to-r via-white bg-clip-text text-transparent">
               My Spots
             </span>
           </h1>
