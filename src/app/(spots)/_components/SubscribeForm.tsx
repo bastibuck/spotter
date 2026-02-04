@@ -5,6 +5,8 @@ import { type spots } from "~/server/db/schema";
 
 import { api } from "~/trpc/react";
 import CardinalDirection from "../../../components/spots/Cardinals";
+import { Input } from "~/components/ui/Input";
+import { Button } from "~/components/ui/Button";
 
 function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
   const [email, setEmail] = useState("");
@@ -38,7 +40,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
   });
 
   return (
-    <div className="w-full md:max-w-lg">
+    <div className="w-full">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -50,67 +52,64 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
             windDirections,
           });
         }}
-        className="flex flex-col gap-2"
+        className="space-y-4"
       >
-        <input
+        <Input
           type="email"
-          placeholder="E-Mail"
+          placeholder="Enter your email"
           value={email}
           onChange={(e) => {
             setEmail(e.target.value);
           }}
-          className="w-full bg-white px-4 py-2 text-black"
           required
         />
 
-        <div className="flex items-center gap-2">
-          <input
+        <div className="grid grid-cols-2 gap-4">
+          <Input
             type="number"
-            placeholder="Min. wind speed"
+            placeholder="Min wind"
             value={windSpeedMin}
             onChange={(e) => {
               setWindSpeedMin(
                 isNaN(e.target.valueAsNumber) ? "" : e.target.valueAsNumber,
               );
             }}
-            className="w-full bg-white px-4 py-2 text-black"
+            suffix="kn"
             required
           />
-          <p>kn</p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <input
+          <Input
             type="number"
-            placeholder="Max. wind speed"
+            placeholder="Max wind"
             value={windSpeedMax}
             onChange={(e) => {
               setWindSpeedMax(
                 isNaN(e.target.valueAsNumber) ? "" : e.target.valueAsNumber,
               );
             }}
-            className="w-full bg-white px-4 py-2 text-black"
+            suffix="kn"
             required
           />
-          <p>kn</p>
         </div>
 
-        <div className="flex flex-col items-center gap-1">
-          <p className="w-full">Wind directions</p>
-
-          <CardinalDirection
-            selectedDirections={windDirections}
-            toggleDirection={toggleWindDirection}
-          />
+        <div className="pt-2">
+          <label className="text-ocean-200 mb-3 block text-sm font-medium">
+            Preferred wind directions
+          </label>
+          <div className="flex justify-center">
+            <CardinalDirection
+              selectedDirections={windDirections}
+              toggleDirection={toggleWindDirection}
+            />
+          </div>
         </div>
 
-        <button
+        <Button
           type="submit"
-          className="bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
-          disabled={subscribe.isPending}
+          className="w-full"
+          isLoading={subscribe.isPending}
         >
-          {subscribe.isPending ? "Submitting..." : "Subscribe"}
-        </button>
+          {subscribe.isPending ? "Subscribing..." : "Subscribe to Alerts"}
+        </Button>
       </form>
     </div>
   );

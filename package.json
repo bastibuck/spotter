@@ -27,6 +27,7 @@
     "@trpc/server": "^11.9.0",
     "drizzle-orm": "^0.45.1",
     "geist": "^1.5.1",
+    "lucide-react": "^0.563.0",
     "luxon": "^3.7.2",
     "next": "16.1.6",
     "next-auth": "^4.24.13",

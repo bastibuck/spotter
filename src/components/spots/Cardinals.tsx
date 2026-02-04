@@ -22,42 +22,121 @@ const directionAngles: { [key in keyof typeof WindDirection.enum]: number } = {
   NNW: 337.5,
 };
 
+const mainDirections = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+
 const CardinalDirection: React.FC<{
   selectedDirections: (keyof typeof directionAngles)[];
   toggleDirection?: (direction: keyof typeof directionAngles) => void;
 }> = ({ selectedDirections, toggleDirection }) => {
+  const isInteractive = !!toggleDirection;
+
   return (
-    <div className="relative h-72 w-72 -rotate-90">
+    <div className="relative h-64 w-64">
+      {/* Outer ring */}
+      <div className="border-ocean-600/30 absolute inset-0 rounded-full border-2" />
+
+      {/* Inner decorative ring */}
+      <div className="border-ocean-500/20 absolute inset-4 rounded-full border" />
+
+      {/* Center point */}
+      <div className="bg-aqua-400 shadow-aqua-400/50 absolute top-1/2 left-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-lg" />
+
+      {/* Direction markers */}
       {Object.keys(directionAngles).map((key) => {
         const direction = key as keyof typeof directionAngles;
         const angle = directionAngles[direction];
-
         const isSelected = selectedDirections.includes(direction);
+        const isMain = mainDirections.includes(direction);
+
+        // Calculate position on the circle
+        const radius = 100; // distance from center in px
+        const radian = (angle - 90) * (Math.PI / 180);
+        const x = 50 + (radius / 256) * 100 * Math.cos(radian);
+        const y = 50 + (radius / 256) * 100 * Math.sin(radian);
 
         return (
-          <button
-            key={direction}
-            type="button"
-            onClick={() => {
-              toggleDirection?.(direction);
-            }}
-            className={`absolute flex h-3 w-3 -translate-x-1/2 -translate-y-1/2 transform items-center justify-center rounded-full`}
-            style={{
-              top: `50%`,
-              left: `50%`,
-              transform: `translate(-50%, -50%) rotate(${angle}deg) translate(100px) rotate(-90deg)`,
-            }}
-          >
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 transform">
+          <React.Fragment key={direction}>
+            {/* Direction wedge/button */}
+            {isInteractive ? (
+              <button
+                type="button"
+                onClick={() => {
+                  toggleDirection(direction);
+                }}
+                className={`absolute h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-200 ${
+                  isSelected
+                    ? "bg-aqua-400 shadow-aqua-400/50 scale-125 shadow-lg"
+                    : "bg-ocean-700/50 hover:bg-ocean-600/50 hover:scale-110"
+                }`}
+                style={{
+                  left: `${x}%`,
+                  top: `${y}%`,
+                }}
+                title={direction}
+              >
+                {isMain && (
+                  <span
+                    className="absolute -translate-x-1/2 text-[8px] font-bold text-white/90"
+                    style={{
+                      top:
+                        direction === "N"
+                          ? "-12px"
+                          : direction === "S"
+                            ? "16px"
+                            : undefined,
+                      left:
+                        direction === "W"
+                          ? "-12px"
+                          : direction === "E"
+                            ? "16px"
+                            : undefined,
+                    }}
+                  >
+                    {direction}
+                  </span>
+                )}
+              </button>
+            ) : (
               <div
-                className={`h-0 w-0 border-r-[20px] border-b-[72px] border-l-[20px] border-transparent ${
-                  isSelected ? "border-b-blue-500" : "border-b-white/10"
-                } `}
+                className={`absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full ${
+                  isSelected
+                    ? "bg-aqua-400 shadow-aqua-400/50 shadow-lg"
+                    : "bg-ocean-800/30"
+                }`}
+                style={{
+                  left: `${x}%`,
+                  top: `${y}%`,
+                }}
               />
-            </div>
-          </button>
+            )}
+
+            {/* Connecting line to center for selected directions */}
+            {isSelected && (
+              <div
+                className="from-aqua-400/0 via-aqua-400/30 to-aqua-400/0 absolute top-1/2 left-1/2 h-0.5 origin-left bg-gradient-to-r"
+                style={{
+                  width: `${radius - 16}px`,
+                  transform: `rotate(${angle}deg)`,
+                }}
+              />
+            )}
+          </React.Fragment>
         );
       })}
+
+      {/* Cardinal labels */}
+      <span className="text-ocean-200 absolute top-1 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold">
+        N
+      </span>
+      <span className="text-ocean-200 absolute bottom-1 left-1/2 -translate-x-1/2 translate-y-1/2 text-xs font-bold">
+        S
+      </span>
+      <span className="text-ocean-200 absolute top-1/2 left-1 -translate-x-1/2 -translate-y-1/2 text-xs font-bold">
+        W
+      </span>
+      <span className="text-ocean-200 absolute top-1/2 right-1 translate-x-1/2 -translate-y-1/2 text-xs font-bold">
+        E
+      </span>
     </div>
   );
 };
