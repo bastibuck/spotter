@@ -5,17 +5,8 @@ import tseslint from "typescript-eslint";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import reactCompiler from "eslint-plugin-react-compiler";
 import drizzle from "eslint-plugin-drizzle";
-
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
 
 export default tseslint.config(
   {
@@ -25,6 +16,7 @@ export default tseslint.config(
       "public/**",
       "next.config.js",
       "postcss.config.cjs",
+      "eslint.config.mjs",
     ],
   },
 
@@ -44,7 +36,8 @@ export default tseslint.config(
     },
   },
 
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  nextCoreWebVitals,
+  nextTypescript,
 
   {
     plugins: {

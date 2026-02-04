@@ -5,8 +5,8 @@ const DetailsLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
     <>
       <CloseDetails />
 
-      <div className="fixed top-0 right-0 bottom-0 w-full max-w-7/9 bg-slate-900 p-4 text-white md:max-w-3/5 lg:max-w-2/5">
-        {children}
+      <div className="ocean-gradient fixed top-0 right-0 bottom-0 z-50 w-full max-w-2xl overflow-y-auto border-l border-white/10 shadow-2xl">
+        <div className="p-8">{children}</div>
       </div>
     </>
   );

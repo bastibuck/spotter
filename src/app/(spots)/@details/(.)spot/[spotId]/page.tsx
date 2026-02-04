@@ -1,7 +1,15 @@
 import { eq } from "drizzle-orm";
-import CardinalDirection from "~/components/spots/Cardinals";
 import { db } from "~/server/db";
 import { spots } from "~/server/db/schema";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "~/components/ui/Card";
+import { Badge } from "~/components/ui/Badge";
+import CardinalDirection from "~/components/spots/Cardinals";
 
 export const revalidate = 3600;
 export const dynamicParams = true; // statically generate new paths not known during build time
@@ -24,20 +32,92 @@ const SpotDetailsPage: React.FC<{
   });
 
   if (spot === undefined) {
-    return <div>Spot not found.</div>;
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="text-center">
+          <div className="bg-ocean-800/50 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+            <svg
+              className="text-ocean-300 h-8 w-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+          </div>
+          <p className="text-ocean-200 text-lg">Spot not found.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <>
-      <h1 className="text-3xl">{spot.name}</h1>
-      <p>{spot.description}</p>
+    <div className="animate-fade-in-up space-y-6">
+      <Card>
+        <CardHeader>
+          <div className="flex items-start justify-between">
+            <div>
+              <CardTitle className="text-3xl">{spot.name}</CardTitle>
+              <CardDescription className="mt-2 text-base">
+                {spot.description}
+              </CardDescription>
+            </div>
+            <Badge variant="info">
+              <svg
+                className="mr-1 h-3 w-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+              {spot.lat.toFixed(4)}, {spot.long.toFixed(4)}
+            </Badge>
+          </div>
+        </CardHeader>
 
-      <p>
-        {spot.long}, {spot.lat}
-      </p>
+        <CardContent className="space-y-6">
+          <div>
+            <h3 className="text-ocean-200 mb-4 text-sm font-medium">
+              Default Wind Directions
+            </h3>
+            <div className="flex justify-center py-4">
+              <CardinalDirection
+                selectedDirections={spot.defaultWindDirections}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      <CardinalDirection selectedDirections={spot.defaultWindDirections} />
-    </>
+      {/* Additional info cards could go here */}
+      <div className="grid grid-cols-2 gap-4">
+        <Card className="py-6 text-center">
+          <div className="text-aqua-400 mb-1 text-3xl font-bold">--</div>
+          <div className="text-ocean-200/70 text-sm">Current Wind</div>
+        </Card>
+        <Card className="py-6 text-center">
+          <div className="text-aqua-400 mb-1 text-3xl font-bold">--</div>
+          <div className="text-ocean-200/70 text-sm">Temperature</div>
+        </Card>
+      </div>
+    </div>
   );
 };
 

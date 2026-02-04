@@ -21,10 +21,7 @@ export const subscriptionRouter = createTRPCRouter({
     .input(
       z
         .object({
-          email: z
-            .string()
-            .email()
-            .transform((v) => v.toLowerCase()),
+          email: z.email().toLowerCase(),
           spotId: z.number().int(),
           windSpeedMin: z.number().int().positive(),
           windSpeedMax: z.number().int().positive(),
@@ -135,7 +132,7 @@ export const subscriptionRouter = createTRPCRouter({
   verify: publicProcedure
     .input(
       z.object({
-        subscriptionId: z.string().uuid(),
+        subscriptionId: z.uuid(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -169,7 +166,7 @@ export const subscriptionRouter = createTRPCRouter({
   unsubscribe: publicProcedure
     .input(
       z.object({
-        subscriptionId: z.string().uuid(),
+        subscriptionId: z.uuid(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -206,7 +203,7 @@ export const subscriptionRouter = createTRPCRouter({
   unsubscribeAll: publicProcedure
     .input(
       z.object({
-        kiterId: z.string().uuid(),
+        kiterId: z.uuid(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -233,10 +230,7 @@ export const subscriptionRouter = createTRPCRouter({
   mySubscriptions: publicProcedure
     .input(
       z.object({
-        email: z
-          .string()
-          .email()
-          .transform((v) => v.toLowerCase()),
+        email: z.email().toLowerCase(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
