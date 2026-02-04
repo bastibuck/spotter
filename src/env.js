@@ -26,7 +26,7 @@ export const env = createEnv({
     GITHUB_CLIENT_SECRET: z.string(),
     RESEND_API_KEY: z.string(),
     FROM_EMAIL: z.string(),
-    SKIP_EMAIL_DELIVERY: z.boolean({ coerce: true }).default(false),
+    SKIP_EMAIL_DELIVERY: z.stringbool().default(false),
   },
 
   /**

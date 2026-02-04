@@ -37,7 +37,7 @@
     "resend": "^4.1.2",
     "server-only": "^0.0.1",
     "superjson": "^2.2.6",
-    "zod": "^3.25.76"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
