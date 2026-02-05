@@ -149,7 +149,7 @@ SpotNotificationEmail.PreviewProps = {
 
 // Component-specific styles
 const ctaSection = {
-  backgroundColor: `rgba(6, 182, 212, 0.1)`,
+  backgroundColor: "rgba(6, 182, 212, 0.1)",
   borderRadius: "12px",
   padding: "20px",
   marginTop: "24px",
