@@ -13,7 +13,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
   const [email, setEmail] = useState("");
   const [windSpeedMin, setWindSpeedMin] = useState<number | "">("");
   const [windSpeedMax, setWindSpeedMax] = useState<number | "">("");
-  const [minTemperature, setMinTemperature] = useState<number>(0);
+  const [minTemperature, setMinTemperature] = useState<number | "">("");
   const [windDirections, setWindDirections] = useState(
     spot.defaultWindDirections,
   );
@@ -33,7 +33,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
       setEmail("");
       setWindSpeedMin("");
       setWindSpeedMax("");
-      setMinTemperature(0);
+      setMinTemperature("");
       setWindDirections(spot.defaultWindDirections);
       toast.success("Check your inbox to verify your subscription");
     },
@@ -55,7 +55,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
             windSpeedMin: windSpeedMin as number,
             windSpeedMax: windSpeedMax as number,
             windDirections,
-            minTemperature,
+            minTemperature: minTemperature === "" ? undefined : minTemperature,
           });
         }}
         className="space-y-4"
@@ -104,9 +104,11 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
             value={minTemperature}
             onChange={(e) => {
               setMinTemperature(
-                isNaN(e.target.valueAsNumber) ? 0 : e.target.valueAsNumber,
+                isNaN(e.target.valueAsNumber) ? "" : e.target.valueAsNumber,
               );
             }}
+            min={-20}
+            max={50}
             suffix="°C"
             disabled={subscribe.isPending}
           />

@@ -206,7 +206,7 @@ export const subscriptions = createTable(
       .array() // providing a fixed size does not seem to work by now. It always generates as varchar[] without size but still states it will truncate on a second run...
       .notNull()
       .$type<z.infer<typeof WindDirection>[]>(),
-    minTemperature: smallint().notNull().default(0),
+    minTemperature: smallint(),
   },
   (subscriptions) => [
     {

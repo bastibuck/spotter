@@ -26,7 +26,7 @@ export const subscriptionRouter = createTRPCRouter({
           windSpeedMin: z.number().int().positive(),
           windSpeedMax: z.number().int().positive(),
           windDirections: z.array(WindDirection),
-          minTemperature: z.number().int().default(0),
+          minTemperature: z.number().int().min(-20).max(50).optional(),
         })
         .refine((input) => input.windSpeedMax > input.windSpeedMin, {
           message: "Max. wind speed must be larger than min. wind speed.",

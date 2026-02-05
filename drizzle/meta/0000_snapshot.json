@@ -1,5 +1,5 @@
 {
-  "id": "c5a38c69-b49b-4b50-9f57-45ce2c3070e3",
+  "id": "106de5d6-a84b-450b-93b8-7149582692bf",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -274,8 +274,7 @@
           "name": "min_temperature",
           "type": "smallint",
           "primaryKey": false,
-          "notNull": true,
-          "default": 0
+          "notNull": false
         }
       },
       "indexes": {},

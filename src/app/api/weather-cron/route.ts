@@ -266,7 +266,15 @@ const checkWindSpeed = (min: number, max: number, windSpeed?: number) => {
   return windSpeed >= min && windSpeed <= max;
 };
 
-const checkTemperature = (minTemperature: number, temperature?: number) => {
+const checkTemperature = (
+  minTemperature: number | null,
+  temperature?: number,
+) => {
+  // If no minimum temperature is set, skip the check
+  if (minTemperature === null) {
+    return true;
+  }
+
   if (temperature === undefined) {
     return false;
   }

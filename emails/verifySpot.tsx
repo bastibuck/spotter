@@ -69,10 +69,14 @@ const VerifySpotSubscriptionEmail = ({
               label: "Wind directions",
               value: subscription.windDirections.join(", "),
             },
-            {
-              label: "Min. temperature",
-              value: `${subscription.minTemperature}°C`,
-            },
+            ...(subscription.minTemperature !== null
+              ? [
+                  {
+                    label: "Min. temperature",
+                    value: `${subscription.minTemperature}°C`,
+                  },
+                ]
+              : []),
           ]}
         />
 
@@ -105,7 +109,7 @@ VerifySpotSubscriptionEmail.PreviewProps = {
     windDirections: ["N", "NE"],
     windSpeedMin: 5,
     windSpeedMax: 10,
-    minTemperature: 15,
+    minTemperature: null,
   },
   spotName: "Aukrog",
   kiter: {

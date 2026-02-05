@@ -85,10 +85,14 @@ const SpotNotificationEmail = ({
                 label: "Directions",
                 value: subscription.windDirections.join(", "),
               },
-              {
-                label: "Min. temperature",
-                value: `${subscription.minTemperature}°C`,
-              },
+              ...(subscription.minTemperature !== null
+                ? [
+                    {
+                      label: "Min. temperature",
+                      value: `${subscription.minTemperature}°C`,
+                    },
+                  ]
+                : []),
             ]}
           />
 
@@ -117,7 +121,7 @@ SpotNotificationEmail.PreviewProps = {
     windDirections: ["N", "NE", "E"],
     windSpeedMin: 5,
     windSpeedMax: 10,
-    minTemperature: 15,
+    minTemperature: null,
   },
   spotName: "Aukrog",
   date: new Date(),
