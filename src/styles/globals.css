@@ -69,6 +69,36 @@
   box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
 }
 
+.ocean-input:disabled {
+  background: rgba(10, 22, 40, 0.4);
+  border-color: rgba(135, 191, 224, 0.1);
+}
+
+/* Hide number input arrows while keeping number keyboard on mobile */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  margin: 0 !important;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield !important;
+  appearance: textfield !important;
+}
+
+/* Alternative: Hide stepper buttons for all browsers */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  margin: 0 !important;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield !important;
+}
+
 /* Button gradient */
 .ocean-button {
   background: linear-gradient(
@@ -206,5 +236,24 @@
 
 /* Sonner toast customization */
 [data-sonner-toast] [data-icon] svg {
-  color: var(--color-aqua-400) !important;
+  color: #ffffff !important;
+}
+
+/* Success toast styling - darker blue gradient */
+[data-sonner-toast][data-type="success"] {
+  background: linear-gradient(135deg, #06b6d4 0%, #2a6188 100%) !important;
+  border: 1px solid rgba(103, 232, 249, 0.5) !important;
+  box-shadow:
+    0 4px 30px rgba(6, 182, 212, 0.5),
+    0 0 25px rgba(34, 211, 238, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-sonner-toast][data-type="success"] [data-title] {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+[data-sonner-toast][data-type="success"] [data-icon] svg {
+  color: #ffffff !important;
 }

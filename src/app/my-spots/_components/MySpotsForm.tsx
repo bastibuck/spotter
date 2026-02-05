@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { api } from "~/trpc/react";
 import { Input } from "~/components/ui/Input";
@@ -13,6 +14,7 @@ const MySpotsForm: React.FC = () => {
   const requestManagementEmail = api.subscription.mySubscriptions.useMutation({
     onSuccess: () => {
       setEmail("");
+      toast.success("Check your inbox for your spots overview");
     },
     onError: (error) => {
       console.log(error.message);
@@ -39,6 +41,7 @@ const MySpotsForm: React.FC = () => {
               setEmail(e.target.value);
             }}
             required
+            disabled={requestManagementEmail.isPending}
           />
 
           <Button

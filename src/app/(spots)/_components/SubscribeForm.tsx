@@ -64,6 +64,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
             setEmail(e.target.value);
           }}
           required
+          disabled={subscribe.isPending}
         />
 
         <div className="grid grid-cols-2 gap-4">
@@ -78,6 +79,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
             }}
             suffix="kn"
             required
+            disabled={subscribe.isPending}
           />
           <Input
             type="number"
@@ -90,6 +92,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
             }}
             suffix="kn"
             required
+            disabled={subscribe.isPending}
           />
         </div>
 
@@ -101,6 +104,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
             <CardinalDirection
               selectedDirections={windDirections}
               toggleDirection={toggleWindDirection}
+              disabled={subscribe.isPending}
             />
           </div>
         </div>

@@ -28,8 +28,9 @@ const primaryDirections = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
 const WindCompass: React.FC<{
   selectedDirections: (keyof typeof directionAngles)[];
   toggleDirection?: (direction: keyof typeof directionAngles) => void;
-}> = ({ selectedDirections, toggleDirection }) => {
-  const isInteractive = !!toggleDirection;
+  disabled?: boolean;
+}> = ({ selectedDirections, toggleDirection, disabled = false }) => {
+  const isInteractive = !!toggleDirection && !disabled;
   const size = 240;
   const center = size / 2;
   const outerRadius = 100;
@@ -180,11 +181,12 @@ const WindCompass: React.FC<{
               onClick={() => {
                 toggleDirection(direction);
               }}
+              disabled={disabled}
               className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-200 ${
                 isSelected
                   ? "bg-aqua-400 shadow-aqua-400/50 shadow-lg"
                   : "bg-ocean-700/60 hover:bg-ocean-600/80 hover:scale-110"
-              }`}
+              } ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
               style={{
                 left: x,
                 top: y,

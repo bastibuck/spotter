@@ -71,19 +71,21 @@ export default function RootLayout({
               <main className="px-4 pt-24 pb-12">{children}</main>
             </div>
             <Toaster
-              position="top-center"
+              position="bottom-center"
               toastOptions={{
                 style: {
-                  background: "rgba(15, 38, 64, 0.85)",
+                  background:
+                    "linear-gradient(135deg, #06b6d4 0%, #2a6188 100%)",
                   backdropFilter: "blur(20px)",
                   WebkitBackdropFilter: "blur(20px)",
-                  border: "1px solid rgba(135, 191, 224, 0.15)",
+                  border: "1px solid rgba(103, 232, 249, 0.5)",
                   boxShadow:
-                    "0 4px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
-                  color: "#e0f2fc",
+                    "0 4px 30px rgba(6, 182, 212, 0.4), 0 0 20px rgba(34, 211, 238, 0.3)",
+                  color: "#ffffff",
+                  fontWeight: 500,
                 },
                 classNames: {
-                  success: "!border-l-4 !border-l-[#22d3ee]",
+                  success: "!border-l-4 !border-l-white/50",
                 },
               }}
             />

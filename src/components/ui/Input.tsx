@@ -22,7 +22,7 @@ export const Input: React.FC<InputProps> = ({
       )}
       <div className="relative flex items-center">
         <input
-          className={`ocean-input placeholder-ocean-200/40 w-full rounded-lg px-4 py-3 text-white ${className}`}
+          className={`ocean-input placeholder-ocean-200/40 w-full rounded-lg px-4 py-3 text-white disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
           {...props}
         />
         {suffix && (
