@@ -16,8 +16,7 @@ const MySpotsForm: React.FC = () => {
       setEmail("");
       toast.success("Check your inbox for your spots overview");
     },
-    onError: (error) => {
-      console.log(error.message);
+    onError: () => {
       toast.error("Something went wrong. Please try again.");
     },
   });
