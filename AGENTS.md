@@ -92,7 +92,9 @@ npm run email:dev             # Start React Email dev server
 
 #### Migrations
 
-This project uses **Drizzle migrations** (not `db:push`) for schema changes. This ensures reproducible deployments across environments.
+This project uses **Drizzle migrations** for schema changes. This ensures reproducible deployments across environments.
+
+**IMPORTANT:** Never use `drizzle-kit push` - it has been intentionally removed from this project. Always use migrations.
 
 **Workflow for schema changes:**
 
@@ -118,7 +120,7 @@ ALTER TABLE "spotter_subscriptions" ADD COLUMN "some_column" smallint DEFAULT 0 
 ALTER TABLE "spotter_subscriptions" ADD COLUMN "some_column" smallint NOT NULL;
 ```
 
-**Note:** Do not use `db:push` - always use migrations to keep schema changes tracked and reproducible.
+**Note:** Do not use `db:push` - it has been intentionally removed. Always use migrations to keep schema changes tracked and reproducible.
 
 **For new environments:** Run `npm run db:migrate` to apply all migrations from scratch.
 
