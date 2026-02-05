@@ -71,7 +71,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
           disabled={subscribe.isPending}
         />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <Input
             type="number"
             placeholder="Min wind"
@@ -98,20 +98,19 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
             required
             disabled={subscribe.isPending}
           />
+          <Input
+            type="number"
+            placeholder="Min temp"
+            value={minTemperature}
+            onChange={(e) => {
+              setMinTemperature(
+                isNaN(e.target.valueAsNumber) ? 0 : e.target.valueAsNumber,
+              );
+            }}
+            suffix="°C"
+            disabled={subscribe.isPending}
+          />
         </div>
-
-        <Input
-          type="number"
-          placeholder="Min temperature"
-          value={minTemperature}
-          onChange={(e) => {
-            setMinTemperature(
-              isNaN(e.target.valueAsNumber) ? 0 : e.target.valueAsNumber,
-            );
-          }}
-          suffix="°C"
-          disabled={subscribe.isPending}
-        />
 
         <div className="pt-2">
           <label className="text-ocean-200 mb-3 block text-sm font-medium">
