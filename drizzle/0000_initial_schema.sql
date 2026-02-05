@@ -48,7 +48,8 @@ CREATE TABLE "spotter_subscriptions" (
 	"verified_at" timestamp,
 	"wind_speed_min" smallint NOT NULL,
 	"wind_speed_max" smallint NOT NULL,
-	"wind_directions" varchar(3)[] NOT NULL
+	"wind_directions" varchar(3)[] NOT NULL,
+	"min_temperature" smallint DEFAULT 0 NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "spotter_user" (
