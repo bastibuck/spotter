@@ -1,55 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 
-import { api } from "~/trpc/react";
+import { sendMySpotsEmail } from "../actions";
 import { Input } from "~/components/ui/Input";
 import { Button } from "~/components/ui/Button";
 import { Card, CardContent } from "~/components/ui/Card";
 
 const MySpotsForm: React.FC = () => {
-  const [email, setEmail] = useState("");
+  const [state, formAction, isPending] = useActionState(sendMySpotsEmail, null);
 
-  const requestManagementEmail = api.subscription.mySubscriptions.useMutation({
-    onSuccess: () => {
-      setEmail("");
-      toast.success("Check your inbox for your spots overview");
-    },
-    onError: () => {
-      toast.error("Something went wrong. Please try again.");
-    },
-  });
+  useEffect(() => {
+    if (state?.success) {
+      toast.success(state.message);
+    } else if (state?.success === false) {
+      toast.error(state.error);
+    }
+  }, [state]);
 
   return (
     <Card>
       <CardContent className="pt-6">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            requestManagementEmail.mutate({
-              email,
-            });
-          }}
-          className="space-y-4"
-        >
+        <form action={formAction} className="space-y-4">
           <Input
             type="email"
+            name="email"
             placeholder="Enter your email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-            }}
+            defaultValue={state?.success === false ? state.email : ""}
             required
-            disabled={requestManagementEmail.isPending}
+            disabled={isPending}
           />
 
-          <Button
-            type="submit"
-            className="w-full"
-            isLoading={requestManagementEmail.isPending}
-          >
-            {requestManagementEmail.isPending ? "Sending..." : "Send My Spots"}
+          <Button type="submit" className="w-full" isLoading={isPending}>
+            {isPending ? "Sending..." : "Send My Spots"}
           </Button>
         </form>
       </CardContent>
