@@ -6,7 +6,7 @@
       "idx": 0,
       "version": "7",
       "when": 1738788001000,
-      "tag": "0000_add_min_temperature",
+      "tag": "0000_initial_schema",
       "breakpoints": true
     }
   ]
