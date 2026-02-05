@@ -33,7 +33,6 @@ npm run format:fix            # Fix formatting with Prettier
 # Database
 npm run db:generate           # Generate Drizzle migrations
 npm run db:migrate            # Run migrations
-npm run db:push               # Push schema changes
 npm run db:studio             # Open Drizzle Studio
 
 # Email Development
@@ -90,6 +89,40 @@ npm run email:dev             # Start React Email dev server
 - Use indexes on frequently queried columns
 - Timestamps: `createdAt` (default now), `updatedAt` ($onUpdate)
 - Column types: prefer `varchar({ length: n })` over `text()` for short strings
+
+#### Migrations
+
+This project uses **Drizzle migrations** for schema changes. This ensures reproducible deployments across environments.
+
+**IMPORTANT:** Never use `drizzle-kit push` - it has been intentionally removed from this project. Always use migrations.
+
+**Workflow for schema changes:**
+
+1. Modify schema in `src/server/db/schema.ts`
+2. Generate migration: `npm run db:generate`
+3. Review generated SQL in `drizzle/` folder
+4. Commit the migration file
+5. Deploy - CI/CD runs `npm run db:migrate`
+
+**Migration files:**
+
+- Located in `/drizzle/` folder
+- Named with index prefix: `0000_name.sql`, `0001_name.sql`, etc.
+- Journal tracked in `drizzle/meta/_journal.json`
+
+**Important:** When adding NOT NULL columns to existing tables, always include a DEFAULT value so existing rows get populated:
+
+```sql
+-- Good: existing rows get default value
+ALTER TABLE "spotter_subscriptions" ADD COLUMN "some_column" smallint DEFAULT 0 NOT NULL;
+
+-- Bad: will fail if table has existing rows
+ALTER TABLE "spotter_subscriptions" ADD COLUMN "some_column" smallint NOT NULL;
+```
+
+**Note:** Do not use `db:push` - it has been intentionally removed. Always use migrations to keep schema changes tracked and reproducible.
+
+**For new environments:** Run `npm run db:migrate` to apply all migrations from scratch.
 
 ### API (tRPC)
 

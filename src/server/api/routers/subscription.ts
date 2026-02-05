@@ -26,6 +26,7 @@ export const subscriptionRouter = createTRPCRouter({
           windSpeedMin: z.number().int().positive(),
           windSpeedMax: z.number().int().positive(),
           windDirections: z.array(WindDirection),
+          minTemperature: z.number().int().min(-20).max(50).optional(),
         })
         .refine((input) => input.windSpeedMax > input.windSpeedMin, {
           message: "Max. wind speed must be larger than min. wind speed.",
@@ -81,6 +82,7 @@ export const subscriptionRouter = createTRPCRouter({
             windDirections: input.windDirections,
             windSpeedMin: input.windSpeedMin,
             windSpeedMax: input.windSpeedMax,
+            minTemperature: input.minTemperature,
           })
           .returning();
 
@@ -269,6 +271,7 @@ export const subscriptionRouter = createTRPCRouter({
             windDirections: sub.windDirections,
             windSpeedMin: sub.windSpeedMin,
             windSpeedMax: sub.windSpeedMax,
+            minTemperature: sub.minTemperature,
             verifiedAt: sub.verifiedAt,
           })),
           kiter: kiterWithSubscriptions,

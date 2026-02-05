@@ -30,7 +30,7 @@ const WindCompass: React.FC<{
   toggleDirection?: (direction: keyof typeof directionAngles) => void;
   disabled?: boolean;
 }> = ({ selectedDirections, toggleDirection, disabled = false }) => {
-  const isInteractive = !!toggleDirection && !disabled;
+  const isInteractive = !!toggleDirection;
   const size = 240;
   const center = size / 2;
   const outerRadius = 100;

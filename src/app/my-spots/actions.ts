@@ -21,7 +21,7 @@ export async function sendMySpotsEmail(
   _prevState: MySubscriptionsState,
   formData: FormData,
 ): Promise<MySubscriptionsState> {
-  const email = (formData.get("email") as string) ?? "";
+  const email = (formData.get("email") as string | null) ?? "";
 
   try {
     const ctx = await createTRPCContext({ headers: new Headers() });

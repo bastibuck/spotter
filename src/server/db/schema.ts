@@ -23,27 +23,6 @@ import { z } from "zod";
  */
 export const createTable = pgTableCreator((name) => `spotter_${name}`);
 
-export const posts = createTable(
-  "post",
-  {
-    id: serial().primaryKey(),
-    name: varchar({ length: 256 }),
-    createdById: varchar({ length: 255 })
-      .notNull()
-      .references(() => users.id),
-    createdAt: timestamp({ withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
-  },
-  (example) => [
-    {
-      createdByIdIdx: index().on(example.createdById),
-      nameIndex: index().on(example.name),
-    },
-  ],
-);
-
 export const users = createTable("user", {
   id: varchar({ length: 255 })
     .notNull()
@@ -227,6 +206,7 @@ export const subscriptions = createTable(
       .array() // providing a fixed size does not seem to work by now. It always generates as varchar[] without size but still states it will truncate on a second run...
       .notNull()
       .$type<z.infer<typeof WindDirection>[]>(),
+    minTemperature: smallint(),
   },
   (subscriptions) => [
     {

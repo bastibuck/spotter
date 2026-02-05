@@ -34,6 +34,7 @@ interface MySpotsEmailProps {
     windSpeedMin: InferSelectModel<typeof subscriptions>["windSpeedMin"];
     windSpeedMax: InferSelectModel<typeof subscriptions>["windSpeedMax"];
     windDirections: InferSelectModel<typeof subscriptions>["windDirections"];
+    minTemperature: InferSelectModel<typeof subscriptions>["minTemperature"];
 
     subscriptionId: InferSelectModel<typeof subscriptions>["id"];
     verifiedAt: InferSelectModel<typeof subscriptions>["verifiedAt"];
@@ -69,6 +70,8 @@ const MySpotsEmail = ({ spots, kiter }: MySpotsEmailProps) => (
                   </Text>
                   <Text style={spotConditions}>
                     {spot.windSpeedMin} - {spot.windSpeedMax} kn
+                    {spot.minTemperature !== null &&
+                      ` | Min. ${spot.minTemperature}°C`}
                   </Text>
                   {spot.windDirections.length > 0 && (
                     <Text style={spotDirections}>
@@ -135,6 +138,7 @@ MySpotsEmail.PreviewProps = {
       windSpeedMin: 10,
       windSpeedMax: 20,
       windDirections: ["N", "NE", "E", "SE", "S", "SW", "W", "NW"],
+      minTemperature: null,
       subscriptionId: "e2aa517b-3e0b-419d-a7f6-ecce1c1446a5",
       verifiedAt: null,
     },
@@ -143,6 +147,7 @@ MySpotsEmail.PreviewProps = {
       windSpeedMin: 10,
       windSpeedMax: 30,
       windDirections: ["NW", "W", "SW"],
+      minTemperature: null,
       subscriptionId: "6d55aea3-8990-4a0d-b70c-ebf77d2b14e2",
       verifiedAt: null,
     },
@@ -151,6 +156,7 @@ MySpotsEmail.PreviewProps = {
       windSpeedMin: 10,
       windSpeedMax: 20,
       windDirections: ["E", "SE"],
+      minTemperature: 5,
       subscriptionId: "303e7658-1b1a-4c8d-86c6-ac5b4e02a658",
       verifiedAt: new Date("2021-08-01T00:00:00.000Z"),
     },
