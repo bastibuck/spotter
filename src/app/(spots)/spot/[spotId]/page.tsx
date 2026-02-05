@@ -108,26 +108,6 @@ const SpotDetailsPage: React.FC<{
                 />
               </div>
             </div>
-
-            {/* Stats grid */}
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-              <Card className="py-6 text-center">
-                <div className="text-aqua-400 mb-1 text-3xl font-bold">--</div>
-                <div className="text-ocean-200/70 text-sm">Wind Speed</div>
-              </Card>
-              <Card className="py-6 text-center">
-                <div className="text-aqua-400 mb-1 text-3xl font-bold">--</div>
-                <div className="text-ocean-200/70 text-sm">Direction</div>
-              </Card>
-              <Card className="py-6 text-center">
-                <div className="text-aqua-400 mb-1 text-3xl font-bold">--</div>
-                <div className="text-ocean-200/70 text-sm">Temperature</div>
-              </Card>
-              <Card className="py-6 text-center">
-                <div className="text-aqua-400 mb-1 text-3xl font-bold">--</div>
-                <div className="text-ocean-200/70 text-sm">Wave Height</div>
-              </Card>
-            </div>
           </CardContent>
         </Card>
       </div>

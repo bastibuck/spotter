@@ -92,7 +92,7 @@ const SpotDetailsPage: React.FC<{
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent>
           <div>
             <h3 className="text-ocean-200 mb-4 text-sm font-medium">
               Default Wind Directions
@@ -105,18 +105,6 @@ const SpotDetailsPage: React.FC<{
           </div>
         </CardContent>
       </Card>
-
-      {/* Additional info cards could go here */}
-      <div className="grid grid-cols-2 gap-4">
-        <Card className="py-6 text-center">
-          <div className="text-aqua-400 mb-1 text-3xl font-bold">--</div>
-          <div className="text-ocean-200/70 text-sm">Current Wind</div>
-        </Card>
-        <Card className="py-6 text-center">
-          <div className="text-aqua-400 mb-1 text-3xl font-bold">--</div>
-          <div className="text-ocean-200/70 text-sm">Temperature</div>
-        </Card>
-      </div>
     </div>
   );
 };
