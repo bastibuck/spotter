@@ -203,3 +203,8 @@
 .ocean-link:hover::after {
   width: 100%;
 }
+
+/* Sonner toast customization */
+[data-sonner-toast] [data-icon] svg {
+  color: var(--color-aqua-400) !important;
+}

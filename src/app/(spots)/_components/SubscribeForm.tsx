@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { type spots } from "~/server/db/schema";
+import { toast } from "sonner";
 
+import { type spots } from "~/server/db/schema";
 import { api } from "~/trpc/react";
 import CardinalDirection from "../../../components/spots/Cardinals";
 import { Input } from "~/components/ui/Input";
@@ -33,6 +34,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
       setWindSpeedMin("");
       setWindSpeedMax("");
       setWindDirections(spot.defaultWindDirections);
+      toast.success("Check your inbox to verify your subscription");
     },
     onError: (error) => {
       console.log(error.message);

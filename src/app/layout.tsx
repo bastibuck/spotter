@@ -2,6 +2,7 @@ import "~/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
+import { Toaster } from "sonner";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { HydrateClient } from "~/trpc/server";
@@ -69,6 +70,23 @@ export default function RootLayout({
               {/* Main content */}
               <main className="px-4 pt-24 pb-12">{children}</main>
             </div>
+            <Toaster
+              position="top-center"
+              toastOptions={{
+                style: {
+                  background: "rgba(15, 38, 64, 0.85)",
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)",
+                  border: "1px solid rgba(135, 191, 224, 0.15)",
+                  boxShadow:
+                    "0 4px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+                  color: "#e0f2fc",
+                },
+                classNames: {
+                  success: "!border-l-4 !border-l-[#22d3ee]",
+                },
+              }}
+            />
           </HydrateClient>
         </TRPCReactProvider>
       </body>
