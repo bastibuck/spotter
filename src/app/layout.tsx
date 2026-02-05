@@ -86,6 +86,7 @@ export default function RootLayout({
                 },
                 classNames: {
                   success: "!border-l-4 !border-l-white/50",
+                  error: "!border-l-4 !border-l-white/50",
                 },
               }}
             />

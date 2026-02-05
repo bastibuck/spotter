@@ -18,6 +18,7 @@ const MySpotsForm: React.FC = () => {
     },
     onError: (error) => {
       console.log(error.message);
+      toast.error("Something went wrong. Please try again.");
     },
   });
 

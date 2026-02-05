@@ -13,6 +13,11 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
   const [email, setEmail] = useState("");
   const [windSpeedMin, setWindSpeedMin] = useState<number | "">("");
   const [windSpeedMax, setWindSpeedMax] = useState<number | "">("");
+  const [fieldErrors, setFieldErrors] = useState<{
+    email?: string;
+    windSpeedMin?: string;
+    windSpeedMax?: string;
+  }>({});
 
   const [windDirections, setWindDirections] = useState(
     spot.defaultWindDirections,
@@ -33,11 +38,16 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
       setEmail("");
       setWindSpeedMin("");
       setWindSpeedMax("");
+      setFieldErrors({});
       setWindDirections(spot.defaultWindDirections);
       toast.success("Check your inbox to verify your subscription");
     },
     onError: (error) => {
       console.log(error.message);
+      setFieldErrors({});
+      toast.error(
+        "Something went wrong. Please check your input and try again.",
+      );
     },
   });
 
@@ -62,9 +72,13 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
           value={email}
           onChange={(e) => {
             setEmail(e.target.value);
+            if (fieldErrors.email) {
+              setFieldErrors((prev) => ({ ...prev, email: undefined }));
+            }
           }}
           required
           disabled={subscribe.isPending}
+          error={fieldErrors.email}
         />
 
         <div className="grid grid-cols-2 gap-4">
@@ -76,10 +90,17 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
               setWindSpeedMin(
                 isNaN(e.target.valueAsNumber) ? "" : e.target.valueAsNumber,
               );
+              if (fieldErrors.windSpeedMin) {
+                setFieldErrors((prev) => ({
+                  ...prev,
+                  windSpeedMin: undefined,
+                }));
+              }
             }}
             suffix="kn"
             required
             disabled={subscribe.isPending}
+            error={fieldErrors.windSpeedMin}
           />
           <Input
             type="number"
@@ -89,10 +110,17 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
               setWindSpeedMax(
                 isNaN(e.target.valueAsNumber) ? "" : e.target.valueAsNumber,
               );
+              if (fieldErrors.windSpeedMax) {
+                setFieldErrors((prev) => ({
+                  ...prev,
+                  windSpeedMax: undefined,
+                }));
+              }
             }}
             suffix="kn"
             required
             disabled={subscribe.isPending}
+            error={fieldErrors.windSpeedMax}
           />
         </div>
 
