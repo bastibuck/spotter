@@ -33,7 +33,6 @@ npm run format:fix            # Fix formatting with Prettier
 # Database
 npm run db:generate           # Generate Drizzle migrations
 npm run db:migrate            # Run migrations
-npm run db:push               # Push schema changes
 npm run db:studio             # Open Drizzle Studio
 
 # Email Development
@@ -113,11 +112,13 @@ This project uses **Drizzle migrations** (not `db:push`) for schema changes. Thi
 
 ```sql
 -- Good: existing rows get default value
-ALTER TABLE "spotter_subscriptions" ADD COLUMN "min_temperature" smallint DEFAULT 0 NOT NULL;
+ALTER TABLE "spotter_subscriptions" ADD COLUMN "some_column" smallint DEFAULT 0 NOT NULL;
 
 -- Bad: will fail if table has existing rows
-ALTER TABLE "spotter_subscriptions" ADD COLUMN "min_temperature" smallint NOT NULL;
+ALTER TABLE "spotter_subscriptions" ADD COLUMN "some_column" smallint NOT NULL;
 ```
+
+**Note:** Do not use `db:push` - always use migrations to keep schema changes tracked and reproducible.
 
 **For new environments:** Run `npm run db:migrate` to apply all migrations from scratch.
 
