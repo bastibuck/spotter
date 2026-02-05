@@ -18,14 +18,6 @@ CREATE TABLE "spotter_kiters" (
 	CONSTRAINT "spotter_kiters_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
-CREATE TABLE "spotter_post" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"name" varchar(256),
-	"created_by_id" varchar(255) NOT NULL,
-	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	"updated_at" timestamp with time zone
-);
---> statement-breakpoint
 CREATE TABLE "spotter_session" (
 	"session_token" varchar(255) PRIMARY KEY NOT NULL,
 	"user_id" varchar(255) NOT NULL,
@@ -67,7 +59,6 @@ CREATE TABLE "spotter_verification_token" (
 );
 --> statement-breakpoint
 ALTER TABLE "spotter_account" ADD CONSTRAINT "spotter_account_user_id_spotter_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."spotter_user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "spotter_post" ADD CONSTRAINT "spotter_post_created_by_id_spotter_user_id_fk" FOREIGN KEY ("created_by_id") REFERENCES "public"."spotter_user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "spotter_session" ADD CONSTRAINT "spotter_session_user_id_spotter_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."spotter_user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "spotter_subscriptions" ADD CONSTRAINT "spotter_subscriptions_spot_id_spotter_spots_id_fk" FOREIGN KEY ("spot_id") REFERENCES "public"."spotter_spots"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "spotter_subscriptions" ADD CONSTRAINT "spotter_subscriptions_kiter_id_spotter_kiters_id_fk" FOREIGN KEY ("kiter_id") REFERENCES "public"."spotter_kiters"("id") ON DELETE cascade ON UPDATE no action;

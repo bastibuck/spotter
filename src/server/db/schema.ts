@@ -23,27 +23,6 @@ import { z } from "zod";
  */
 export const createTable = pgTableCreator((name) => `spotter_${name}`);
 
-export const posts = createTable(
-  "post",
-  {
-    id: serial().primaryKey(),
-    name: varchar({ length: 256 }),
-    createdById: varchar({ length: 255 })
-      .notNull()
-      .references(() => users.id),
-    createdAt: timestamp({ withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
-  },
-  (example) => [
-    {
-      createdByIdIdx: index().on(example.createdById),
-      nameIndex: index().on(example.name),
-    },
-  ],
-);
-
 export const users = createTable("user", {
   id: varchar({ length: 255 })
     .notNull()
