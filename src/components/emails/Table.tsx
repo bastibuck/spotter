@@ -13,10 +13,12 @@ const Table: React.FC<{
           style={idx !== data.length - 1 ? borderBottom : undefined}
         >
           {/* label */}
-          <Column align="right">{row.label}</Column>
+          <Column align="left" style={labelStyle}>
+            {row.label}
+          </Column>
 
           {/* value */}
-          <Column align="left" style={{ ...col, ...value }}>
+          <Column align="right" style={valueStyle}>
             {row.value}
           </Column>
         </Row>
@@ -27,13 +29,26 @@ const Table: React.FC<{
 
 export default Table;
 
-const tableContainer = { padding: "20px 40px" };
-
-const borderBottom = { borderBottom: "1px solid #cececf" };
-
-const col = {
-  width: "50%",
-  verticalAlign: "top",
+const tableContainer = {
+  padding: "16px 20px",
+  backgroundColor: "rgba(15, 38, 64, 0.6)",
+  borderRadius: "12px",
+  margin: "16px 0",
 };
 
-const value = { fontWeight: "bold" };
+const borderBottom = {
+  borderBottom: "1px solid rgba(135, 191, 224, 0.15)",
+};
+
+const labelStyle = {
+  color: "#87bfe0",
+  fontSize: "14px",
+  padding: "8px 0",
+};
+
+const valueStyle = {
+  color: "#ffffff",
+  fontSize: "14px",
+  fontWeight: "600" as const,
+  padding: "8px 0",
+};

@@ -1,19 +1,27 @@
 import {
   Body,
-  Container,
   Head,
-  Heading,
   Html,
   Preview,
+  Section,
   Text,
 } from "@react-email/components";
 import { type InferSelectModel } from "drizzle-orm";
 import { DateTime } from "luxon";
-import { Footer } from "~/components/emails/Footer";
-import Table from "~/components/emails/Table";
+import {
+  ContentSection,
+  Footer,
+  Header,
+  HeroSection,
+  Table,
+  colors,
+  main,
+  paragraph,
+  sectionLabel,
+} from "~/components/emails";
 import { type kiters, type subscriptions } from "~/server/db/schema";
 
-interface VerifyEmailProps {
+interface SpotNotificationProps {
   subscription: Pick<
     InferSelectModel<typeof subscriptions>,
     "id" | "windDirections" | "windSpeedMin" | "windSpeedMax"
@@ -35,34 +43,37 @@ const SpotNotificationEmail = ({
   date,
   kiter,
   suitableHours,
-}: VerifyEmailProps) => {
-  const day = DateTime.fromJSDate(date).toFormat("dd. LLL yyyy");
+}: SpotNotificationProps) => {
+  const day = DateTime.fromJSDate(date).toFormat("EEEE, dd LLL");
 
   return (
     <Html>
       <Head />
       <Preview>
-        Wind conditions for {spotName} suitable on {day}
+        Wind alert for {spotName} on {day}
       </Preview>
 
       <Body style={main}>
-        <Container style={container}>
-          <Heading style={heading}>
-            <Text style={{ ...heading, display: "inline" }}>
-              Wind conditions for{" "}
-            </Text>
-            <Text style={{ ...heading, display: "inline", fontWeight: "bold" }}>
-              {spotName}{" "}
-            </Text>
-            <Text style={{ ...heading, display: "inline" }}>suitable on </Text>
-            <Text style={{ ...heading, display: "inline", fontWeight: "bold" }}>
-              {day}
-            </Text>
-          </Heading>
+        <Header />
 
+        <HeroSection label="Wind Alert" title={spotName} subtitle={day} />
+
+        <ContentSection>
           <Text style={paragraph}>
-            You subscribed for wind conditions at {spotName} that match
+            Great news! The wind conditions at <strong>{spotName}</strong> are
+            projected to match your preferences. Time to gear up!
           </Text>
+
+          <Text style={sectionLabel}>Forecast</Text>
+
+          <Table
+            data={suitableHours.map((hour) => ({
+              label: `${DateTime.fromFormat(hour.from.toString(), "H").toFormat("HH:mm")} - ${DateTime.fromFormat(hour.to.toString(), "H").toFormat("HH:mm")}`,
+              value: `${Math.floor(hour.windSpeed)} kn ${hour.windDirection}`,
+            }))}
+          />
+
+          <Text style={sectionLabel}>Your Preferences</Text>
 
           <Table
             data={[
@@ -71,34 +82,18 @@ const SpotNotificationEmail = ({
                 value: `${subscription.windSpeedMin} - ${subscription.windSpeedMax} kn`,
               },
               {
-                label: "Wind directions",
+                label: "Directions",
                 value: subscription.windDirections.join(", "),
               },
             ]}
           />
 
-          <Text style={paragraph}>
-            The requested wind conditions for {spotName} are projected to be
-            suitable on{" "}
-            <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-              {day}
-            </span>
-            .
-          </Text>
-
-          <Heading style={{ ...heading, ...subline }}>Conditions</Heading>
-
-          <Table
-            data={suitableHours.map((hour) => ({
-              label: `${DateTime.fromFormat(hour.from.toString(), "H").toFormat("T")} - ${DateTime.fromFormat(hour.to.toString(), "H").toFormat("T")}`,
-              value: `${Math.floor(hour.windSpeed)} kn, ${hour.windDirection}`,
-            }))}
-          />
-
-          <Text style={paragraph}>
-            Check your calendar and get ready to go kitesurfing!
-          </Text>
-        </Container>
+          <Section style={ctaSection}>
+            <Text style={ctaText}>
+              Check your calendar and get ready to hit the water!
+            </Text>
+          </Section>
+        </ContentSection>
 
         <Footer
           spotName={spotName}
@@ -150,36 +145,21 @@ SpotNotificationEmail.PreviewProps = {
       to: 12,
     },
   ],
-} satisfies VerifyEmailProps;
+} satisfies SpotNotificationProps;
 
-const main = {
-  backgroundColor: "#ffffff",
-  fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
+// Component-specific styles
+const ctaSection = {
+  backgroundColor: `rgba(6, 182, 212, 0.1)`,
+  borderRadius: "12px",
+  padding: "20px",
+  marginTop: "24px",
+  textAlign: "center" as const,
+  border: `1px solid ${colors.borderAccent}`,
 };
 
-const container = {
-  margin: "0 auto",
-  padding: "20px 0 48px",
-  maxWidth: "560px",
-};
-
-const heading = {
-  fontSize: "24px",
-  letterSpacing: "-0.5px",
-  lineHeight: "1.3",
-  fontWeight: "400",
-  color: "#484848",
-  padding: "17px 0 0",
-};
-
-const subline = {
-  fontSize: "18px",
-};
-
-const paragraph = {
-  margin: "0 0 10px",
-  fontSize: "15px",
-  lineHeight: "1.4",
-  color: "#3c4149",
+const ctaText = {
+  fontSize: "16px",
+  fontWeight: "600" as const,
+  color: colors.accent,
+  margin: "0",
 };

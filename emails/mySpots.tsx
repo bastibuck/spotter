@@ -1,7 +1,6 @@
 import {
   Body,
   Column,
-  Container,
   Head,
   Heading,
   Html,
@@ -12,7 +11,15 @@ import {
   Text,
 } from "@react-email/components";
 import { type InferSelectModel } from "drizzle-orm";
-import { FooterBase } from "~/components/emails/Footer";
+import {
+  ContentSection,
+  FooterBase,
+  Header,
+  colors,
+  heading,
+  main,
+  subheading,
+} from "~/components/emails";
 import { getBaseUrl } from "~/lib/url";
 import {
   type spots,
@@ -42,77 +49,77 @@ const MySpotsEmail = ({ spots, kiter }: MySpotsEmailProps) => (
     <Preview>Manage your spot subscriptions</Preview>
 
     <Body style={main}>
-      <Container style={container}>
-        <Heading style={heading}>
-          <Text style={{ ...heading, display: "inline" }}>
-            Manage your spot subscriptions
-          </Text>
-        </Heading>
+      <Header />
 
-        <Section style={tableContainer}>
+      <ContentSection>
+        <Heading style={heading}>Your Spot Subscriptions</Heading>
+        <Text style={subheading}>Manage your wind alert preferences</Text>
+
+        {/* Spots List */}
+        <Section style={spotsContainer}>
           {spots.map((spot) => (
-            <Row
-              cellSpacing={10}
-              key={spot.subscriptionId}
-              style={borderBottom}
-            >
-              <Column align="left" style={{ ...col, width: "70%" }}>
-                <Text style={spotName}>{spot.name}</Text>
-
-                <Text
-                  style={conditions}
-                >{`${spot.windSpeedMin} - ${spot.windSpeedMax} kn`}</Text>
-
-                <Text style={conditions}>{spot.windDirections.join(", ")}</Text>
-              </Column>
-
-              <Column align="left" style={{ ...col, width: "30%" }}>
-                {spot.verifiedAt === null && (
+            <Section key={spot.subscriptionId} style={spotCard}>
+              <Row>
+                <Column style={spotInfoColumn}>
+                  <Text style={spotName}>
+                    {spot.name}
+                    {spot.verifiedAt === null && (
+                      <span style={unverifiedBadge}>Unverified</span>
+                    )}
+                  </Text>
+                  <Text style={spotConditions}>
+                    {spot.windSpeedMin} - {spot.windSpeedMax} kn
+                  </Text>
+                  {spot.windDirections.length > 0 && (
+                    <Text style={spotDirections}>
+                      {spot.windDirections.join(", ")}
+                    </Text>
+                  )}
+                </Column>
+                <Column style={spotActionsColumn}>
+                  {spot.verifiedAt === null && (
+                    <Link
+                      href={`${baseUrl}/subscription/${spot.subscriptionId}/verify`}
+                      style={verifyButton}
+                    >
+                      Verify
+                    </Link>
+                  )}
                   <Link
-                    href={`${baseUrl}/subscription/${spot.subscriptionId}/verify`}
-                    style={{
-                      ...button,
-                      marginBottom: 10,
-                      backgroundColor: "#4caf50",
-                    }}
-                  >
-                    Verify
-                  </Link>
-                )}
-
-                <Link
-                  href={`${baseUrl}/subscription/${spot.subscriptionId}/unsubscribe`}
-                  style={{
-                    ...button,
-                    backgroundColor:
+                    href={`${baseUrl}/subscription/${spot.subscriptionId}/unsubscribe`}
+                    style={
                       spot.verifiedAt === null
-                        ? "#bbb"
-                        : button.backgroundColor,
-                  }}
-                >
-                  Unsubscribe
-                </Link>
-              </Column>
-            </Row>
+                        ? unsubscribeLinkMuted
+                        : unsubscribeLink
+                    }
+                  >
+                    Unsubscribe
+                  </Link>
+                </Column>
+              </Row>
+            </Section>
           ))}
+        </Section>
 
-          <Row cellSpacing={10} style={{ marginTop: 20 }}>
-            <Column align="left" style={{ ...col, width: "70%" }}>
-              <Text style={spotName}>All spots</Text>
-              <Text style={conditions}>Unsubscribe all spots at once</Text>
+        {/* Unsubscribe All */}
+        <Section style={unsubscribeAllSection}>
+          <Row>
+            <Column>
+              <Text style={unsubscribeAllText}>
+                Want to stop all notifications?
+              </Text>
             </Column>
-
-            <Column align="left" style={{ ...col, width: "30%" }}>
+            <Column align="right">
               <Link
                 href={`${baseUrl}/kiter/${kiter.id}/unsubscribe-all`}
-                style={button}
+                style={unsubscribeAllButton}
               >
-                Unsubscribe
+                Unsubscribe All
               </Link>
             </Column>
           </Row>
         </Section>
-      </Container>
+      </ContentSection>
 
       <FooterBase />
     </Body>
@@ -135,7 +142,7 @@ MySpotsEmail.PreviewProps = {
       name: "Laboe",
       windSpeedMin: 10,
       windSpeedMax: 30,
-      windDirections: [],
+      windDirections: ["NW", "W", "SW"],
       subscriptionId: "6d55aea3-8990-4a0d-b70c-ebf77d2b14e2",
       verifiedAt: null,
     },
@@ -143,7 +150,7 @@ MySpotsEmail.PreviewProps = {
       name: "Drejby",
       windSpeedMin: 10,
       windSpeedMax: 20,
-      windDirections: [],
+      windDirections: ["E", "SE"],
       subscriptionId: "303e7658-1b1a-4c8d-86c6-ac5b4e02a658",
       verifiedAt: new Date("2021-08-01T00:00:00.000Z"),
     },
@@ -153,56 +160,107 @@ MySpotsEmail.PreviewProps = {
   },
 } satisfies MySpotsEmailProps;
 
-const main = {
-  backgroundColor: "#ffffff",
-  fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
+// Component-specific styles
+const spotsContainer = {
+  marginBottom: "24px",
 };
 
-const container = {
-  margin: "0 auto",
-  padding: "20px 0 48px",
-  maxWidth: "560px",
+const spotCard = {
+  backgroundColor: "rgba(15, 38, 64, 0.6)",
+  borderRadius: "12px",
+  padding: "16px 20px",
+  marginBottom: "12px",
+  border: `1px solid ${colors.border}`,
 };
 
-const heading = {
-  fontSize: "24px",
-  letterSpacing: "-0.5px",
-  lineHeight: "1.3",
-  fontWeight: "400",
-  color: "#484848",
-  padding: "17px 0 0",
+const spotInfoColumn = {
+  verticalAlign: "top" as const,
+};
+
+const spotActionsColumn = {
+  verticalAlign: "top" as const,
+  textAlign: "right" as const,
+  width: "120px",
 };
 
 const spotName = {
-  fontSize: "20px",
-  letterSpacing: "-0.5px",
-  fontWeight: "700",
-  color: "#484848",
-  margin: "0 0 5px",
+  fontSize: "18px",
+  fontWeight: "600" as const,
+  color: colors.textWhite,
+  margin: "0 0 4px",
 };
 
-const conditions = {
-  margin: 0,
-  color: "#858585",
-  lineHeight: 1.2,
+const unverifiedBadge = {
+  display: "inline-block",
+  marginLeft: "8px",
+  padding: "2px 8px",
+  backgroundColor: colors.warningBg,
+  color: colors.warning,
+  fontSize: "11px",
+  fontWeight: "600" as const,
+  borderRadius: "4px",
+  verticalAlign: "middle",
 };
 
-const button = {
-  backgroundColor: "#35b8e0",
-  borderRadius: "3px",
-  fontWeight: "600",
-  color: "#fff",
-  fontSize: "15px",
+const spotConditions = {
+  fontSize: "14px",
+  color: colors.textLight,
+  margin: "0 0 2px",
+};
+
+const spotDirections = {
+  fontSize: "13px",
+  color: colors.textSubtle,
+  margin: "0",
+};
+
+const verifyButton = {
+  display: "inline-block",
+  padding: "8px 16px",
+  backgroundColor: colors.accent,
+  color: colors.bgDark,
+  fontSize: "13px",
+  fontWeight: "600" as const,
+  borderRadius: "6px",
   textDecoration: "none",
-  textAlign: "center" as const,
-  display: "block",
-  padding: "11px 23px",
+  marginBottom: "8px",
 };
 
-const tableContainer = { padding: "20px 0px" };
-const borderBottom = { borderBottom: "1px solid #cececf" };
+const unsubscribeLink = {
+  display: "block",
+  fontSize: "12px",
+  color: colors.textMuted,
+  textDecoration: "none",
+};
 
-const col = {
-  verticalAlign: "top",
+const unsubscribeLinkMuted = {
+  display: "block",
+  fontSize: "12px",
+  color: colors.textSubtle,
+  textDecoration: "none",
+};
+
+const unsubscribeAllSection = {
+  backgroundColor: colors.dangerBg,
+  borderRadius: "12px",
+  padding: "16px 20px",
+  border: `1px solid ${colors.dangerBorder}`,
+};
+
+const unsubscribeAllText = {
+  fontSize: "14px",
+  color: colors.danger,
+  margin: "0",
+};
+
+const unsubscribeAllButton = {
+  display: "inline-block",
+  padding: "8px 16px",
+  backgroundColor: "transparent",
+  color: colors.danger,
+  fontSize: "13px",
+  fontWeight: "600" as const,
+  borderRadius: "6px",
+  textDecoration: "none",
+  border: "1px solid rgba(239, 68, 68, 0.4)",
 };

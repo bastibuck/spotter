@@ -1,17 +1,25 @@
 import {
   Body,
-  Button,
-  Container,
   Head,
   Heading,
   Html,
   Preview,
-  Section,
   Text,
 } from "@react-email/components";
 import { type InferSelectModel } from "drizzle-orm";
-import { Footer } from "~/components/emails/Footer";
-import Table from "~/components/emails/Table";
+import {
+  ContentSection,
+  Footer,
+  Header,
+  PrimaryButton,
+  Table,
+  colors,
+  main,
+  heading,
+  mutedText,
+  paragraphCentered,
+  sectionLabel,
+} from "~/components/emails";
 import { getBaseUrl } from "~/lib/url";
 import { type kiters, type subscriptions } from "~/server/db/schema";
 
@@ -33,25 +41,23 @@ const VerifySpotSubscriptionEmail = ({
 }: VerifyEmailProps) => (
   <Html>
     <Head />
-    <Preview>
-      Verify your subscription to
-      {spotName}
-    </Preview>
+    <Preview>Verify your subscription to {spotName}</Preview>
 
     <Body style={main}>
-      <Container style={container}>
-        <Heading style={heading}>
-          <Text style={{ ...heading, display: "inline" }}>
-            Verify your subscription to{" "}
-          </Text>
-          <Text style={{ ...heading, display: "inline", fontWeight: "bold" }}>
-            {spotName}
-          </Text>
-        </Heading>
+      <Header />
 
-        <Text style={paragraph}>
-          You are subscribing to wind conditions at {spotName} that match
+      <ContentSection>
+        <Heading style={heading}>Verify your subscription</Heading>
+
+        <Text style={spotNameHighlight}>{spotName}</Text>
+
+        <Text style={paragraphCentered}>
+          You&apos;re almost ready to receive wind alerts! Confirm your
+          subscription to start getting notified when conditions are perfect for
+          kitesurfing.
         </Text>
+
+        <Text style={sectionLabel}>Your alert preferences</Text>
 
         <Table
           data={[
@@ -66,25 +72,17 @@ const VerifySpotSubscriptionEmail = ({
           ]}
         />
 
-        <Text style={paragraph}>
-          Once you verify your subscription to {spotName}, you will be notified
-          about suitable wind conditions for your spot.
-        </Text>
+        <PrimaryButton
+          href={`${baseUrl}/subscription/${subscription.id}/verify`}
+        >
+          Verify Subscription
+        </PrimaryButton>
 
-        <Section style={buttonContainer}>
-          <Button
-            style={button}
-            href={`${baseUrl}/subscription/${subscription.id}/verify`}
-          >
-            Verify subscription
-          </Button>
-        </Section>
-
-        <Text style={paragraph}>
-          You can unsubscribe at any time by clicking the link at the bottom of
-          a notification email.
+        <Text style={mutedText}>
+          Once verified, you&apos;ll receive notifications when wind conditions
+          match your preferences. You can unsubscribe at any time.
         </Text>
-      </Container>
+      </ContentSection>
 
       <Footer
         spotName={spotName}
@@ -110,46 +108,11 @@ VerifySpotSubscriptionEmail.PreviewProps = {
   },
 } satisfies VerifyEmailProps;
 
-const main = {
-  backgroundColor: "#ffffff",
-  fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
-};
-
-const container = {
-  margin: "0 auto",
-  padding: "20px 0 48px",
-  maxWidth: "560px",
-};
-
-const heading = {
-  fontSize: "24px",
-  letterSpacing: "-0.5px",
-  lineHeight: "1.3",
-  fontWeight: "400",
-  color: "#484848",
-  padding: "17px 0 0",
-};
-
-const paragraph = {
-  margin: "0 0 10px",
-  fontSize: "15px",
-  lineHeight: "1.4",
-  color: "#3c4149",
-};
-
-const buttonContainer = {
-  padding: "10px 0 20px",
-};
-
-const button = {
-  backgroundColor: "#35b8e0",
-  borderRadius: "3px",
-  fontWeight: "600",
-  color: "#fff",
-  fontSize: "15px",
-  textDecoration: "none",
+// Component-specific styles
+const spotNameHighlight = {
+  fontSize: "20px",
+  fontWeight: "600" as const,
+  color: colors.accent,
   textAlign: "center" as const,
-  display: "block",
-  padding: "11px 23px",
+  margin: "0 0 24px",
 };

@@ -118,7 +118,35 @@ npm run email:dev             # Start React Email dev server
 - Located in `/emails/` directory
 - Use React Email components from `@react-email/components`
 - Always include `<Html>`, `<Head>`, `<Preview>`, `<Body>`
-- Use Tailwind classes for styling (inline styles work too)
+- Use inline styles (Tailwind classes don't work reliably in emails)
+
+**Shared Components** (`src/components/emails/`):
+
+- `Header` - Logo + app name header
+- `Footer` / `FooterBase` - Footer with unsubscribe links
+- `ContentSection` - Padded container wrapper
+- `HeroSection` - Prominent header with label/title/subtitle
+- `PrimaryButton` - Gradient CTA button
+- `Table` - Key-value data display
+- `styles.ts` - Centralized colors and shared style objects
+
+**Usage pattern:**
+
+```tsx
+import {
+  ContentSection,
+  Footer,
+  Header,
+  colors,
+  main,
+  heading,
+} from "~/components/emails";
+```
+
+**Icon assets:**
+
+- Use `icon-32.png` for email images (located in `/public/`)
+- Reference via `${baseUrl}/icon-32.png` where `baseUrl = getBaseUrl()`
 
 ## Project Structure
 
