@@ -13,6 +13,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
   const [email, setEmail] = useState("");
   const [windSpeedMin, setWindSpeedMin] = useState<number | "">("");
   const [windSpeedMax, setWindSpeedMax] = useState<number | "">("");
+  const [minTemperature, setMinTemperature] = useState<number>(0);
   const [windDirections, setWindDirections] = useState(
     spot.defaultWindDirections,
   );
@@ -32,6 +33,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
       setEmail("");
       setWindSpeedMin("");
       setWindSpeedMax("");
+      setMinTemperature(0);
       setWindDirections(spot.defaultWindDirections);
       toast.success("Check your inbox to verify your subscription");
     },
@@ -53,6 +55,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
             windSpeedMin: windSpeedMin as number,
             windSpeedMax: windSpeedMax as number,
             windDirections,
+            minTemperature,
           });
         }}
         className="space-y-4"
@@ -96,6 +99,19 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
             disabled={subscribe.isPending}
           />
         </div>
+
+        <Input
+          type="number"
+          placeholder="Min temperature"
+          value={minTemperature}
+          onChange={(e) => {
+            setMinTemperature(
+              isNaN(e.target.valueAsNumber) ? 0 : e.target.valueAsNumber,
+            );
+          }}
+          suffix="°C"
+          disabled={subscribe.isPending}
+        />
 
         <div className="pt-2">
           <label className="text-ocean-200 mb-3 block text-sm font-medium">

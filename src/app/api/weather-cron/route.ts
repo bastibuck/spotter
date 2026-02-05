@@ -53,7 +53,7 @@ export const GET = async (request: Request) => {
     start_date: targetDayDateStr,
     end_date: targetDayDateStr,
 
-    hourly: ["wind_speed_10m", "wind_direction_10m"],
+    hourly: ["wind_speed_10m", "wind_direction_10m", "temperature_2m"],
     wind_speed_unit: "kn",
   });
 
@@ -77,8 +77,9 @@ export const GET = async (request: Request) => {
 
     const windSpeed10m = hourly?.variables(0)?.valuesArray();
     const windDirection10m = hourly?.variables(1)?.valuesArray();
+    const temperature2m = hourly?.variables(2)?.valuesArray();
 
-    if (!hourly || !windSpeed10m || !windDirection10m) {
+    if (!hourly || !windSpeed10m || !windDirection10m || !temperature2m) {
       return;
     }
 
@@ -91,6 +92,7 @@ export const GET = async (request: Request) => {
         ).map((t) => new Date((t + utcOffsetSeconds) * 1000)),
         windSpeed10m,
         windDirection10m,
+        temperature2m,
       },
     };
 
@@ -100,8 +102,14 @@ export const GET = async (request: Request) => {
       const time = weatherData.hourly.time[i];
       const windSpeed10m = weatherData.hourly.windSpeed10m[i];
       const windDirection10m = weatherData.hourly.windDirection10m[i];
+      const temperature2m = weatherData.hourly.temperature2m[i];
 
-      if (!time || !windSpeed10m || !windDirection10m) {
+      if (
+        !time ||
+        windSpeed10m === undefined ||
+        windDirection10m === undefined ||
+        temperature2m === undefined
+      ) {
         continue;
       }
 
@@ -109,6 +117,7 @@ export const GET = async (request: Request) => {
         time,
         windSpeed10m,
         windDirection10m,
+        temperature2m,
       });
     }
 
@@ -119,8 +128,13 @@ export const GET = async (request: Request) => {
 
     // check conditions for each subscription
     spot.subscriptions.forEach((subscription) => {
-      const { windSpeedMin, windSpeedMax, windDirections, kiter } =
-        subscription;
+      const {
+        windSpeedMin,
+        windSpeedMax,
+        windDirections,
+        minTemperature,
+        kiter,
+      } = subscription;
 
       const suitableHours = onlyDaytime
         // check required conditions for 4 consecutive hours
@@ -139,6 +153,7 @@ export const GET = async (request: Request) => {
               windDirections,
               hours[idx + 0]?.windDirection10m,
             ) &&
+            checkTemperature(minTemperature, hours[idx + 0]?.temperature2m) &&
             // checkSameDay() => is always same day - duh!
 
             // -----------------------------------
@@ -153,6 +168,7 @@ export const GET = async (request: Request) => {
               windDirections,
               hours[idx + 1]?.windDirection10m,
             ) &&
+            checkTemperature(minTemperature, hours[idx + 1]?.temperature2m) &&
             checkSameDay(hours[idx + 0]?.time, hours[idx + 1]?.time) &&
             // -----------------------------------
             // hour 3
@@ -166,6 +182,7 @@ export const GET = async (request: Request) => {
               windDirections,
               hours[idx + 2]?.windDirection10m,
             ) &&
+            checkTemperature(minTemperature, hours[idx + 2]?.temperature2m) &&
             checkSameDay(hours[idx + 0]?.time, hours[idx + 2]?.time) &&
             // -----------------------------------
             // hour 4
@@ -179,6 +196,7 @@ export const GET = async (request: Request) => {
               windDirections,
               hours[idx + 3]?.windDirection10m,
             ) &&
+            checkTemperature(minTemperature, hours[idx + 3]?.temperature2m) &&
             checkSameDay(hours[idx + 0]?.time, hours[idx + 3]?.time)
           );
         });
@@ -246,6 +264,14 @@ const checkWindSpeed = (min: number, max: number, windSpeed?: number) => {
   }
 
   return windSpeed >= min && windSpeed <= max;
+};
+
+const checkTemperature = (minTemperature: number, temperature?: number) => {
+  if (temperature === undefined) {
+    return false;
+  }
+
+  return temperature >= minTemperature;
 };
 
 const checkSameDay = (date1?: Date, date2?: Date) => {

@@ -24,7 +24,7 @@ import { type kiters, type subscriptions } from "~/server/db/schema";
 interface SpotNotificationProps {
   subscription: Pick<
     InferSelectModel<typeof subscriptions>,
-    "id" | "windDirections" | "windSpeedMin" | "windSpeedMax"
+    "id" | "windDirections" | "windSpeedMin" | "windSpeedMax" | "minTemperature"
   >;
   spotName: string;
   date: Date;
@@ -85,6 +85,10 @@ const SpotNotificationEmail = ({
                 label: "Directions",
                 value: subscription.windDirections.join(", "),
               },
+              {
+                label: "Min. temperature",
+                value: `${subscription.minTemperature}°C`,
+              },
             ]}
           />
 
@@ -113,6 +117,7 @@ SpotNotificationEmail.PreviewProps = {
     windDirections: ["N", "NE", "E"],
     windSpeedMin: 5,
     windSpeedMax: 10,
+    minTemperature: 15,
   },
   spotName: "Aukrog",
   date: new Date(),

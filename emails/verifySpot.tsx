@@ -26,7 +26,7 @@ import { type kiters, type subscriptions } from "~/server/db/schema";
 interface VerifyEmailProps {
   subscription: Pick<
     InferSelectModel<typeof subscriptions>,
-    "id" | "windDirections" | "windSpeedMin" | "windSpeedMax"
+    "id" | "windDirections" | "windSpeedMin" | "windSpeedMax" | "minTemperature"
   >;
   spotName: string;
   kiter: Pick<InferSelectModel<typeof kiters>, "id">;
@@ -69,6 +69,10 @@ const VerifySpotSubscriptionEmail = ({
               label: "Wind directions",
               value: subscription.windDirections.join(", "),
             },
+            {
+              label: "Min. temperature",
+              value: `${subscription.minTemperature}°C`,
+            },
           ]}
         />
 
@@ -101,6 +105,7 @@ VerifySpotSubscriptionEmail.PreviewProps = {
     windDirections: ["N", "NE"],
     windSpeedMin: 5,
     windSpeedMax: 10,
+    minTemperature: 15,
   },
   spotName: "Aukrog",
   kiter: {
