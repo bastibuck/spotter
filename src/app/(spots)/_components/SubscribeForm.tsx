@@ -69,11 +69,13 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
           }}
           required
           disabled={subscribe.isPending}
+          enterKeyHint="next"
         />
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           <Input
             type="number"
+            inputMode="numeric"
             placeholder="Min wind"
             value={windSpeedMin}
             onChange={(e) => {
@@ -84,9 +86,11 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
             suffix="kn"
             required
             disabled={subscribe.isPending}
+            enterKeyHint="next"
           />
           <Input
             type="number"
+            inputMode="numeric"
             placeholder="Max wind"
             value={windSpeedMax}
             onChange={(e) => {
@@ -97,9 +101,11 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
             suffix="kn"
             required
             disabled={subscribe.isPending}
+            enterKeyHint="next"
           />
           <Input
             type="number"
+            inputMode="numeric"
             placeholder="Min temp"
             value={minTemperature}
             onChange={(e) => {
@@ -112,6 +118,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
             suffix="°C"
             disabled={subscribe.isPending}
             wrapperClassName="col-span-2 sm:col-span-1"
+            enterKeyHint="done"
           />
         </div>
 
