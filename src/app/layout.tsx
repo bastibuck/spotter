@@ -71,7 +71,7 @@ export default function RootLayout({
               <main className="px-4 pt-24 pb-12">{children}</main>
             </div>
             <Toaster
-              position="bottom-center"
+              position="top-center"
               toastOptions={{
                 style: {
                   background:

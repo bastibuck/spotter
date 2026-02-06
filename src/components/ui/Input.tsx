@@ -4,6 +4,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   suffix?: string;
+  wrapperClassName?: string;
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -11,10 +12,11 @@ export const Input: React.FC<InputProps> = ({
   error,
   suffix,
   className = "",
+  wrapperClassName = "",
   ...props
 }) => {
   return (
-    <div className="w-full">
+    <div className={`w-full ${wrapperClassName}`}>
       {label && (
         <label className="text-ocean-200 mb-2 block text-sm font-medium">
           {label}

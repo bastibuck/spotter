@@ -71,7 +71,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
           disabled={subscribe.isPending}
         />
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           <Input
             type="number"
             placeholder="Min wind"
@@ -111,6 +111,7 @@ function SubscribeToSpotForm({ spot }: { spot: typeof spots.$inferSelect }) {
             max={50}
             suffix="°C"
             disabled={subscribe.isPending}
+            wrapperClassName="col-span-2 sm:col-span-1"
           />
         </div>
 
