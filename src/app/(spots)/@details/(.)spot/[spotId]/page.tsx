@@ -1,6 +1,5 @@
-import { eq } from "drizzle-orm";
 import { db } from "~/server/db";
-import { spots } from "~/server/db/schema";
+import { getSpotWithSubscriberCount } from "~/server/db/queries";
 import {
   Card,
   CardHeader,
@@ -8,8 +7,9 @@ import {
   CardDescription,
   CardContent,
 } from "~/components/ui/Card";
-import { Badge } from "~/components/ui/Badge";
 import CardinalDirection from "~/components/spots/Cardinals";
+import { LocationBadge } from "~/components/spots/LocationBadge";
+import { SubscribersBadge } from "~/components/spots/SubscribersBadge";
 
 export const revalidate = 3600;
 export const dynamicParams = true; // statically generate new paths not known during build time
@@ -26,10 +26,7 @@ const SpotDetailsPage: React.FC<{
   params: Promise<{ spotId: string }>;
 }> = async ({ params }) => {
   const spotId = (await params).spotId;
-
-  const spot = await db.query.spots.findFirst({
-    where: eq(spots.id, parseInt(spotId)),
-  });
+  const spot = await getSpotWithSubscriberCount(parseInt(spotId));
 
   if (spot === undefined) {
     return (
@@ -67,28 +64,10 @@ const SpotDetailsPage: React.FC<{
                 {spot.description}
               </CardDescription>
             </div>
-            <Badge variant="info">
-              <svg
-                className="mr-1 h-3 w-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-              {spot.lat.toFixed(4)}, {spot.long.toFixed(4)}
-            </Badge>
+            <div className="flex flex-col items-end gap-2">
+              <LocationBadge lat={spot.lat} long={spot.long} />
+              <SubscribersBadge count={spot.activeSubscribers} />
+            </div>
           </div>
         </CardHeader>
 

@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation";
 import React from "react";
-import { db } from "~/server/db";
-import { eq } from "drizzle-orm";
-import { spots } from "~/server/db/schema";
 import Link from "next/link";
+import { db } from "~/server/db";
+import { getSpotWithSubscriberCount } from "~/server/db/queries";
 import {
   Card,
   CardHeader,
@@ -11,9 +10,10 @@ import {
   CardDescription,
   CardContent,
 } from "~/components/ui/Card";
-import { Badge } from "~/components/ui/Badge";
 import { Button } from "~/components/ui/Button";
-import CardinalDirection from "../../../../components/spots/Cardinals";
+import CardinalDirection from "~/components/spots/Cardinals";
+import { LocationBadge } from "~/components/spots/LocationBadge";
+import { SubscribersBadge } from "~/components/spots/SubscribersBadge";
 
 export const revalidate = 3600;
 export const dynamicParams = true; // statically generate new paths not known during build time
@@ -30,10 +30,7 @@ const SpotDetailsPage: React.FC<{
   params: Promise<{ spotId: string }>;
 }> = async ({ params }) => {
   const spotId = (await params).spotId;
-
-  const spot = await db.query.spots.findFirst({
-    where: eq(spots.id, parseInt(spotId)),
-  });
+  const spot = await getSpotWithSubscriberCount(parseInt(spotId));
 
   if (spot === undefined) {
     redirect("/404");
@@ -72,28 +69,17 @@ const SpotDetailsPage: React.FC<{
                   {spot.description}
                 </CardDescription>
               </div>
-              <Badge variant="info" className="text-sm">
-                <svg
-                  className="mr-1 h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-                {spot.lat.toFixed(4)}, {spot.long.toFixed(4)}
-              </Badge>
+              <div className="flex flex-col items-end gap-2">
+                <LocationBadge
+                  lat={spot.lat}
+                  long={spot.long}
+                  className="text-sm"
+                />
+                <SubscribersBadge
+                  count={spot.activeSubscribers}
+                  className="text-sm"
+                />
+              </div>
             </div>
           </CardHeader>
 
