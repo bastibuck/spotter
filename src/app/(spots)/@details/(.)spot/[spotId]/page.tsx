@@ -1,5 +1,5 @@
 import { db } from "~/server/db";
-import { getSpotWithSubscriberCount } from "~/server/db/queries";
+import { getSpotWithStats } from "~/server/db/queries";
 import {
   Card,
   CardHeader,
@@ -7,9 +7,9 @@ import {
   CardDescription,
   CardContent,
 } from "~/components/ui/Card";
-import CardinalDirection from "~/components/spots/Cardinals";
 import { LocationBadge } from "~/components/spots/LocationBadge";
 import { SubscribersBadge } from "~/components/spots/SubscribersBadge";
+import { PopularWindDirections } from "~/components/spots/PopularWindDirections";
 
 export const revalidate = 3600;
 export const dynamicParams = true; // statically generate new paths not known during build time
@@ -26,7 +26,7 @@ const SpotDetailsPage: React.FC<{
   params: Promise<{ spotId: string }>;
 }> = async ({ params }) => {
   const spotId = (await params).spotId;
-  const spot = await getSpotWithSubscriberCount(parseInt(spotId));
+  const spot = await getSpotWithStats(parseInt(spotId));
 
   if (spot === undefined) {
     return (
@@ -72,16 +72,10 @@ const SpotDetailsPage: React.FC<{
         </CardHeader>
 
         <CardContent>
-          <div>
-            <h3 className="text-ocean-200 mb-4 text-sm font-medium">
-              Default Wind Directions
-            </h3>
-            <div className="flex justify-center py-4">
-              <CardinalDirection
-                selectedDirections={spot.defaultWindDirections}
-              />
-            </div>
-          </div>
+          <PopularWindDirections
+            popularity={spot.windDirectionPopularity}
+            subscriberCount={spot.activeSubscribers}
+          />
         </CardContent>
       </Card>
     </div>
