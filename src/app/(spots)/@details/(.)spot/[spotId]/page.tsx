@@ -10,6 +10,7 @@ import {
 import { LocationBadge } from "~/components/spots/LocationBadge";
 import { SubscribersBadge } from "~/components/spots/SubscribersBadge";
 import { PopularWindDirections } from "~/components/spots/PopularWindDirections";
+import { PreferredWindSpeed } from "~/components/spots/PreferredWindSpeed";
 
 export const revalidate = 3600;
 export const dynamicParams = true; // statically generate new paths not known during build time
@@ -71,9 +72,13 @@ const SpotDetailsPage: React.FC<{
           </div>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="space-y-8">
           <PopularWindDirections
             popularity={spot.windDirectionPopularity}
+            subscriberCount={spot.activeSubscribers}
+          />
+          <PreferredWindSpeed
+            stats={spot.windSpeedStats}
             subscriberCount={spot.activeSubscribers}
           />
         </CardContent>

@@ -10,6 +10,17 @@ export type WindDirectionType = z.infer<typeof WindDirection>;
 
 export type WindDirectionPopularity = Record<WindDirectionType, number>;
 
+export interface WindSpeedStats {
+  /** Average minimum wind speed across subscribers */
+  avgMin: number;
+  /** Average maximum wind speed across subscribers */
+  avgMax: number;
+  /** Lowest minimum wind speed any subscriber accepts */
+  minOfMins: number;
+  /** Highest maximum wind speed any subscriber accepts */
+  maxOfMaxs: number;
+}
+
 export interface SpotWithStats {
   id: number;
   name: string;
@@ -20,6 +31,8 @@ export interface SpotWithStats {
   activeSubscribers: number;
   /** Popularity of each wind direction as a percentage (0-100) */
   windDirectionPopularity: WindDirectionPopularity;
+  /** Wind speed preferences statistics, null if no subscribers */
+  windSpeedStats: WindSpeedStats | null;
 }
 
 /**
@@ -58,6 +71,30 @@ function calculateWindDirectionPopularity(
 }
 
 /**
+ * Calculates wind speed statistics from subscriber preferences.
+ */
+function calculateWindSpeedStats(
+  activeSubscriptions: { windSpeedMin: number; windSpeedMax: number }[],
+): WindSpeedStats | null {
+  if (activeSubscriptions.length === 0) {
+    return null;
+  }
+
+  const mins = activeSubscriptions.map((s) => s.windSpeedMin);
+  const maxs = activeSubscriptions.map((s) => s.windSpeedMax);
+
+  const sumMin = mins.reduce((a, b) => a + b, 0);
+  const sumMax = maxs.reduce((a, b) => a + b, 0);
+
+  return {
+    avgMin: Math.round(sumMin / activeSubscriptions.length),
+    avgMax: Math.round(sumMax / activeSubscriptions.length),
+    minOfMins: Math.min(...mins),
+    maxOfMaxs: Math.max(...maxs),
+  };
+}
+
+/**
  * Fetches a spot by ID along with stats including subscriber count and wind direction popularity.
  * Uses React.cache() for per-request deduplication.
  */
@@ -84,6 +121,8 @@ export const getSpotWithStats = cache(
           ),
           columns: {
             windDirections: true,
+            windSpeedMin: true,
+            windSpeedMax: true,
           },
         }),
       ]);
@@ -97,6 +136,7 @@ export const getSpotWithStats = cache(
       activeSubscribers: subscriptionCountResult[0]?.count ?? 0,
       windDirectionPopularity:
         calculateWindDirectionPopularity(activeSubscriptions),
+      windSpeedStats: calculateWindSpeedStats(activeSubscriptions),
     };
   },
 );

@@ -23,8 +23,8 @@ export const subscriptionRouter = createTRPCRouter({
         .object({
           email: z.email().toLowerCase(),
           spotId: z.number().int(),
-          windSpeedMin: z.number().int().positive(),
-          windSpeedMax: z.number().int().positive(),
+          windSpeedMin: z.number().int().positive().max(50),
+          windSpeedMax: z.number().int().positive().max(50),
           windDirections: z.array(WindDirection),
           minTemperature: z.number().int().min(-20).max(50).optional(),
         })
