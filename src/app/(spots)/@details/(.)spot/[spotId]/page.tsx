@@ -12,7 +12,7 @@ import { SubscribersBadge } from "~/components/spots/SubscribersBadge";
 import { PopularWindDirections } from "~/components/spots/PopularWindDirections";
 import { PreferredWindSpeed } from "~/components/spots/PreferredWindSpeed";
 import { PreferredTemperature } from "~/components/spots/PreferredTemperature";
-import { SpotMap } from "~/components/spots/SpotMap";
+import { SpotMap } from "~/components/spots/SpotMapWrapper";
 
 export const revalidate = 300;
 export const dynamicParams = true; // statically generate new paths not known during build time
