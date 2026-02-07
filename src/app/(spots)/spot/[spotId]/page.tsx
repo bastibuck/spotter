@@ -17,7 +17,7 @@ import { PopularWindDirections } from "~/components/spots/PopularWindDirections"
 import { PreferredWindSpeed } from "~/components/spots/PreferredWindSpeed";
 import { PreferredTemperature } from "~/components/spots/PreferredTemperature";
 
-export const revalidate = 3600;
+export const revalidate = 300;
 export const dynamicParams = true; // statically generate new paths not known during build time
 
 export async function generateStaticParams() {
