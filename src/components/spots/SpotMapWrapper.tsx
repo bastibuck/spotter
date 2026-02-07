@@ -11,7 +11,14 @@ const SpotMapDynamic = dynamic(
   },
 );
 
-// Re-export with same interface
-export const SpotMap: React.FC<SpotMapProps> = (props) => {
-  return <SpotMapDynamic {...props} />;
+// Re-export with same interface, wrapping to prevent layout shift
+export const SpotMap: React.FC<SpotMapProps> = ({
+  height = "h-[250px]",
+  ...props
+}) => {
+  return (
+    <div className={`${height} relative w-full`}>
+      <SpotMapDynamic height={height} {...props} />
+    </div>
+  );
 };
