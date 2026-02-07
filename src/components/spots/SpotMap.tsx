@@ -55,7 +55,7 @@ export const SpotMap: React.FC<SpotMapProps> = ({
   const position: LatLngExpression = [lat, long];
 
   return (
-    <div className="overflow-hidden rounded-lg border border-white/10">
+    <div className="relative overflow-hidden rounded-lg border border-white/10">
       <MapContainer
         center={position}
         zoom={zoom}
@@ -64,12 +64,21 @@ export const SpotMap: React.FC<SpotMapProps> = ({
       >
         <TileLayer
           attribution='
-            &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors
+            &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>
           '
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
         <Marker position={position} icon={surfIcon} />
       </MapContainer>
+      {/* Subtle blue tint overlay */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundColor: "rgba(6, 182, 212, 0.12)",
+          mixBlendMode: "multiply",
+          zIndex: 500,
+        }}
+      />
     </div>
   );
 };
