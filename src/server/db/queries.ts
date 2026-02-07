@@ -21,6 +21,17 @@ export interface WindSpeedStats {
   maxOfMaxs: number;
 }
 
+export interface TemperatureStats {
+  /** Percentage of subscribers who have set a minimum temperature (0-100) */
+  percentageWithPreference: number;
+  /** Average minimum temperature across subscribers who have set one */
+  avgMin: number;
+  /** Lowest minimum temperature any subscriber accepts */
+  minOfMins: number;
+  /** Highest minimum temperature any subscriber accepts */
+  maxOfMins: number;
+}
+
 export interface SpotWithStats {
   id: number;
   name: string;
@@ -33,6 +44,8 @@ export interface SpotWithStats {
   windDirectionPopularity: WindDirectionPopularity;
   /** Wind speed preferences statistics, null if no subscribers */
   windSpeedStats: WindSpeedStats | null;
+  /** Temperature preferences statistics, null if no subscribers */
+  temperatureStats: TemperatureStats | null;
 }
 
 /**
@@ -95,6 +108,43 @@ function calculateWindSpeedStats(
 }
 
 /**
+ * Calculates temperature statistics from subscriber preferences.
+ * Only considers subscribers who have set a minimum temperature.
+ */
+function calculateTemperatureStats(
+  activeSubscriptions: { minTemperature: number | null }[],
+): TemperatureStats | null {
+  if (activeSubscriptions.length === 0) {
+    return null;
+  }
+
+  // Filter to only subscribers with a temperature preference
+  const withTemp = activeSubscriptions
+    .map((s) => s.minTemperature)
+    .filter((t): t is number => t !== null);
+
+  if (withTemp.length === 0) {
+    return {
+      percentageWithPreference: 0,
+      avgMin: 0,
+      minOfMins: 0,
+      maxOfMins: 0,
+    };
+  }
+
+  const sum = withTemp.reduce((a, b) => a + b, 0);
+
+  return {
+    percentageWithPreference: Math.round(
+      (withTemp.length / activeSubscriptions.length) * 100,
+    ),
+    avgMin: Math.round(sum / withTemp.length),
+    minOfMins: Math.min(...withTemp),
+    maxOfMins: Math.max(...withTemp),
+  };
+}
+
+/**
  * Fetches a spot by ID along with stats including subscriber count and wind direction popularity.
  * Uses React.cache() for per-request deduplication.
  */
@@ -123,6 +173,7 @@ export const getSpotWithStats = cache(
             windDirections: true,
             windSpeedMin: true,
             windSpeedMax: true,
+            minTemperature: true,
           },
         }),
       ]);
@@ -137,6 +188,7 @@ export const getSpotWithStats = cache(
       windDirectionPopularity:
         calculateWindDirectionPopularity(activeSubscriptions),
       windSpeedStats: calculateWindSpeedStats(activeSubscriptions),
+      temperatureStats: calculateTemperatureStats(activeSubscriptions),
     };
   },
 );
