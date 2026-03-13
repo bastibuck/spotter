@@ -69,5 +69,8 @@
   "ct3aMetadata": {
     "initVersion": "7.37.0"
   },
-  "packageManager": "npm@11.8.0"
+  "packageManager": "npm@11.8.0",
+  "volta": {
+    "node": "24.14.0"
+  }
 }
