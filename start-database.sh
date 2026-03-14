@@ -10,6 +10,7 @@
 # On Linux and macOS you can run this script directly - `./start-database.sh`
 
 DB_CONTAINER_NAME="spotter-postgres"
+ENV_FILE=".env"
 
 if ! [ -x "$(command -v docker)" ]; then
   echo -e "Docker is not installed. Please install docker and try again.\nDocker install guide: https://docs.docker.com/engine/install/"
@@ -27,12 +28,28 @@ if [ "$(docker ps -q -a -f name=$DB_CONTAINER_NAME)" ]; then
   exit 0
 fi
 
+if [ ! -f "$ENV_FILE" ]; then
+  echo ".env file not found. Create it first, for example by copying .env.example."
+  exit 1
+fi
+
 # import env variables from .env
 set -a
-source .env
+source "$ENV_FILE"
+set +a
 
-DB_PASSWORD=$(echo "$DATABASE_URL" | awk -F':' '{print $3}' | awk -F'@' '{print $1}')
-DB_PORT=$(echo "$DATABASE_URL" | awk -F':' '{print $4}' | awk -F'\/' '{print $1}')
+if [ -z "${DATABASE_URL:-}" ]; then
+  echo "DATABASE_URL is missing in .env. Add it before starting the database."
+  exit 1
+fi
+
+if [[ ! "$DATABASE_URL" =~ ^postgres(ql)?://([^:]+):([^@]+)@([^:/]+):([0-9]+)/([^/?#]+)$ ]]; then
+  echo "DATABASE_URL in .env is not in the expected format: postgresql://user:password@host:port/database"
+  exit 1
+fi
+
+DB_PASSWORD="${BASH_REMATCH[3]}"
+DB_PORT="${BASH_REMATCH[5]}"
 
 if [ "$DB_PASSWORD" = "password" ]; then
   echo "You are using the default database password"
@@ -40,10 +57,16 @@ if [ "$DB_PASSWORD" = "password" ]; then
   if ! [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "Please change the default password in the .env file and try again"
     exit 1
-  fi
+  fi  
   # Generate a random URL-safe password
-  DB_PASSWORD=$(openssl rand -base64 12 | tr '+/' '-_')
-  sed -i -e "s#:password@#:$DB_PASSWORD@#" .env
+  DB_PASSWORD=$(openssl rand -base64 12 | tr '+/' '-_' | tr -d '\n')
+
+  # OS aware sed command to replace the password in the .env file
+  if sed --version >/dev/null 2>&1; then
+    sed -i -e "s#:password@#:$DB_PASSWORD@#" .env
+  else
+    sed -i '' -e "s#:password@#:$DB_PASSWORD@#" .env
+  fi
 fi
 
 docker run -d \
