@@ -33,6 +33,7 @@ npm run format:fix            # Fix formatting with Prettier
 # Database
 npm run db:generate           # Generate Drizzle migrations
 npm run db:migrate            # Run migrations
+npm run db:seed              # Seed local development data
 npm run db:studio             # Open Drizzle Studio
 
 # Email Development
@@ -124,6 +125,28 @@ ALTER TABLE "spotter_subscriptions" ADD COLUMN "some_column" smallint NOT NULL;
 
 **For new environments:** Run `npm run db:migrate` to apply all migrations from scratch.
 
+#### Development Seeding
+
+Local development data is seeded separately from migrations.
+
+- Seed command: `npm run db:seed`
+- Seed runner: `dev/seed/index.ts`
+- Seed data definitions: `dev/seed/seedData.ts`
+- The seed command uses `tsx` with `--env-file=.env`
+- Keep migrations schema-only; do not put development fixture data into migration files
+
+**Implementation notes:**
+
+- Seeding is idempotent for `spots` via unique `spots.name` and `onConflictDoNothing()`
+- Seeding is idempotent for `kiters` via unique `kiters.email` and `onConflictDoNothing()`
+- Seeding avoids duplicate `subscriptions` by checking the existing `(spotId, kiterId)` pair before insert
+
+**Recommended local setup order:**
+
+1. Start the local database with `./start-database.sh`
+2. Apply migrations with `npm run db:migrate`
+3. Seed development data with `npm run db:seed`
+
 ### API (tRPC)
 
 - Use `publicProcedure` for unauthenticated endpoints
@@ -198,6 +221,10 @@ src/
 └── styles/               # Global CSS
 
 emails/                   # React Email templates
+dev/
+└── seed/                # Development-only database seeding
+    ├── index.ts         # Seed runner
+    └── seedData.ts      # Seed fixtures and related seed types
 ```
 
 ## Key Dependencies

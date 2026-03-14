@@ -7,6 +7,7 @@
     "build": "drizzle-kit migrate && next build",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx --env-file=.env dev/seed/index.ts",
     "db:studio": "drizzle-kit studio",
     "dev": "next dev --turbopack",
     "lint": "eslint .",
@@ -63,6 +64,7 @@
     "prettier-plugin-tailwindcss": "^0.7.2",
     "react-email": "5.2.7",
     "tailwindcss": "^4.1.18",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.54.0"
   },
