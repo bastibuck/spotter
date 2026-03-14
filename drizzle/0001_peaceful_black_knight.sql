@@ -1,0 +1,1 @@
+ALTER TABLE "spotter_spots" ADD CONSTRAINT "spotter_spots_name_unique" UNIQUE("name");

@@ -139,7 +139,7 @@ export const WindDirection = z.enum([
  **/
 export const spots = createTable("spots", {
   id: serial().primaryKey(),
-  name: varchar({ length: 128 }).notNull(),
+  name: varchar({ length: 128 }).notNull().unique(),
   description: text(),
   long: doublePrecision().notNull(),
   lat: doublePrecision().notNull(),
