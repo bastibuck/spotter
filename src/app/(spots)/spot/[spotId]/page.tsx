@@ -65,14 +65,14 @@ const SpotDetailsPage: React.FC<{
       <div className="animate-fade-in-up">
         <Card>
           <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
                 <CardTitle className="text-4xl">{spot.name}</CardTitle>
-                <CardDescription className="mt-3 text-lg">
+                <CardDescription className="mt-3 break-words text-lg">
                   {spot.description}
                 </CardDescription>
               </div>
-              <div className="flex flex-col items-end gap-2">
+              <div className="flex shrink-0 flex-col items-end gap-2">
                 <LocationBadge
                   lat={spot.lat}
                   long={spot.long}

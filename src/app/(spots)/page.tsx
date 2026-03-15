@@ -40,8 +40,8 @@ export default async function SpotsPage() {
             className="group hover:border-aqua-400/30 transition-colors duration-300"
           >
             <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
                   <Link
                     href={`/spot/${spot.id}`}
                     scroll={false}
@@ -52,7 +52,7 @@ export default async function SpotsPage() {
                       {spot.name}
                     </CardTitle>
                   </Link>
-                  <CardDescription className="mt-2">
+                  <CardDescription className="mt-2 break-words">
                     {spot.description}
                   </CardDescription>
                 </div>
