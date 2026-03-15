@@ -50,6 +50,8 @@ export default tseslint.config(
 
       "react-compiler/react-compiler": "warn",
 
+      "react/no-unescaped-entities": "off",
+
       "@typescript-eslint/array-type": ["warn"],
       "@typescript-eslint/consistent-type-imports": ["warn"],
       "@typescript-eslint/restrict-template-expressions": [

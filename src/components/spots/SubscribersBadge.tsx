@@ -29,7 +29,7 @@ export const SubscribersBadge: React.FC<SubscribersBadgeProps> = ({
   return (
     <Badge
       variant="default"
-      className={`shrink-0 whitespace-nowrap ${className ?? ''}`.trim()}
+      className={`shrink-0 whitespace-nowrap ${className ?? ""}`.trim()}
     >
       <UsersIcon className="mr-1 h-3 w-3 shrink-0" />
       {count} {count === 1 ? "subscriber" : "subscribers"}
