@@ -76,7 +76,6 @@ export default async function SpotsPage() {
           </section>
         )}
       </div>
-
     </div>
   );
 }
