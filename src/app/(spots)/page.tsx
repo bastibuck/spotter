@@ -1,16 +1,7 @@
 import React from "react";
-import Link from "next/link";
 import { db } from "~/server/db";
 
-import SubscribeToSpotForm from "./_components/SubscribeForm";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "~/components/ui/Card";
-import { LocationBadge } from "~/components/spots/LocationBadge";
+import { SpotMapPin, SpotMapRoot } from "~/components/spots/SpotMapWrapper";
 
 export const revalidate = 3600; // revalidate every hour
 
@@ -32,42 +23,9 @@ export default async function SpotsPage() {
         </p>
       </div>
 
-      {/* Spots Grid */}
-      <div className="stagger-children mx-auto grid max-w-6xl grid-cols-1 gap-6 lg:grid-cols-2">
-        {allSpots.map((spot) => (
-          <Card
-            key={spot.id}
-            className="group hover:border-aqua-400/30 transition-colors duration-300"
-          >
-            <CardHeader>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <Link
-                    href={`/spot/${spot.id}`}
-                    scroll={false}
-                    prefetch
-                    className="inline-block"
-                  >
-                    <CardTitle className="group-hover:text-aqua-300 text-2xl transition-colors">
-                      {spot.name}
-                    </CardTitle>
-                  </Link>
-                  <CardDescription className="mt-2 break-words">
-                    {spot.description}
-                  </CardDescription>
-                </div>
-                <LocationBadge lat={spot.lat} long={spot.long} precision={2} />
-              </div>
-            </CardHeader>
-
-            <CardContent>
-              <SubscribeToSpotForm spot={spot} />
-            </CardContent>
-          </Card>
-        ))}
-
-        {allSpots.length === 0 && (
-          <div className="col-span-full py-16 text-center">
+      <div className="mx-auto max-w-6xl">
+        {allSpots.length === 0 ? (
+          <div className="py-16 text-center">
             <div className="bg-ocean-800/50 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
               <svg
                 className="text-ocean-300 h-8 w-8"
@@ -85,6 +43,23 @@ export default async function SpotsPage() {
             </div>
             <p className="text-ocean-200 text-lg">No spots found.</p>
           </div>
+        ) : (
+          <section className="animate-fade-in-up">
+            <SpotMapRoot
+              bounds={allSpots.map((spot) => [spot.lat, spot.long])}
+              height="h-[420px] md:h-[560px]"
+            >
+              {allSpots.map((spot) => (
+                <SpotMapPin
+                  key={spot.id}
+                  lat={spot.lat}
+                  long={spot.long}
+                  href={`/spot/${spot.id}`}
+                  label={spot.name}
+                />
+              ))}
+            </SpotMapRoot>
+          </section>
         )}
       </div>
 

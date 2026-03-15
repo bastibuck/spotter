@@ -13,6 +13,7 @@ import { PopularWindDirections } from "~/components/spots/PopularWindDirections"
 import { PreferredWindSpeed } from "~/components/spots/PreferredWindSpeed";
 import { PreferredTemperature } from "~/components/spots/PreferredTemperature";
 import { SpotMap } from "~/components/spots/SpotMapWrapper";
+import SubscribeToSpotForm from "~/app/(spots)/_components/SubscribeForm";
 
 export const revalidate = 300;
 export const dynamicParams = true; // statically generate new paths not known during build time
@@ -63,7 +64,7 @@ const SpotDetailsPage: React.FC<{
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <CardTitle className="text-3xl">{spot.name}</CardTitle>
-              <CardDescription className="mt-2 break-words text-base">
+              <CardDescription className="mt-2 text-base break-words">
                 {spot.description}
               </CardDescription>
             </div>
@@ -75,23 +76,54 @@ const SpotDetailsPage: React.FC<{
         </CardHeader>
 
         <CardContent className="space-y-8">
-          <div className="space-y-3">
-            <h3 className="text-ocean-200 text-sm font-medium">Location</h3>
-            <SpotMap lat={spot.lat} long={spot.long} />
-          </div>
+          <section className="from-aqua-500/10 to-ocean-500/10 space-y-3 rounded-2xl border border-white/10 bg-linear-to-br p-5">
+            <div className="space-y-1">
+              <p className="text-aqua-200 text-xs font-semibold tracking-[0.24em] uppercase">
+                Your Alert
+              </p>
+              <h3 className="text-xl font-semibold text-white">
+                Set your personal wind alert
+              </h3>
+              <p className="text-ocean-200/75 text-sm leading-relaxed">
+                Choose the wind, temperature, and email you want us to watch for
+                at this spot.
+              </p>
+            </div>
+            <SubscribeToSpotForm spot={spot} />
+          </section>
 
-          <PopularWindDirections
-            popularity={spot.windDirectionPopularity}
-            subscriberCount={spot.activeSubscribers}
-          />
-          <PreferredWindSpeed
-            stats={spot.windSpeedStats}
-            subscriberCount={spot.activeSubscribers}
-          />
-          <PreferredTemperature
-            stats={spot.temperatureStats}
-            subscriberCount={spot.activeSubscribers}
-          />
+          <section className="space-y-6 border-t border-white/10 pt-8">
+            <div className="space-y-1">
+              <p className="text-ocean-300 text-xs font-semibold tracking-[0.24em] uppercase">
+                Crowd Preferences
+              </p>
+              <h3 className="text-xl font-semibold text-white">
+                What other surfers wait for here
+              </h3>
+              <p className="text-ocean-200/75 text-sm leading-relaxed">
+                A snapshot of the conditions your fellow subscribers care about
+                most at {spot.name}.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <h4 className="text-ocean-200 text-sm font-medium">Location</h4>
+              <SpotMap lat={spot.lat} long={spot.long} />
+            </div>
+
+            <PopularWindDirections
+              popularity={spot.windDirectionPopularity}
+              subscriberCount={spot.activeSubscribers}
+            />
+            <PreferredWindSpeed
+              stats={spot.windSpeedStats}
+              subscriberCount={spot.activeSubscribers}
+            />
+            <PreferredTemperature
+              stats={spot.temperatureStats}
+              subscriberCount={spot.activeSubscribers}
+            />
+          </section>
         </CardContent>
       </Card>
     </div>

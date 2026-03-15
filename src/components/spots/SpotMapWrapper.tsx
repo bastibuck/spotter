@@ -1,9 +1,27 @@
 "use client";
 
+import React from "react";
 import dynamic from "next/dynamic";
-import type { SpotMapProps } from "./SpotMap";
+import type {
+  SpotMapPinProps,
+  SpotMapProps,
+  SpotMapRootProps,
+} from "./SpotMap";
 
-// Dynamically import SpotMap with SSR disabled to prevent window errors during build
+const SpotMapRootDynamic = dynamic(
+  () => import("./SpotMap").then((mod) => mod.SpotMapRoot),
+  {
+    ssr: false,
+  },
+);
+
+const SpotMapPinDynamic = dynamic(
+  () => import("./SpotMap").then((mod) => mod.SpotMapPin),
+  {
+    ssr: false,
+  },
+);
+
 const SpotMapDynamic = dynamic(
   () => import("./SpotMap").then((mod) => mod.SpotMap),
   {
@@ -11,7 +29,21 @@ const SpotMapDynamic = dynamic(
   },
 );
 
-// Re-export with same interface, wrapping to prevent layout shift
+export const SpotMapRoot: React.FC<SpotMapRootProps> = ({
+  height = "h-[250px]",
+  ...props
+}) => {
+  return (
+    <div className={`${height} relative w-full`}>
+      <SpotMapRootDynamic height={height} {...props} />
+    </div>
+  );
+};
+
+export const SpotMapPin: React.FC<SpotMapPinProps> = (props) => {
+  return <SpotMapPinDynamic {...props} />;
+};
+
 export const SpotMap: React.FC<SpotMapProps> = ({
   height = "h-[250px]",
   ...props
