@@ -168,6 +168,7 @@ Local development data is seeded separately from migrations.
 - Prefer early returns over nested conditionals
 - Extract complex JSX into separate components
 - Server Components by default, add `'use client'` when needed
+- Leaflet maps use a composition pattern: `SpotMapRoot` owns map setup, `SpotMapPin` renders markers, and `SpotMap` is the single-spot convenience wrapper for detail pages
 
 ### Email Templates
 
