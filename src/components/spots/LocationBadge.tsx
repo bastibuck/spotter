@@ -38,7 +38,10 @@ export const LocationBadge: React.FC<LocationBadgeProps> = ({
   className,
 }) => {
   return (
-    <Badge variant="info" className={`shrink-0 whitespace-nowrap ${className ?? ''}`.trim()}>
+    <Badge
+      variant="info"
+      className={`shrink-0 whitespace-nowrap ${className ?? ""}`.trim()}
+    >
       <LocationIcon className="mr-1 h-3 w-3 shrink-0" />
       {lat.toFixed(precision)}, {long.toFixed(precision)}
     </Badge>

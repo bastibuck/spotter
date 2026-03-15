@@ -68,7 +68,7 @@ const SpotDetailsPage: React.FC<{
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
                 <CardTitle className="text-4xl">{spot.name}</CardTitle>
-                <CardDescription className="mt-3 break-words text-lg">
+                <CardDescription className="mt-3 text-lg break-words">
                   {spot.description}
                 </CardDescription>
               </div>

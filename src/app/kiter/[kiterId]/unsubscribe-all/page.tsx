@@ -53,7 +53,7 @@ const UnsubscribeAllSpotsPage = async (props: {
             {/* Heading */}
             <h1 className="mb-3 text-3xl font-bold tracking-tight md:text-4xl">
               <span className="from-aqua-300 to-ocean-200 bg-linear-to-r via-white bg-clip-text text-transparent">
-                You&apos;re Unsubscribed
+                You're Unsubscribed
               </span>
             </h1>
 
@@ -79,8 +79,8 @@ const UnsubscribeAllSpotsPage = async (props: {
 
             {/* Info text */}
             <p className="text-ocean-300/60 mb-8 text-sm">
-              You won&apos;t receive any more wind alerts. Changed your mind?
-              You can always subscribe again.
+              You won't receive any more wind alerts. Changed your mind? You can
+              always subscribe again.
             </p>
 
             {/* CTA Button */}

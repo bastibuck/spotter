@@ -3,17 +3,19 @@ import { redirect } from "next/navigation";
 import { Button } from "~/components/ui/Button";
 import { Card, CardContent } from "~/components/ui/Card";
 import { api } from "~/trpc/server";
+import OptionalPreferencesForm from "./_components/OptionalPreferencesForm";
 
 const VerifySubscriptionPage = async (props: {
   params: Promise<{ subscriptionId: string }>;
 }) => {
   const params = await props.params;
-  const name = await api.subscription
+  const verification = await api.subscription
     .verify({ subscriptionId: params.subscriptionId })
-    .then((res) => res.name)
     .catch(() => {
       redirect("/404");
     });
+
+  const { alreadyVerified, name } = verification;
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-4">
@@ -64,21 +66,31 @@ const VerifySubscriptionPage = async (props: {
                   clipRule="evenodd"
                 />
               </svg>
-              Verified Successfully
+              {alreadyVerified ? "Already Confirmed" : "Verified Successfully"}
             </div>
 
             {/* Heading */}
             <h1 className="mb-3 text-3xl font-bold tracking-tight md:text-4xl">
               <span className="from-aqua-300 to-ocean-200 bg-linear-to-r via-white bg-clip-text text-transparent">
-                You&apos;re All Set!
+                {alreadyVerified ? "Already Verified" : "You're All Set!"}
               </span>
             </h1>
 
             {/* Subtext */}
             <p className="text-ocean-200/80 mb-6 text-lg">
-              Your subscription to{" "}
-              <span className="text-aqua-300 font-semibold">{name}</span> is now
-              active.
+              {alreadyVerified ? (
+                <>
+                  Your subscription to{" "}
+                  <span className="text-aqua-300 font-semibold">{name}</span>{" "}
+                  was already confirmed earlier.
+                </>
+              ) : (
+                <>
+                  Your subscription to{" "}
+                  <span className="text-aqua-300 font-semibold">{name}</span> is
+                  now active.
+                </>
+              )}
             </p>
 
             {/* Feature highlights */}
@@ -97,10 +109,19 @@ const VerifySubscriptionPage = async (props: {
                     d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                   />
                 </svg>
-                You&apos;ll receive alerts when conditions match your
-                preferences
+                {alreadyVerified
+                  ? "You can use My Spots to manage your subscriptions from your inbox summary at any time."
+                  : "You'll receive alerts when conditions match your preferences, and you can add an optional temperature filter below."}
               </p>
             </div>
+
+            {!alreadyVerified && (
+              <div className="border-ocean-700/50 bg-ocean-950/40 mb-8 rounded-xl border p-5 text-left">
+                <OptionalPreferencesForm
+                  subscriptionId={params.subscriptionId}
+                />
+              </div>
+            )}
 
             {/* CTA Buttons */}
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
