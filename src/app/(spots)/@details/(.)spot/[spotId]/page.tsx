@@ -85,8 +85,8 @@ const SpotDetailsPage: React.FC<{
                 Set your personal wind alert
               </h3>
               <p className="text-ocean-200/75 text-sm leading-relaxed">
-                Choose the wind, temperature, and email you want us to watch for
-                at this spot.
+                Enter your email and choose the wind range and directions you
+                want us to watch for at this spot.
               </p>
             </div>
             <SubscribeToSpotForm spot={spot} />
@@ -101,8 +101,8 @@ const SpotDetailsPage: React.FC<{
                 What other surfers wait for here
               </h3>
               <p className="text-ocean-200/75 text-sm leading-relaxed">
-                A snapshot of the conditions your fellow subscribers care about
-                most at {spot.name}.
+                A snapshot of the wind patterns and optional filters other
+                subscribers care about at {spot.name}.
               </p>
             </div>
 
