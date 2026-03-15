@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNotNull, isNull } from "drizzle-orm";
 import MySpotsEmail from "emails/mySpots";
 import VerifySpotSubscriptionEmail from "emails/verifySpot";
 import { Resend } from "resend";
@@ -26,7 +26,6 @@ export const subscriptionRouter = createTRPCRouter({
           windSpeedMin: z.number().int().positive().max(50),
           windSpeedMax: z.number().int().positive().max(50),
           windDirections: z.array(WindDirection),
-          minTemperature: z.number().int().min(-20).max(50).optional(),
         })
         .refine((input) => input.windSpeedMax > input.windSpeedMin, {
           message: "Max. wind speed must be larger than min. wind speed.",
@@ -82,7 +81,6 @@ export const subscriptionRouter = createTRPCRouter({
             windDirections: input.windDirections,
             windSpeedMin: input.windSpeedMin,
             windSpeedMax: input.windSpeedMax,
-            minTemperature: input.minTemperature,
           })
           .returning();
 
@@ -150,15 +148,63 @@ export const subscriptionRouter = createTRPCRouter({
         });
       }
 
+      const alreadyVerified = subscription.verifiedAt !== null;
+
+      if (!alreadyVerified) {
+        await ctx.db
+          .update(subscriptions)
+          .set({ verifiedAt: new Date() })
+          .where(
+            and(
+              eq(subscriptions.id, input.subscriptionId),
+              isNull(subscriptions.verifiedAt),
+            ),
+          );
+      }
+
+      return {
+        name: subscription.spot.name,
+        alreadyVerified,
+      };
+    }),
+
+  updateOptionalFields: publicProcedure
+    .input(
+      z.object({
+        subscriptionId: z.uuid(),
+        minTemperature: z.number().int().min(-20).max(50).nullable(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const subscription = await ctx.db.query.subscriptions.findFirst({
+        where: and(
+          eq(subscriptions.id, input.subscriptionId),
+          isNotNull(subscriptions.verifiedAt),
+        ),
+        with: { spot: { columns: { name: true } } },
+      });
+
+      if (subscription === undefined) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Verified subscription not found.",
+        });
+      }
+
+      if (
+        input.minTemperature !== null &&
+        subscription.minTemperature !== null
+      ) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "Optional preferences were already submitted.",
+        });
+      }
+
       await ctx.db
         .update(subscriptions)
-        .set({ verifiedAt: new Date() })
-        .where(
-          and(
-            eq(subscriptions.id, input.subscriptionId),
-            isNull(subscriptions.verifiedAt),
-          ),
-        );
+        .set({ minTemperature: input.minTemperature })
+        .where(eq(subscriptions.id, input.subscriptionId));
 
       return {
         name: subscription.spot.name,

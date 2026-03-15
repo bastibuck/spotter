@@ -68,7 +68,7 @@ const UnsubscribeSubscriptionPage = async (props: {
 
             {/* Subtext */}
             <p className="text-ocean-200/80 mb-6 text-lg">
-              You&apos;ve unsubscribed from{" "}
+              You've unsubscribed from{" "}
               <span className="text-ocean-100 font-semibold">{name}</span>.
             </p>
 
@@ -81,7 +81,7 @@ const UnsubscribeSubscriptionPage = async (props: {
 
             {/* Info text */}
             <p className="text-ocean-300/60 mb-8 text-sm">
-              You won&apos;t receive wind alerts for this spot anymore. Want to
+              You won't receive wind alerts for this spot anymore. Want to
               explore other locations?
             </p>
 

@@ -52,7 +52,7 @@ const VerifySpotSubscriptionEmail = ({
         <Text style={spotNameHighlight}>{spotName}</Text>
 
         <Text style={paragraphCentered}>
-          You&apos;re almost ready to receive wind alerts! Confirm your
+          You're almost ready to receive wind alerts! Confirm your
           subscription to start getting notified when conditions are perfect for
           kitesurfing.
         </Text>
@@ -87,8 +87,9 @@ const VerifySpotSubscriptionEmail = ({
         </PrimaryButton>
 
         <Text style={mutedText}>
-          Once verified, you&apos;ll receive notifications when wind conditions
-          match your preferences. You can unsubscribe at any time.
+          Once verified, you'll receive notifications when wind conditions
+          match your preferences. After confirmation, you can also add optional
+          filters like a minimum temperature. You can unsubscribe at any time.
         </Text>
       </ContentSection>
 
