@@ -4,9 +4,13 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { spotSuggestions } from "~/server/db/schema";
 
-const suggestionRateLimitMap = new Map<string, { lastCall: Date }>();
+const suggestionRateLimitMap = new Map<
+  string,
+  { count: number; windowStartedAt: Date }
+>();
 
 const SUGGESTION_RATE_LIMIT_TIMEOUT = 1000 * 60 * 30;
+const SUGGESTION_RATE_LIMIT_MAX_REQUESTS = 3;
 
 export const spotSuggestionRouter = createTRPCRouter({
   create: publicProcedure
@@ -35,12 +39,10 @@ export const spotSuggestionRouter = createTRPCRouter({
         ),
     )
     .mutation(async ({ ctx, input }) => {
-      const rateLimitKey = ctx.ip ?? input.name.toLowerCase();
-
-      if (isSuggestionRateLimited(rateLimitKey)) {
+      if (ctx.ip !== null && isSuggestionRateLimited(ctx.ip)) {
         throw new TRPCError({
           code: "TOO_MANY_REQUESTS",
-          message: "Too many suggestion attempts. Please try again later.",
+          message: "Too many suggestion attempts. Please try again in a bit.",
         });
       }
 
@@ -63,15 +65,29 @@ function normalizeOptionalText(value: string | undefined): string | null {
 
 function isSuggestionRateLimited(key: string): boolean {
   const rateLimit = suggestionRateLimitMap.get(key);
+  const now = new Date();
 
   if (
-    rateLimit !== undefined &&
-    rateLimit.lastCall > new Date(Date.now() - SUGGESTION_RATE_LIMIT_TIMEOUT)
+    rateLimit === undefined ||
+    rateLimit.windowStartedAt <=
+      new Date(Date.now() - SUGGESTION_RATE_LIMIT_TIMEOUT)
   ) {
+    suggestionRateLimitMap.set(key, {
+      count: 1,
+      windowStartedAt: now,
+    });
+
+    return false;
+  }
+
+  if (rateLimit.count >= SUGGESTION_RATE_LIMIT_MAX_REQUESTS) {
     return true;
   }
 
-  suggestionRateLimitMap.set(key, { lastCall: new Date() });
+  suggestionRateLimitMap.set(key, {
+    count: rateLimit.count + 1,
+    windowStartedAt: rateLimit.windowStartedAt,
+  });
 
   return false;
 }
