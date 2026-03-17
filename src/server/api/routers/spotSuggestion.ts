@@ -1,7 +1,12 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { spotSuggestions } from "~/server/db/schema";
+
+const suggestionRateLimitMap = new Map<string, { lastCall: Date }>();
+
+const SUGGESTION_RATE_LIMIT_TIMEOUT = 1000 * 60 * 30;
 
 export const spotSuggestionRouter = createTRPCRouter({
   create: publicProcedure
@@ -30,6 +35,15 @@ export const spotSuggestionRouter = createTRPCRouter({
         ),
     )
     .mutation(async ({ ctx, input }) => {
+      const rateLimitKey = ctx.ip ?? input.name.toLowerCase();
+
+      if (isSuggestionRateLimited(rateLimitKey)) {
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: "Too many suggestion attempts. Please try again later.",
+        });
+      }
+
       await ctx.db.insert(spotSuggestions).values({
         name: input.name,
         description: input.description,
@@ -45,4 +59,19 @@ function normalizeOptionalText(value: string | undefined): string | null {
   }
 
   return value;
+}
+
+function isSuggestionRateLimited(key: string): boolean {
+  const rateLimit = suggestionRateLimitMap.get(key);
+
+  if (
+    rateLimit !== undefined &&
+    rateLimit.lastCall > new Date(Date.now() - SUGGESTION_RATE_LIMIT_TIMEOUT)
+  ) {
+    return true;
+  }
+
+  suggestionRateLimitMap.set(key, { lastCall: new Date() });
+
+  return false;
 }

@@ -29,9 +29,13 @@ import { db } from "~/server/db";
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await getServerAuthSession();
+  const forwardedFor = opts.headers.get("x-forwarded-for");
+  const realIp = opts.headers.get("x-real-ip");
+  const ip = forwardedFor?.split(",").at(0)?.trim() ?? realIp ?? null;
 
   return {
     db,
+    ip,
     session,
     ...opts,
   };
