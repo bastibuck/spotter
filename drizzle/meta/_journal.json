@@ -15,6 +15,13 @@
       "when": 1773502970165,
       "tag": "0001_peaceful_black_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773779441812,
+      "tag": "0002_spicy_hemingway",
+      "breakpoints": true
     }
   ]
 }

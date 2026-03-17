@@ -156,6 +156,23 @@ export const spotsRelations = relations(spots, ({ many }) => ({
 }));
 
 /**
+ * Spot Suggestions
+ **/
+export const spotSuggestions = createTable("spot_suggestions", {
+  id: serial().primaryKey(),
+  name: varchar({ length: 128 }).notNull(),
+  description: text(),
+  lat: doublePrecision(),
+  long: doublePrecision(),
+  createdAt: timestamp({
+    mode: "date",
+    withTimezone: true,
+  })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+/**
  * Kiters
  **/
 export const kiters = createTable(

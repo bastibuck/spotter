@@ -4,10 +4,9 @@ import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import { Toaster } from "sonner";
 
+import SiteHeader from "~/app/_components/SiteHeader";
 import { TRPCReactProvider } from "~/trpc/react";
 import { HydrateClient } from "~/trpc/server";
-import Link from "next/link";
-import { Wind } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Spotter - Wind Alerts for Surfers",
@@ -46,26 +45,7 @@ export default function RootLayout({
                 }}
               />
 
-              {/* Navigation */}
-              <nav className="glass-card fixed top-0 right-0 left-0 z-50 border-b border-white/5">
-                <div className="container mx-auto flex items-center justify-between px-4 py-4">
-                  <Link href="/" className="group flex items-center gap-2">
-                    <div className="from-aqua-400 to-ocean-500 flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br shadow-lg shadow-cyan-500/20">
-                      <Wind size={22} className="text-white" strokeWidth={2} />
-                    </div>
-                    <span className="to-ocean-200 bg-linear-to-r from-white bg-clip-text text-xl font-bold text-transparent">
-                      Spotter
-                    </span>
-                  </Link>
-
-                  <Link
-                    href="/my-spots"
-                    className="ocean-link text-ocean-200 text-sm font-medium hover:text-white"
-                  >
-                    My Spots
-                  </Link>
-                </div>
-              </nav>
+              <SiteHeader />
 
               {/* Main content */}
               <main className="px-4 pt-24 pb-12">{children}</main>

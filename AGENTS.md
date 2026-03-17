@@ -161,6 +161,7 @@ Local development data is seeded separately from migrations.
 - Server-only vars: no `NEXT_PUBLIC_` prefix
 - Client vars: must use `NEXT_PUBLIC_` prefix
 - Add to both `server:` or `client:` AND `runtimeEnv:`
+- Weekly spot suggestion digest emails use `SUGGESTION_DIGEST_TO_EMAIL` as the admin recipient
 
 ### Components
 
@@ -227,6 +228,12 @@ dev/
     ├── index.ts         # Seed runner
     └── seedData.ts      # Seed fixtures and related seed types
 ```
+
+## Scheduled Jobs
+
+- `src/app/api/weather-cron/route.ts` runs daily via `vercel.json` to send spot condition alerts
+- `src/app/api/spot-suggestion-digest/route.ts` runs weekly via `vercel.json` and emails the current count of stored spot suggestions to `SUGGESTION_DIGEST_TO_EMAIL`
+- Both cron routes use the `Authorization: Bearer ${CRON_SECRET}` pattern
 
 ## Key Dependencies
 

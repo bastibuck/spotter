@@ -26,6 +26,7 @@ export const env = createEnv({
     GITHUB_CLIENT_SECRET: z.string(),
     RESEND_API_KEY: z.string(),
     FROM_EMAIL: z.string(),
+    SUGGESTION_DIGEST_TO_EMAIL: z.email(),
     SKIP_EMAIL_DELIVERY: z.stringbool().default(false),
   },
 
@@ -51,6 +52,7 @@ export const env = createEnv({
     GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     FROM_EMAIL: process.env.FROM_EMAIL,
+    SUGGESTION_DIGEST_TO_EMAIL: process.env.SUGGESTION_DIGEST_TO_EMAIL,
     SKIP_EMAIL_DELIVERY: process.env.SKIP_EMAIL_DELIVERY,
   },
   /**

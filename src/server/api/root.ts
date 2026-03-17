@@ -1,4 +1,5 @@
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
+import { spotSuggestionRouter } from "./routers/spotSuggestion";
 import { subscriptionRouter } from "./routers/subscription";
 
 /**
@@ -7,6 +8,7 @@ import { subscriptionRouter } from "./routers/subscription";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  spotSuggestion: spotSuggestionRouter,
   subscription: subscriptionRouter,
 });
 
