@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import AdminNav from "./_components/AdminNav";
-import AdminSignInCard from "./spot-suggestions/_components/AdminSignInCard";
+import AdminSignInCard from "./_components/AdminSignInCard";
 import { isAdminUser } from "~/server/admin";
 import { getServerAuthSession } from "~/server/auth";
 

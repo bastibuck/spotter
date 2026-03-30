@@ -4,6 +4,7 @@ import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import ActionIconButton from "~/app/admin/_components/ActionIconButton";
 import SpotEditorModal, {
   type SpotEditorFormValues,
 } from "~/app/admin/_components/SpotEditorModal";
@@ -313,27 +314,6 @@ export default function AdminSpotTable() {
         </div>
       )}
     </>
-  );
-}
-
-function ActionIconButton({
-  label,
-  className,
-  children,
-  ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      title={label}
-      className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/4 transition ${className ?? ""} ${props.disabled ? "cursor-not-allowed opacity-50" : ""}`}
-      {...props}
-    >
-      {children}
-    </button>
   );
 }
 
