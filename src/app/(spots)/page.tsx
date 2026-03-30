@@ -3,7 +3,7 @@ import Link from "next/link";
 import React from "react";
 import { db } from "~/server/db";
 
-import { SpotMapPin, SpotMapRoot } from "~/components/spots/SpotMapWrapper";
+import HomepageSpotMap from "./_components/HomepageSpotMap";
 import { Button } from "~/components/ui/Button";
 
 export const revalidate = 3600; // revalidate every hour
@@ -42,9 +42,6 @@ async function getHomepageMapCenter(): Promise<SpotMapPosition | undefined> {
 export default async function SpotsPage() {
   const allSpots = await db.query.spots.findMany();
   const roughUserLocation = await getHomepageMapCenter();
-  const mapBounds = allSpots.map(
-    (spot) => [spot.lat, spot.long] as SpotMapPosition,
-  );
 
   return (
     <div className="container mx-auto max-w-7xl">
@@ -96,25 +93,11 @@ export default async function SpotsPage() {
             <div className="bg-ocean-300/10 absolute right-0 -bottom-8 h-48 w-48 rounded-full blur-3xl" />
 
             <div className="relative rounded-[2rem] border border-white/10 bg-linear-to-br from-white/8 via-white/5 to-white/3 shadow-[0_32px_100px_rgba(3,12,24,0.45)] backdrop-blur-sm">
-              <SpotMapRoot
-                {...(roughUserLocation === undefined
-                  ? { bounds: mapBounds }
-                  : {
-                      center: roughUserLocation,
-                      zoom: HOMEPAGE_MAP_ZOOM,
-                    })}
-                height="h-[500px] md:h-[660px] lg:h-[720px]"
-              >
-                {allSpots.map((spot) => (
-                  <SpotMapPin
-                    key={spot.id}
-                    lat={spot.lat}
-                    long={spot.long}
-                    href={`/spot/${spot.id}`}
-                    label={spot.name}
-                  />
-                ))}
-              </SpotMapRoot>
+              <HomepageSpotMap
+                spots={allSpots}
+                roughCenter={roughUserLocation}
+                zoom={HOMEPAGE_MAP_ZOOM}
+              />
             </div>
 
             <div className="border-aqua-300/20 from-aqua-500/12 via-ocean-900/55 to-ocean-950/80 relative mt-8 overflow-hidden rounded-[2rem] border bg-linear-to-br px-6 py-8 text-center shadow-[0_24px_80px_rgba(2,10,22,0.55)] ring-1 ring-white/8 backdrop-blur-sm md:px-10 md:py-10">
