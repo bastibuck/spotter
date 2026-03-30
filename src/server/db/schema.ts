@@ -170,6 +170,10 @@ export const spotSuggestions = createTable("spot_suggestions", {
   })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
+  reviewedAt: timestamp({
+    mode: "date",
+    withTimezone: true,
+  }),
 });
 
 /**

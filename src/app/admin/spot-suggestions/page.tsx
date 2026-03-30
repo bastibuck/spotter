@@ -1,0 +1,46 @@
+import { notFound } from "next/navigation";
+
+import AdminSignInCard from "./_components/AdminSignInCard";
+import SpotSuggestionAdminTable from "./_components/SpotSuggestionAdminTable";
+import { isAdminUser } from "~/server/admin";
+import { getServerAuthSession } from "~/server/auth";
+
+export default async function AdminSpotSuggestionsPage() {
+  const session = await getServerAuthSession();
+
+  if (session === null) {
+    return (
+      <div className="mx-auto flex min-h-[calc(100vh-10rem)] max-w-5xl items-center justify-center px-4">
+        <AdminSignInCard />
+      </div>
+    );
+  }
+
+  if (!(await isAdminUser(session.user.id))) {
+    notFound();
+  }
+
+  return (
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
+      <div className="animate-fade-in-up text-center md:text-left">
+        <div className="text-ocean-100 mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-4 py-1.5 text-xs font-semibold tracking-[0.24em] uppercase backdrop-blur-sm">
+          <span className="bg-aqua-300 h-2 w-2 rounded-full shadow-[0_0_14px_rgba(103,232,249,0.9)]" />
+          Private Admin
+        </div>
+
+        <h1 className="mb-4 text-4xl font-bold md:text-5xl">
+          <span className="from-aqua-300 to-ocean-200 bg-linear-to-r via-white bg-clip-text text-transparent">
+            Spot Suggestions
+          </span>
+        </h1>
+
+        <p className="text-ocean-200/80 max-w-3xl text-lg leading-relaxed md:text-left">
+          Review incoming suggestions, clear bad entries, and create production
+          spots without leaving the queue.
+        </p>
+      </div>
+
+      <SpotSuggestionAdminTable initialIncludeReviewed={false} />
+    </div>
+  );
+}

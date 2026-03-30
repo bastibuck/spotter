@@ -1,8 +1,13 @@
+import { and, asc, desc, eq, isNull } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { spotSuggestions } from "~/server/db/schema";
+import {
+  adminProcedure,
+  createTRPCRouter,
+  publicProcedure,
+} from "~/server/api/trpc";
+import { spots, spotSuggestions, WindDirection } from "~/server/db/schema";
 
 const suggestionRateLimitMap = new Map<
   string,
@@ -13,6 +18,23 @@ const SUGGESTION_RATE_LIMIT_TIMEOUT = 1000 * 60 * 30;
 const SUGGESTION_RATE_LIMIT_MAX_REQUESTS = 3;
 
 export const spotSuggestionRouter = createTRPCRouter({
+  list: adminProcedure
+    .input(
+      z.object({
+        includeReviewed: z.boolean().default(false),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.db.query.spotSuggestions.findMany({
+        where: input.includeReviewed
+          ? undefined
+          : isNull(spotSuggestions.reviewedAt),
+        orderBy: [
+          asc(spotSuggestions.reviewedAt),
+          desc(spotSuggestions.createdAt),
+        ],
+      });
+    }),
   create: publicProcedure
     .input(
       z
@@ -52,6 +74,118 @@ export const spotSuggestionRouter = createTRPCRouter({
         lat: input.lat,
         long: input.long,
       });
+    }),
+  remove: adminProcedure
+    .input(
+      z.object({
+        id: z.number().int().positive(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const deleted = await ctx.db
+        .delete(spotSuggestions)
+        .where(eq(spotSuggestions.id, input.id))
+        .returning({ id: spotSuggestions.id });
+
+      if (deleted.length === 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Suggestion not found.",
+        });
+      }
+    }),
+  markReviewed: adminProcedure
+    .input(
+      z.object({
+        id: z.number().int().positive(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const updated = await ctx.db
+        .update(spotSuggestions)
+        .set({
+          reviewedAt: new Date(),
+        })
+        .where(eq(spotSuggestions.id, input.id))
+        .returning({ id: spotSuggestions.id });
+
+      if (updated.length === 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Suggestion not found.",
+        });
+      }
+    }),
+  createSpotFromSuggestion: adminProcedure
+    .input(
+      z.object({
+        suggestionId: z.number().int().positive(),
+        name: z.string().trim().min(1).max(128),
+        description: z
+          .string()
+          .trim()
+          .max(1000)
+          .optional()
+          .transform(normalizeOptionalText),
+        lat: z.number().min(-90).max(90),
+        long: z.number().min(-180).max(180),
+        defaultWindDirections: z.array(WindDirection).min(1),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const suggestion = await ctx.db.query.spotSuggestions.findFirst({
+        where: and(
+          eq(spotSuggestions.id, input.suggestionId),
+          isNull(spotSuggestions.reviewedAt),
+        ),
+      });
+
+      if (suggestion === undefined) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Suggestion not found or already reviewed.",
+        });
+      }
+
+      try {
+        const createdSpot = await ctx.db.transaction(async (tx) => {
+          const [spot] = await tx
+            .insert(spots)
+            .values({
+              name: input.name,
+              description: input.description,
+              lat: input.lat,
+              long: input.long,
+              defaultWindDirections: input.defaultWindDirections,
+            })
+            .returning({
+              id: spots.id,
+            });
+
+          await tx
+            .update(spotSuggestions)
+            .set({
+              reviewedAt: new Date(),
+            })
+            .where(eq(spotSuggestions.id, input.suggestionId));
+
+          return spot;
+        });
+
+        return createdSpot;
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.includes("spotter_spots_name_unique")
+        ) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "A spot with that name already exists.",
+          });
+        }
+
+        throw error;
+      }
     }),
 });
 

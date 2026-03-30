@@ -1,8 +1,9 @@
-import { count } from "drizzle-orm";
+import { count, isNull } from "drizzle-orm";
 import { Resend } from "resend";
 
 import SpotSuggestionDigestEmail from "emails/spotSuggestionDigest";
 import { env } from "~/env";
+import { getBaseUrl } from "~/lib/url";
 import { db } from "~/server/db";
 import { spotSuggestions } from "~/server/db/schema";
 
@@ -17,7 +18,10 @@ export const GET = async (request: Request) => {
     });
   }
 
-  const result = await db.select({ count: count() }).from(spotSuggestions);
+  const result = await db
+    .select({ count: count() })
+    .from(spotSuggestions)
+    .where(isNull(spotSuggestions.reviewedAt));
 
   const suggestionCount = result[0]?.count ?? 0;
 
@@ -29,7 +33,10 @@ export const GET = async (request: Request) => {
     from: env.FROM_EMAIL,
     to: env.SUGGESTION_DIGEST_TO_EMAIL,
     subject: `Weekly spot suggestions digest (${suggestionCount})`,
-    react: SpotSuggestionDigestEmail({ suggestionCount }),
+    react: SpotSuggestionDigestEmail({
+      suggestionCount,
+      adminUrl: `${getBaseUrl()}/admin/spot-suggestions`,
+    }),
   });
 
   if (error !== null) {
