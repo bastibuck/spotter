@@ -8,8 +8,8 @@ import { Button } from "~/components/ui/Button";
 
 export const revalidate = 3600; // revalidate every hour
 
-// Zoom 11 keeps the map focused on the visitor's local area (roughly ~30km on desktop).
-const HOMEPAGE_MAP_ZOOM = 11;
+// Zoom 10 keeps the map centered on the visitor while showing a bit more of the surrounding area.
+const HOMEPAGE_MAP_ZOOM = 10;
 
 type SpotMapPosition = [number, number];
 
