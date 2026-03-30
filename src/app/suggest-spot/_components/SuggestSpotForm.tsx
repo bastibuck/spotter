@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "~/components/ui/Button";
@@ -32,12 +32,9 @@ const initialFormState: SuggestSpotFormState = {
 const SuggestSpotForm: React.FC = () => {
   const [form, setForm] = useState(initialFormState);
 
-  const coordinatesArePartial = useMemo(() => {
-    const hasLat = form.lat !== "";
-    const hasLong = form.long !== "";
-
-    return hasLat !== hasLong;
-  }, [form.lat, form.long]);
+  const hasLat = form.lat !== "";
+  const hasLong = form.long !== "";
+  const coordinatesArePartial = hasLat !== hasLong;
 
   const createSuggestion = api.spotSuggestion.create.useMutation({
     onSuccess: () => {
