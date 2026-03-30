@@ -1,13 +1,8 @@
-"use client";
-
-import React, { useEffect, useMemo, useState } from "react";
+import React from "react";
 
 import { SpotMapPin, SpotMapRoot } from "~/components/spots/SpotMapWrapper";
 
 type SpotMapPosition = [number, number];
-
-const GEOLOCATION_CACHE_MS = 5 * 60 * 1000;
-const GEOLOCATION_TIMEOUT_MS = 5 * 1000;
 
 interface HomepageSpotMapSpot {
   id: number;
@@ -18,47 +13,20 @@ interface HomepageSpotMapSpot {
 
 interface HomepageSpotMapProps {
   spots: HomepageSpotMapSpot[];
-  roughCenter?: SpotMapPosition;
+  center?: SpotMapPosition;
   zoom?: number;
   height?: string;
 }
 
 export default function HomepageSpotMap({
   spots,
-  roughCenter,
+  center,
   zoom = 11,
   height = "h-[500px] md:h-[660px] lg:h-[720px]",
 }: HomepageSpotMapProps): React.JSX.Element {
-  const [preciseCenter, setPreciseCenter] = useState<
-    SpotMapPosition | undefined
-  >(undefined);
-
-  const mapBounds = useMemo(
-    () => spots.map((spot) => [spot.lat, spot.long] as SpotMapPosition),
-    [spots],
+  const mapBounds = spots.map(
+    (spot) => [spot.lat, spot.long] as SpotMapPosition,
   );
-
-  useEffect(() => {
-    if (!("geolocation" in navigator)) {
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        setPreciseCenter([coords.latitude, coords.longitude]);
-      },
-      () => {
-        setPreciseCenter(undefined);
-      },
-      {
-        enableHighAccuracy: true,
-        maximumAge: GEOLOCATION_CACHE_MS,
-        timeout: GEOLOCATION_TIMEOUT_MS,
-      },
-    );
-  }, []);
-
-  const center = preciseCenter ?? roughCenter;
 
   return (
     <SpotMapRoot

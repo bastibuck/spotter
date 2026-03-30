@@ -10,8 +10,15 @@ export const revalidate = 3600; // revalidate every hour
 
 // Zoom 10 keeps the map centered on the visitor while showing a bit more of the surrounding area.
 const HOMEPAGE_MAP_ZOOM = 10;
-
 type SpotMapPosition = [number, number];
+interface HomepageSpot {
+  id: number;
+  name: string;
+  lat: number;
+  long: number;
+}
+
+const KIEL_POSITION: SpotMapPosition = [54.3233, 10.1228];
 
 function parseCoordinate(value: string | undefined): number | undefined {
   if (value === undefined) {
@@ -39,9 +46,59 @@ async function getHomepageMapCenter(): Promise<SpotMapPosition | undefined> {
   return [lat, lng];
 }
 
+function toRadians(value: number): number {
+  return (value * Math.PI) / 180;
+}
+
+function getDistanceInKilometers(
+  [fromLat, fromLng]: SpotMapPosition,
+  [toLat, toLng]: SpotMapPosition,
+): number {
+  const earthRadiusInKilometers = 6371;
+  const latDistance = toRadians(toLat - fromLat);
+  const lngDistance = toRadians(toLng - fromLng);
+  const a =
+    Math.sin(latDistance / 2) ** 2 +
+    Math.cos(toRadians(fromLat)) *
+      Math.cos(toRadians(toLat)) *
+      Math.sin(lngDistance / 2) ** 2;
+
+  return (
+    2 * earthRadiusInKilometers * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  );
+}
+
+function getClosestSpotCenter(
+  spots: HomepageSpot[],
+  targetPosition: SpotMapPosition,
+): SpotMapPosition | undefined {
+  let closestSpot: HomepageSpot | undefined;
+  let closestDistance = Number.POSITIVE_INFINITY;
+
+  for (const spot of spots) {
+    const distance = getDistanceInKilometers(targetPosition, [
+      spot.lat,
+      spot.long,
+    ]);
+
+    if (distance < closestDistance) {
+      closestSpot = spot;
+      closestDistance = distance;
+    }
+  }
+
+  if (closestSpot === undefined) {
+    return undefined;
+  }
+
+  return [closestSpot.lat, closestSpot.long];
+}
+
 export default async function SpotsPage() {
   const allSpots = await db.query.spots.findMany();
-  const roughUserLocation = await getHomepageMapCenter();
+  const requestLocation = (await getHomepageMapCenter()) ?? KIEL_POSITION;
+  const mapCenter =
+    getClosestSpotCenter(allSpots, requestLocation) ?? KIEL_POSITION;
 
   return (
     <div className="container mx-auto max-w-7xl">
@@ -95,7 +152,7 @@ export default async function SpotsPage() {
             <div className="relative rounded-[2rem] border border-white/10 bg-linear-to-br from-white/8 via-white/5 to-white/3 shadow-[0_32px_100px_rgba(3,12,24,0.45)] backdrop-blur-sm">
               <HomepageSpotMap
                 spots={allSpots}
-                roughCenter={roughUserLocation}
+                center={mapCenter}
                 zoom={HOMEPAGE_MAP_ZOOM}
               />
             </div>
