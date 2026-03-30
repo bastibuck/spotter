@@ -3,16 +3,16 @@
 import { X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import type { z } from "zod";
 
 import CardinalDirection from "~/components/spots/Cardinals";
 import { SpotMap } from "~/components/spots/SpotMapWrapper";
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import { Textarea } from "~/components/ui/Textarea";
+import type { WindDirection } from "~/server/db/schema";
 
-type SpotDirection = Parameters<
-  NonNullable<React.ComponentProps<typeof CardinalDirection>["toggleDirection"]>
->[0];
+type SpotDirection = z.infer<typeof WindDirection>;
 
 export interface SpotEditorFormValues {
   name: string;
