@@ -99,16 +99,6 @@ function mapSpotWriteError(
     return error;
   }
 
-  if (
-    error instanceof Error &&
-    error.message.includes("spotter_spots_name_unique")
-  ) {
-    return new TRPCError({
-      code: "CONFLICT",
-      message: "A spot with that name already exists.",
-    });
-  }
-
   return new TRPCError({
     code: "INTERNAL_SERVER_ERROR",
     message:
