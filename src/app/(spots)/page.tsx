@@ -27,15 +27,15 @@ async function getHomepageMapCenter(): Promise<SpotMapPosition | undefined> {
   const lat = parseCoordinate(
     requestHeaders.get("x-vercel-ip-latitude") ?? undefined,
   );
-  const long = parseCoordinate(
+  const lng = parseCoordinate(
     requestHeaders.get("x-vercel-ip-longitude") ?? undefined,
   );
 
-  if (lat === undefined || long === undefined) {
+  if (lat === undefined || lng === undefined) {
     return undefined;
   }
 
-  return [lat, long];
+  return [lat, lng];
 }
 
 export default async function SpotsPage() {
