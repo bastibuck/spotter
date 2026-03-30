@@ -8,7 +8,7 @@ import { Button } from "~/components/ui/Button";
 
 export const revalidate = 3600; // revalidate every hour
 
-const HOMEPAGE_MAP_ZOOM = 2;
+const HOMEPAGE_MAP_ZOOM = 11;
 
 type SpotMapPosition = [number, number];
 
