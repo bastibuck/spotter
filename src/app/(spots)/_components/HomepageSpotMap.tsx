@@ -6,6 +6,9 @@ import { SpotMapPin, SpotMapRoot } from "~/components/spots/SpotMapWrapper";
 
 type SpotMapPosition = [number, number];
 
+const GEOLOCATION_CACHE_MS = 5 * 60 * 1000;
+const GEOLOCATION_TIMEOUT_MS = 5 * 1000;
+
 interface HomepageSpotMapSpot {
   id: number;
   name: string;
@@ -49,8 +52,8 @@ export default function HomepageSpotMap({
       },
       {
         enableHighAccuracy: true,
-        maximumAge: 300000,
-        timeout: 5000,
+        maximumAge: GEOLOCATION_CACHE_MS,
+        timeout: GEOLOCATION_TIMEOUT_MS,
       },
     );
   }, []);
