@@ -30,7 +30,7 @@ const initialFormState: SuggestSpotFormState = {
 };
 
 const SuggestSpotForm: React.FC = () => {
-  const [form, setForm] = useState<SuggestSpotFormState>(initialFormState);
+  const [form, setForm] = useState(initialFormState);
 
   const coordinatesArePartial = useMemo(() => {
     const hasLat = form.lat !== "";
