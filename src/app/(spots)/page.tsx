@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import Link from "next/link";
 import React from "react";
 import { db } from "~/server/db";
@@ -7,8 +8,42 @@ import { Button } from "~/components/ui/Button";
 
 export const revalidate = 3600; // revalidate every hour
 
+const HOMEPAGE_MAP_ZOOM = 2;
+
+type SpotMapPosition = [number, number];
+
+function parseCoordinate(value: string | undefined): number | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const coordinate = Number.parseFloat(value);
+
+  return Number.isFinite(coordinate) ? coordinate : undefined;
+}
+
+async function getHomepageMapCenter(): Promise<SpotMapPosition | undefined> {
+  const requestHeaders = await headers();
+  const lat = parseCoordinate(
+    requestHeaders.get("x-vercel-ip-latitude") ?? undefined,
+  );
+  const long = parseCoordinate(
+    requestHeaders.get("x-vercel-ip-longitude") ?? undefined,
+  );
+
+  if (lat === undefined || long === undefined) {
+    return undefined;
+  }
+
+  return [lat, long];
+}
+
 export default async function SpotsPage() {
   const allSpots = await db.query.spots.findMany();
+  const roughUserLocation = await getHomepageMapCenter();
+  const mapBounds = allSpots.map(
+    (spot) => [spot.lat, spot.long] as SpotMapPosition,
+  );
 
   return (
     <div className="container mx-auto max-w-7xl">
@@ -61,7 +96,12 @@ export default async function SpotsPage() {
 
             <div className="relative rounded-[2rem] border border-white/10 bg-linear-to-br from-white/8 via-white/5 to-white/3 shadow-[0_32px_100px_rgba(3,12,24,0.45)] backdrop-blur-sm">
               <SpotMapRoot
-                bounds={allSpots.map((spot) => [spot.lat, spot.long])}
+                {...(roughUserLocation === undefined
+                  ? { bounds: mapBounds }
+                  : {
+                      center: roughUserLocation,
+                      zoom: HOMEPAGE_MAP_ZOOM,
+                    })}
                 height="h-[500px] md:h-[660px] lg:h-[720px]"
               >
                 {allSpots.map((spot) => (
