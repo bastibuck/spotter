@@ -8,6 +8,7 @@ import { type Adapter } from "next-auth/adapters";
 import GitHubProvider from "next-auth/providers/github";
 import { env } from "~/env";
 
+import { isAllowedAdminGithubAccountId } from "~/server/admin";
 import { db } from "~/server/db";
 import {
   accounts,
@@ -44,6 +45,22 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
+    signIn: ({ account, profile }) => {
+      if (account?.provider !== "github") {
+        return false;
+      }
+
+      const profileRecord = profile as Record<string, unknown> | undefined;
+      const profileId = profileRecord?.id;
+      const githubProfileId =
+        typeof profileId === "number"
+          ? String(profileId)
+          : typeof profileId === "string"
+            ? profileId
+            : account.providerAccountId;
+
+      return isAllowedAdminGithubAccountId(githubProfileId);
+    },
     session: ({ session, user }) => ({
       ...session,
       user: {

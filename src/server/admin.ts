@@ -5,6 +5,12 @@ import { env } from "~/env";
 import { db } from "~/server/db";
 import { accounts } from "~/server/db/schema";
 
+export function isAllowedAdminGithubAccountId(
+  providerAccountId: string,
+): boolean {
+  return env.ADMIN_GITHUB_IDS.includes(providerAccountId);
+}
+
 export async function isAdminUser(userId: string): Promise<boolean> {
   const githubAccount = await db.query.accounts.findFirst({
     where: and(eq(accounts.userId, userId), eq(accounts.provider, "github")),
@@ -17,7 +23,7 @@ export async function isAdminUser(userId: string): Promise<boolean> {
     return false;
   }
 
-  return env.ADMIN_GITHUB_IDS.includes(githubAccount.providerAccountId);
+  return isAllowedAdminGithubAccountId(githubAccount.providerAccountId);
 }
 
 export async function requireAdminUser(userId: string): Promise<void> {
