@@ -28,7 +28,7 @@
     "drizzle-orm": "^0.45.2",
     "geist": "^1.7.0",
     "leaflet": "^1.9.4",
-    "lucide-react": "^0.563.0",
+    "lucide-react": "^1.7.0",
     "luxon": "^3.7.2",
     "next": "^16.2.1",
     "next-auth": "^4.24.13",
