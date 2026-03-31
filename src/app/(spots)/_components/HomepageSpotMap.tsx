@@ -3,6 +3,7 @@ import React from "react";
 import { SpotMapPin, SpotMapRoot } from "~/components/spots/SpotMapWrapper";
 
 type SpotMapRootProps = React.ComponentProps<typeof SpotMapRoot>;
+type HomepageSpotMapPosition = Exclude<SpotMapRootProps["center"], undefined>;
 type HomepageSpotMapBounds = Exclude<SpotMapRootProps["bounds"], undefined>;
 type HomepageSpotMapSpotCoordinates = Pick<
   React.ComponentProps<typeof SpotMapPin>,
@@ -16,7 +17,7 @@ interface HomepageSpotMapSpot extends HomepageSpotMapSpotCoordinates {
 
 interface HomepageSpotMapProps {
   spots: HomepageSpotMapSpot[];
-  center?: SpotMapRootProps["center"];
+  center?: HomepageSpotMapPosition;
   zoom?: SpotMapRootProps["zoom"];
   height?: SpotMapRootProps["height"];
 }
@@ -28,7 +29,7 @@ export default function HomepageSpotMap({
   height = "h-[500px] md:h-[660px] lg:h-[720px]",
 }: HomepageSpotMapProps): React.JSX.Element {
   const mapBounds: HomepageSpotMapBounds = spots.map(
-    (spot) => [spot.lat, spot.long] as HomepageSpotMapBounds[number],
+    (spot): HomepageSpotMapPosition => [spot.lat, spot.long],
   );
 
   return (
