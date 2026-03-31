@@ -1,14 +1,102 @@
+import { headers } from "next/headers";
 import Link from "next/link";
 import React from "react";
 import { db } from "~/server/db";
 
-import { SpotMapPin, SpotMapRoot } from "~/components/spots/SpotMapWrapper";
+import HomepageSpotMap from "./_components/HomepageSpotMap";
 import { Button } from "~/components/ui/Button";
 
-export const revalidate = 3600; // revalidate every hour
+// Zoom 10 keeps the map centered on the visitor while showing a bit more of the surrounding area.
+const HOMEPAGE_MAP_ZOOM = 10;
+type SpotMapPosition = [number, number];
+interface HomepageSpot {
+  id: number;
+  name: string;
+  lat: number;
+  long: number;
+}
+
+const KIEL_POSITION: SpotMapPosition = [54.3233, 10.1228];
+
+function parseCoordinate(value: string | undefined): number | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const coordinate = Number.parseFloat(value);
+
+  return Number.isFinite(coordinate) ? coordinate : undefined;
+}
+
+async function getHomepageMapCenter(): Promise<SpotMapPosition | undefined> {
+  const requestHeaders = await headers();
+  const lat = parseCoordinate(
+    requestHeaders.get("x-vercel-ip-latitude") ?? undefined,
+  );
+  const lng = parseCoordinate(
+    requestHeaders.get("x-vercel-ip-longitude") ?? undefined,
+  );
+
+  if (lat === undefined || lng === undefined) {
+    return undefined;
+  }
+
+  return [lat, lng];
+}
+
+function toRadians(value: number): number {
+  return (value * Math.PI) / 180;
+}
+
+function getDistanceInKilometers(
+  [fromLat, fromLng]: SpotMapPosition,
+  [toLat, toLng]: SpotMapPosition,
+): number {
+  const earthRadiusInKilometers = 6371;
+  const latDistance = toRadians(toLat - fromLat);
+  const lngDistance = toRadians(toLng - fromLng);
+  const a =
+    Math.sin(latDistance / 2) ** 2 +
+    Math.cos(toRadians(fromLat)) *
+      Math.cos(toRadians(toLat)) *
+      Math.sin(lngDistance / 2) ** 2;
+
+  return (
+    2 * earthRadiusInKilometers * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  );
+}
+
+function getClosestSpotCenter(
+  spots: HomepageSpot[],
+  targetPosition: SpotMapPosition,
+): SpotMapPosition | undefined {
+  let closestSpot: HomepageSpot | undefined;
+  let closestDistance = Number.POSITIVE_INFINITY;
+
+  for (const spot of spots) {
+    const distance = getDistanceInKilometers(targetPosition, [
+      spot.lat,
+      spot.long,
+    ]);
+
+    if (distance < closestDistance) {
+      closestSpot = spot;
+      closestDistance = distance;
+    }
+  }
+
+  if (closestSpot === undefined) {
+    return undefined;
+  }
+
+  return [closestSpot.lat, closestSpot.long];
+}
 
 export default async function SpotsPage() {
   const allSpots = await db.query.spots.findMany();
+  const requestLocation = (await getHomepageMapCenter()) ?? KIEL_POSITION;
+  const mapCenter =
+    getClosestSpotCenter(allSpots, requestLocation) ?? KIEL_POSITION;
 
   return (
     <div className="container mx-auto max-w-7xl">
@@ -60,20 +148,11 @@ export default async function SpotsPage() {
             <div className="bg-ocean-300/10 absolute right-0 -bottom-8 h-48 w-48 rounded-full blur-3xl" />
 
             <div className="relative rounded-[2rem] border border-white/10 bg-linear-to-br from-white/8 via-white/5 to-white/3 shadow-[0_32px_100px_rgba(3,12,24,0.45)] backdrop-blur-sm">
-              <SpotMapRoot
-                bounds={allSpots.map((spot) => [spot.lat, spot.long])}
-                height="h-[500px] md:h-[660px] lg:h-[720px]"
-              >
-                {allSpots.map((spot) => (
-                  <SpotMapPin
-                    key={spot.id}
-                    lat={spot.lat}
-                    long={spot.long}
-                    href={`/spot/${spot.id}`}
-                    label={spot.name}
-                  />
-                ))}
-              </SpotMapRoot>
+              <HomepageSpotMap
+                spots={allSpots}
+                center={mapCenter}
+                zoom={HOMEPAGE_MAP_ZOOM}
+              />
             </div>
 
             <div className="border-aqua-300/20 from-aqua-500/12 via-ocean-900/55 to-ocean-950/80 relative mt-8 overflow-hidden rounded-[2rem] border bg-linear-to-br px-6 py-8 text-center shadow-[0_24px_80px_rgba(2,10,22,0.55)] ring-1 ring-white/8 backdrop-blur-sm md:px-10 md:py-10">
