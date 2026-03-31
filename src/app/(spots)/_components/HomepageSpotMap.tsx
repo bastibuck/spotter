@@ -30,11 +30,6 @@ export default function HomepageSpotMap({
 
   return (
     <SpotMapRoot
-      key={
-        center === undefined
-          ? `bounds:${mapBounds.length}`
-          : `center:${center[0]}:${center[1]}:${zoom}`
-      }
       {...(center === undefined
         ? { bounds: mapBounds }
         : {
