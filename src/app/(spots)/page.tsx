@@ -19,9 +19,11 @@ interface HomepageSpot {
 
 const KIEL_POSITION: SpotMapPosition = [54.3233, 10.1228];
 
-const getAllSpots = unstable_cache(() => db.query.spots.findMany(), [
-  "all-spots",
-], { tags: ["spots"], revalidate: 3600 });
+const getAllSpots = unstable_cache(
+  () => db.query.spots.findMany(),
+  ["all-spots"],
+  { tags: ["spots"], revalidate: 3600 },
+);
 
 function parseCoordinate(value: string | undefined): number | undefined {
   if (value === undefined) {
