@@ -6,8 +6,6 @@ import { db } from "~/server/db";
 import HomepageSpotMap from "./_components/HomepageSpotMap";
 import { Button } from "~/components/ui/Button";
 
-export const revalidate = 3600; // revalidate every hour
-
 // Zoom 10 keeps the map centered on the visitor while showing a bit more of the surrounding area.
 const HOMEPAGE_MAP_ZOOM = 10;
 type SpotMapPosition = [number, number];
