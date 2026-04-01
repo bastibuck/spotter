@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { revalidateTag } from "next/cache";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -31,10 +31,13 @@ export const spotSuggestionRouter = createTRPCRouter({
         where: input.includeReviewed
           ? undefined
           : isNull(spotSuggestions.reviewedAt),
-        orderBy: [
-          asc(spotSuggestions.reviewedAt),
-          desc(spotSuggestions.createdAt),
-        ],
+        orderBy: input.includeReviewed
+          ? [
+              sql`case when ${spotSuggestions.reviewedAt} is null then 0 else 1 end`,
+              desc(spotSuggestions.reviewedAt),
+              desc(spotSuggestions.createdAt),
+            ]
+          : [desc(spotSuggestions.createdAt)],
       });
     }),
   create: publicProcedure
