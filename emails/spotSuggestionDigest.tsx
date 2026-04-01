@@ -3,6 +3,7 @@ import { Body, Head, Html, Preview, Text } from "@react-email/components";
 import {
   ContentSection,
   Header,
+  PrimaryButton,
   colors,
   heading,
   main,
@@ -12,10 +13,12 @@ import {
 
 interface SpotSuggestionDigestEmailProps {
   suggestionCount: number;
+  adminUrl: string;
 }
 
 const SpotSuggestionDigestEmail = ({
   suggestionCount,
+  adminUrl,
 }: SpotSuggestionDigestEmailProps) => {
   const suggestionLabel = suggestionCount === 1 ? "suggestion" : "suggestions";
 
@@ -37,9 +40,10 @@ const SpotSuggestionDigestEmail = ({
             for your review.
           </Text>
           <Text style={mutedText}>
-            This digest only includes the current total. For more details,
-            please visit the admin dashboard.
+            This digest only includes suggestions that are still waiting for
+            review.
           </Text>
+          <PrimaryButton href={adminUrl}>Open admin queue</PrimaryButton>
         </ContentSection>
       </Body>
     </Html>
@@ -50,6 +54,7 @@ export default SpotSuggestionDigestEmail;
 
 SpotSuggestionDigestEmail.PreviewProps = {
   suggestionCount: 7,
+  adminUrl: "https://spotter.example/admin/spot-suggestions",
 } satisfies SpotSuggestionDigestEmailProps;
 
 const eyebrow = {

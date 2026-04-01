@@ -5,7 +5,7 @@ import type { LatLngBoundsExpression, LatLngExpression } from "leaflet";
 import L from "leaflet";
 import { useRouter } from "next/navigation";
 import "leaflet/dist/leaflet.css";
-import { MapContainer, Marker, TileLayer } from "react-leaflet";
+import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 
 export type SpotMapPosition = [number, number];
 
@@ -86,6 +86,8 @@ export const SpotMapRoot: React.FC<SpotMapRootProps> = ({
     throw new Error("SpotMapRoot requires at least one bounds point.");
   }
 
+  const center = usesBounds ? undefined : props.center;
+
   const mapProps = usesBounds
     ? {
         bounds: props.bounds as LatLngBoundsExpression,
@@ -95,7 +97,7 @@ export const SpotMapRoot: React.FC<SpotMapRootProps> = ({
         },
       }
     : {
-        center: props.center as LatLngExpression,
+        center: center as LatLngExpression,
         zoom,
       };
 
@@ -110,6 +112,9 @@ export const SpotMapRoot: React.FC<SpotMapRootProps> = ({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
+        {center === undefined ? null : (
+          <MapCenterSync center={center} zoom={zoom} />
+        )}
         {children}
       </MapContainer>
       <div
@@ -162,4 +167,19 @@ export const SpotMap: React.FC<SpotMapProps> = ({
       <SpotMapPin lat={lat} long={long} />
     </SpotMapRoot>
   );
+};
+
+const MapCenterSync: React.FC<{
+  center: SpotMapPosition;
+  zoom: number;
+}> = ({ center, zoom }) => {
+  const map = useMap();
+
+  React.useEffect(() => {
+    map.setView(center, zoom, {
+      animate: false,
+    });
+  }, [center, map, zoom]);
+
+  return null;
 };

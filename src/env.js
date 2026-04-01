@@ -24,6 +24,18 @@ export const env = createEnv({
     ),
     GITHUB_CLIENT_ID: z.string(),
     GITHUB_CLIENT_SECRET: z.string(),
+    ADMIN_GITHUB_IDS: z
+      .string()
+      .transform((value) =>
+        value
+          .split(",")
+          .map((entry) => entry.trim())
+          .filter((entry) => entry.length > 0),
+      )
+      .refine((value) => value.length > 0, {
+        message:
+          "ADMIN_GITHUB_IDS must include at least one GitHub account ID.",
+      }),
     RESEND_API_KEY: z.string(),
     FROM_EMAIL: z.string(),
     SUGGESTION_DIGEST_TO_EMAIL: z.email(),
@@ -51,6 +63,7 @@ export const env = createEnv({
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
     GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+    ADMIN_GITHUB_IDS: process.env.ADMIN_GITHUB_IDS,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     FROM_EMAIL: process.env.FROM_EMAIL,
     SUGGESTION_DIGEST_TO_EMAIL: process.env.SUGGESTION_DIGEST_TO_EMAIL,

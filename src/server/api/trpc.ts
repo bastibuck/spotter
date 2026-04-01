@@ -12,6 +12,7 @@ import superjson from "superjson";
 import { z } from "zod";
 import { ZodError } from "zod";
 
+import { isAdminUser } from "~/server/admin";
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
 
@@ -137,3 +138,13 @@ export const protectedProcedure = t.procedure
       },
     });
   });
+
+export const adminProcedure = protectedProcedure.use(async ({ ctx, next }) => {
+  const userId = ctx.session.user.id;
+
+  if (!(await isAdminUser(userId))) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  return next();
+});
