@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import React from "react";
 import { db } from "~/server/db";
@@ -17,6 +18,12 @@ interface HomepageSpot {
 }
 
 const KIEL_POSITION: SpotMapPosition = [54.3233, 10.1228];
+
+const getAllSpots = unstable_cache(
+  () => db.query.spots.findMany(),
+  ["all-spots"],
+  { tags: ["spots"], revalidate: 3600 },
+);
 
 function parseCoordinate(value: string | undefined): number | undefined {
   if (value === undefined) {
@@ -93,7 +100,7 @@ function getClosestSpotCenter(
 }
 
 export default async function SpotsPage() {
-  const allSpots = await db.query.spots.findMany();
+  const allSpots = await getAllSpots();
   const requestLocation = (await getHomepageMapCenter()) ?? KIEL_POSITION;
   const mapCenter =
     getClosestSpotCenter(allSpots, requestLocation) ?? KIEL_POSITION;

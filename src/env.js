@@ -40,6 +40,7 @@ export const env = createEnv({
     FROM_EMAIL: z.string(),
     SUGGESTION_DIGEST_TO_EMAIL: z.email(),
     SKIP_EMAIL_DELIVERY: z.stringbool().default(false),
+    CRON_SECRET: z.string(),
   },
 
   /**
@@ -67,6 +68,7 @@ export const env = createEnv({
     FROM_EMAIL: process.env.FROM_EMAIL,
     SUGGESTION_DIGEST_TO_EMAIL: process.env.SUGGESTION_DIGEST_TO_EMAIL,
     SKIP_EMAIL_DELIVERY: process.env.SKIP_EMAIL_DELIVERY,
+    CRON_SECRET: process.env.CRON_SECRET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
