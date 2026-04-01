@@ -126,29 +126,28 @@ export const spotSuggestionRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const suggestion = await ctx.db.query.spotSuggestions.findFirst({
-        where: and(
-          eq(spotSuggestions.id, input.suggestionId),
-          isNull(spotSuggestions.reviewedAt),
-        ),
-      });
-
-      if (suggestion === undefined) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Suggestion not found or already reviewed.",
-        });
-      }
-
       const spot = await ctx.db.transaction(async (tx) => {
-        const spot = await createSpot(tx, input.spot);
-
-        await tx
+        const claimedSuggestion = await tx
           .update(spotSuggestions)
           .set({
             reviewedAt: new Date(),
           })
-          .where(eq(spotSuggestions.id, input.suggestionId));
+          .where(
+            and(
+              eq(spotSuggestions.id, input.suggestionId),
+              isNull(spotSuggestions.reviewedAt),
+            ),
+          )
+          .returning({ id: spotSuggestions.id });
+
+        if (claimedSuggestion.length === 0) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Suggestion not found or already reviewed.",
+          });
+        }
+
+        const spot = await createSpot(tx, input.spot);
 
         return spot;
       });
