@@ -1,5 +1,4 @@
 import { and, desc, eq, isNull, sql } from "drizzle-orm";
-import { revalidateTag } from "next/cache";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -154,8 +153,6 @@ export const spotSuggestionRouter = createTRPCRouter({
 
         return spot;
       });
-
-      revalidateTag("spots", "max");
 
       return spot;
     }),

@@ -1,5 +1,4 @@
 import { count, desc, eq } from "drizzle-orm";
-import { revalidateTag } from "next/cache";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -36,8 +35,6 @@ export const adminSpotRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const spot = await createSpot(ctx.db, input);
 
-      revalidateTag("spots", "max");
-
       return spot;
     }),
   update: adminProcedure
@@ -49,8 +46,6 @@ export const adminSpotRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const spot = await updateSpot(ctx.db, input.id, input.spot);
-
-      revalidateTag("spots", "max");
 
       return spot;
     }),
@@ -83,8 +78,6 @@ export const adminSpotRouter = createTRPCRouter({
         .where(eq(subscriptions.spotId, input.id));
 
       await ctx.db.delete(spots).where(eq(spots.id, input.id));
-
-      revalidateTag("spots", "max");
 
       return {
         deletedSubscriptionCount: subscriptionCountResult?.count ?? 0,

@@ -102,7 +102,7 @@ export const SpotMapRoot: React.FC<SpotMapRootProps> = ({
       };
 
   return (
-    <div className="relative overflow-hidden rounded-lg border border-white/10">
+    <div className="relative overflow-hidden rounded-[2rem] border border-white/10">
       <MapContainer
         {...mapProps}
         className={`${height} w-full`}
