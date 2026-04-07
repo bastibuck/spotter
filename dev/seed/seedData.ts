@@ -24,6 +24,15 @@ export interface SeedPlanEntry {
   subscriptions: SubscriptionSeed[];
 }
 
+export interface SpotSuggestionSeed {
+  name: string;
+  description?: string;
+  lat?: number;
+  long?: number;
+  createdAt: Date;
+  reviewedAt?: Date;
+}
+
 const now = new Date();
 
 export const seedPlan: SeedPlanEntry[] = [
@@ -203,5 +212,48 @@ export const seedPlan: SeedPlanEntry[] = [
       defaultWindDirections: ["N", "NNE", "NE"],
     },
     subscriptions: [],
+  },
+];
+
+export const spotSuggestionSeedPlan: SpotSuggestionSeed[] = [
+  {
+    name: "Fehmarn Gold",
+    description:
+      "Popular Baltic lagoon area with easy access and dependable freeride sessions on the right forecast.",
+    lat: 54.4372,
+    long: 11.2026,
+    createdAt: new Date("2026-02-10T09:15:00.000Z"),
+    reviewedAt: new Date("2026-02-14T13:45:00.000Z"),
+  },
+  {
+    name: "Lo Stagnone",
+    description:
+      "Flat-water Sicilian lagoon that would be a strong winter escape option for progression-focused riders.",
+    lat: 37.9104,
+    long: 12.4875,
+    createdAt: new Date("2026-02-18T15:30:00.000Z"),
+  },
+  {
+    name: "Brouwersdam",
+    description:
+      "Dutch spot with a strong local scene and multiple launch options depending on wind angle.",
+    lat: 51.7614,
+    long: 3.8408,
+    createdAt: new Date("2026-02-21T11:05:00.000Z"),
+    reviewedAt: new Date("2026-02-25T08:20:00.000Z"),
+  },
+  {
+    name: "Akyaka",
+    description:
+      "Thermal bay with a long shallow section that could be a great warm-season addition.",
+    lat: 37.0544,
+    long: 28.3244,
+    createdAt: new Date("2026-03-02T17:10:00.000Z"),
+  },
+  {
+    name: "Paracuru",
+    description:
+      "Brazilian wave and freeride destination with strong trade wind reputation.",
+    createdAt: new Date("2026-03-08T12:00:00.000Z"),
   },
 ];

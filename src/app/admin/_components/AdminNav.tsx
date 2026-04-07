@@ -7,6 +7,10 @@ import { signOut } from "next-auth/react";
 
 const adminLinks = [
   {
+    href: "/admin",
+    label: "Overview",
+  },
+  {
     href: "/admin/spots",
     label: "Spots",
   },

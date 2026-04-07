@@ -2,9 +2,14 @@ import { and, eq, inArray } from "drizzle-orm";
 import { DrizzleQueryError } from "drizzle-orm/errors";
 
 import { db } from "../../src/server/db";
-import { kiters, spots, subscriptions } from "../../src/server/db/schema";
+import {
+  kiters,
+  spotSuggestions,
+  spots,
+  subscriptions,
+} from "../../src/server/db/schema";
 
-import { seedPlan } from "./seedData";
+import { seedPlan, spotSuggestionSeedPlan } from "./seedData";
 
 const uniqueKiterEmails = Array.from(
   new Set(
@@ -88,6 +93,30 @@ async function seedSubscriptions(
   }
 }
 
+async function seedSpotSuggestions(): Promise<void> {
+  for (const suggestion of spotSuggestionSeedPlan) {
+    const existingSuggestion = await db.query.spotSuggestions.findFirst({
+      where: eq(spotSuggestions.name, suggestion.name),
+      columns: {
+        id: true,
+      },
+    });
+
+    if (existingSuggestion !== undefined) {
+      continue;
+    }
+
+    await db.insert(spotSuggestions).values({
+      name: suggestion.name,
+      description: suggestion.description,
+      lat: suggestion.lat,
+      long: suggestion.long,
+      createdAt: suggestion.createdAt,
+      reviewedAt: suggestion.reviewedAt,
+    });
+  }
+}
+
 async function main(): Promise<void> {
   console.log("🌱 Seeding database...");
 
@@ -96,10 +125,11 @@ async function main(): Promise<void> {
     const spotIdsByName = await seedSpots();
 
     await seedSubscriptions(kiterIdsByEmail, spotIdsByName);
+    await seedSpotSuggestions();
 
     console.log("✅ Database seed completed.");
     console.log(
-      `Seeded ${seedPlan.length} spot definitions and ${uniqueKiterEmails.length} kiter email(s).`,
+      `Seeded ${seedPlan.length} spot definitions, ${uniqueKiterEmails.length} kiter email(s), and ${spotSuggestionSeedPlan.length} spot suggestion fixture(s).`,
     );
   } catch (error) {
     if (isMissingRelationError(error)) {

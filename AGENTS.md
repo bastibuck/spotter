@@ -140,6 +140,7 @@ Local development data is seeded separately from migrations.
 - Seeding is idempotent for `spots` via unique `spots.name` and `onConflictDoNothing()`
 - Seeding is idempotent for `kiters` via unique `kiters.email` and `onConflictDoNothing()`
 - Seeding avoids duplicate `subscriptions` by checking the existing `(spotId, kiterId)` pair before insert
+- Seeding also inserts `spotSuggestions` fixtures, including a mix of reviewed and pending entries for local admin/testing flows
 
 **Recommended local setup order:**
 
