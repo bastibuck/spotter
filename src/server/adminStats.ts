@@ -2,6 +2,8 @@ import "server-only";
 
 import { count, isNotNull, isNull, sql } from "drizzle-orm";
 
+import { requireAdminUser } from "~/server/admin";
+import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
 import { subscriptions } from "~/server/db/schema";
 
@@ -46,6 +48,14 @@ function calculateMedian(values: number[]): number {
 }
 
 export async function getAdminOverviewStats(): Promise<AdminOverviewStats> {
+  const session = await getServerAuthSession();
+
+  if (session === null) {
+    throw new Error("Admin overview stats require an authenticated session.");
+  }
+
+  await requireAdminUser(session.user.id);
+
   const [
     allSpots,
     verifiedSubscriptionCountResult,
