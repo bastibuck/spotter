@@ -31,8 +31,8 @@ export default async function AdminLayout({
         </div>
 
         <p className="text-ocean-200/80 max-w-3xl text-lg leading-relaxed">
-          Internal tools for reviewing incoming suggestions and maintaining the
-          current spot catalog.
+          Internal tools for tracking subscriber health, reviewing incoming
+          suggestions, and maintaining the current spot catalog.
         </p>
       </div>
 

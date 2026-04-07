@@ -1,4 +1,4 @@
-import { count, desc, eq } from "drizzle-orm";
+import { count, desc, eq, isNotNull } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -18,6 +18,7 @@ export const adminSpotRouter = createTRPCRouter({
           subscriberCount: count(),
         })
         .from(subscriptions)
+        .where(isNotNull(subscriptions.verifiedAt))
         .groupBy(subscriptions.spotId),
     ]);
 

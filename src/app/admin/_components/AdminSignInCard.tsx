@@ -31,7 +31,7 @@ export default function AdminSignInCard() {
           className="w-full"
           onClick={() => {
             void signIn("github", {
-              callbackUrl: "/admin/spots",
+              callbackUrl: "/admin",
             });
           }}
         >
