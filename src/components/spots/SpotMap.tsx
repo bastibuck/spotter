@@ -138,6 +138,14 @@ export const SpotMapPin: React.FC<SpotMapPinProps> = ({
   const router = useRouter();
   const position: LatLngExpression = [lat, long];
 
+  React.useEffect(() => {
+    if (href === undefined) {
+      return;
+    }
+
+    router.prefetch(href);
+  }, [href, router]);
+
   return (
     <Marker
       position={position}
