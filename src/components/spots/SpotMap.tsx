@@ -5,7 +5,13 @@ import type { LatLngBoundsExpression, LatLngExpression } from "leaflet";
 import L from "leaflet";
 import { useRouter } from "next/navigation";
 import "leaflet/dist/leaflet.css";
-import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  Marker,
+  TileLayer,
+  useMap,
+  useMapEvents,
+} from "react-leaflet";
 
 export type SpotMapPosition = [number, number];
 
@@ -43,6 +49,14 @@ export interface SpotMapProps {
   long: number;
   zoom?: number;
   height?: string;
+}
+
+export interface SpotMapLocationPickerProps {
+  lat: number | null;
+  long: number | null;
+  onChange: (position: { lat: number; long: number } | null) => void;
+  height?: string;
+  disabled?: boolean;
 }
 
 const surfIcon = new L.Icon({
@@ -182,4 +196,88 @@ const MapCenterSync: React.FC<{
   }, [center, map, zoom]);
 
   return null;
+};
+
+const pickerIcon = new L.Icon({
+  iconUrl: `data:image/svg+xml;base64,${btoa(`
+<svg width="32" height="42" viewBox="0 0 32 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pickerGrad" x1="16" y1="2" x2="16" y2="34" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <filter id="pickerShadow" x="-50%" y="-20%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <path d="M16 40C16 40 30 26 30 16C30 7.163 23.837 1 16 1C8.163 1 2 7.163 2 16C2 26 16 40 16 40Z"
+    fill="url(#pickerGrad)"
+    filter="url(#pickerShadow)"
+    stroke="rgba(255,255,255,0.4)"
+    stroke-width="1.5"/>
+  <circle cx="16" cy="16" r="5" fill="white" opacity="0.9"/>
+</svg>
+  `)}`,
+  iconSize: [32, 42],
+  iconAnchor: [16, 40],
+  popupAnchor: [0, -40],
+});
+
+const MapClickHandler: React.FC<{
+  onChange: (position: { lat: number; long: number }) => void;
+  disabled?: boolean;
+}> = ({ onChange, disabled }) => {
+  useMapEvents({
+    click(e) {
+      if (!disabled) {
+        onChange({ lat: e.latlng.lat, long: e.latlng.lng });
+      }
+    },
+  });
+
+  return null;
+};
+
+export const SpotMapLocationPicker: React.FC<SpotMapLocationPickerProps> = ({
+  lat,
+  long,
+  onChange,
+  height = "h-[280px]",
+  disabled = false,
+}) => {
+  const hasPosition = lat !== null && long !== null;
+  const center: SpotMapPosition = hasPosition ? [lat, long] : [20, 0];
+  const zoom = hasPosition ? 10 : 2;
+
+  return (
+    <div className="relative overflow-hidden rounded-[2rem] border border-white/10">
+      <MapContainer
+        center={center}
+        zoom={zoom}
+        className={`${height} w-full`}
+        scrollWheelZoom={false}
+        style={{ cursor: disabled ? "default" : "crosshair" }}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+        />
+        <MapClickHandler onChange={onChange} disabled={disabled} />
+        {hasPosition ? (
+          <>
+            <MapCenterSync center={[lat, long]} zoom={zoom} />
+            <Marker position={[lat, long]} icon={pickerIcon} />
+          </>
+        ) : null}
+      </MapContainer>
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundColor: "rgba(6, 182, 212, 0.12)",
+          mixBlendMode: "multiply",
+          zIndex: 500,
+        }}
+      />
+    </div>
+  );
 };

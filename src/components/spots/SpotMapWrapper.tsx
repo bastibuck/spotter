@@ -3,6 +3,7 @@
 import React from "react";
 import dynamic from "next/dynamic";
 import type {
+  SpotMapLocationPickerProps,
   SpotMapPinProps,
   SpotMapProps,
   SpotMapRootProps,
@@ -24,6 +25,13 @@ const SpotMapPinDynamic = dynamic(
 
 const SpotMapDynamic = dynamic(
   () => import("./SpotMap").then((mod) => mod.SpotMap),
+  {
+    ssr: false,
+  },
+);
+
+const SpotMapLocationPickerDynamic = dynamic(
+  () => import("./SpotMap").then((mod) => mod.SpotMapLocationPicker),
   {
     ssr: false,
   },
@@ -51,6 +59,17 @@ export const SpotMap: React.FC<SpotMapProps> = ({
   return (
     <div className={`${height} relative w-full`}>
       <SpotMapDynamic height={height} {...props} />
+    </div>
+  );
+};
+
+export const SpotMapLocationPicker: React.FC<SpotMapLocationPickerProps> = ({
+  height = "h-[280px]",
+  ...props
+}) => {
+  return (
+    <div className={`${height} relative w-full`}>
+      <SpotMapLocationPickerDynamic height={height} {...props} />
     </div>
   );
 };

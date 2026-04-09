@@ -13,6 +13,7 @@ import {
 } from "~/components/ui/Card";
 import { Input } from "~/components/ui/Input";
 import { Textarea } from "~/components/ui/Textarea";
+import { SpotMapLocationPicker } from "~/components/spots/SpotMapWrapper";
 import { api } from "~/trpc/react";
 
 interface SuggestSpotFormState {
@@ -100,6 +101,52 @@ const SuggestSpotForm: React.FC = () => {
             disabled={createSuggestion.isPending}
             maxLength={1000}
           />
+
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <p className="text-ocean-200 text-sm font-medium">
+                Location{" "}
+                <span className="text-ocean-200/60 font-normal">
+                  (optional)
+                </span>
+              </p>
+              <p className="text-ocean-200/65 text-sm leading-relaxed">
+                Click on the map to pin the spot, or enter coordinates manually
+                below.
+              </p>
+            </div>
+
+            <SpotMapLocationPicker
+              lat={form.lat === "" ? null : form.lat}
+              long={form.long === "" ? null : form.long}
+              onChange={(position) => {
+                if (position === null) {
+                  setForm((prev) => ({ ...prev, lat: "", long: "" }));
+                } else {
+                  setForm((prev) => ({
+                    ...prev,
+                    lat: parseFloat(position.lat.toFixed(6)),
+                    long: parseFloat(position.long.toFixed(6)),
+                  }));
+                }
+              }}
+              disabled={createSuggestion.isPending}
+              height="h-[280px]"
+            />
+
+            {hasLat && hasLong ? (
+              <button
+                type="button"
+                className="text-ocean-200/60 hover:text-ocean-200 text-sm underline transition-colors"
+                onClick={() => {
+                  setForm((prev) => ({ ...prev, lat: "", long: "" }));
+                }}
+                disabled={createSuggestion.isPending}
+              >
+                Clear location
+              </button>
+            ) : null}
+          </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <Input
