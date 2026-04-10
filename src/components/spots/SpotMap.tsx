@@ -185,43 +185,30 @@ export const SpotMap: React.FC<SpotMapProps> = ({
 
 const MapCenterSync: React.FC<{
   center: SpotMapPosition;
-  zoom: number;
-}> = ({ center, zoom }) => {
+  zoom?: number;
+  animate?: boolean;
+  preserveZoom?: boolean;
+}> = ({ center, zoom, animate = false, preserveZoom = false }) => {
   const map = useMap();
 
   React.useEffect(() => {
-    map.setView(center, zoom, {
+    const nextZoom = preserveZoom ? map.getZoom() : (zoom ?? map.getZoom());
+
+    if (animate) {
+      map.flyTo(center, nextZoom, {
+        animate: true,
+        duration: 0.75,
+      });
+      return;
+    }
+
+    map.setView(center, nextZoom, {
       animate: false,
     });
-  }, [center, map, zoom]);
+  }, [animate, center, map, preserveZoom, zoom]);
 
   return null;
 };
-
-const pickerIcon = new L.Icon({
-  iconUrl: `data:image/svg+xml;base64,${btoa(`
-<svg width="32" height="42" viewBox="0 0 32 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="pickerGrad" x1="16" y1="2" x2="16" y2="34" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#f59e0b"/>
-      <stop offset="100%" stop-color="#d97706"/>
-    </linearGradient>
-    <filter id="pickerShadow" x="-50%" y="-20%" width="200%" height="200%">
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.3"/>
-    </filter>
-  </defs>
-  <path d="M16 40C16 40 30 26 30 16C30 7.163 23.837 1 16 1C8.163 1 2 7.163 2 16C2 26 16 40 16 40Z"
-    fill="url(#pickerGrad)"
-    filter="url(#pickerShadow)"
-    stroke="rgba(255,255,255,0.4)"
-    stroke-width="1.5"/>
-  <circle cx="16" cy="16" r="5" fill="white" opacity="0.9"/>
-</svg>
-  `)}`,
-  iconSize: [32, 42],
-  iconAnchor: [16, 40],
-  popupAnchor: [0, -40],
-});
 
 const MapClickHandler: React.FC<{
   onChange: (position: { lat: number; long: number }) => void;
@@ -265,8 +252,8 @@ export const SpotMapLocationPicker: React.FC<SpotMapLocationPickerProps> = ({
         <MapClickHandler onChange={onChange} disabled={disabled} />
         {hasPosition ? (
           <>
-            <MapCenterSync center={[lat, long]} zoom={zoom} />
-            <Marker position={[lat, long]} icon={pickerIcon} />
+            <MapCenterSync center={[lat, long]} animate preserveZoom />
+            <Marker position={[lat, long]} icon={surfIcon} />
           </>
         ) : null}
       </MapContainer>
