@@ -185,15 +185,26 @@ export const SpotMap: React.FC<SpotMapProps> = ({
 
 const MapCenterSync: React.FC<{
   center: SpotMapPosition;
-  zoom: number;
-}> = ({ center, zoom }) => {
+  zoom?: number;
+  animate?: boolean;
+}> = ({ center, zoom, animate = false }) => {
   const map = useMap();
 
   React.useEffect(() => {
-    map.setView(center, zoom, {
+    const nextZoom = zoom ?? map.getZoom();
+
+    if (animate) {
+      map.flyTo(center, nextZoom, {
+        animate: true,
+        duration: 0.75,
+      });
+      return;
+    }
+
+    map.setView(center, nextZoom, {
       animate: false,
     });
-  }, [center, map, zoom]);
+  }, [animate, center, map, zoom]);
 
   return null;
 };
@@ -265,7 +276,7 @@ export const SpotMapLocationPicker: React.FC<SpotMapLocationPickerProps> = ({
         <MapClickHandler onChange={onChange} disabled={disabled} />
         {hasPosition ? (
           <>
-            <MapCenterSync center={[lat, long]} zoom={zoom} />
+            <MapCenterSync center={[lat, long]} animate />
             <Marker position={[lat, long]} icon={pickerIcon} />
           </>
         ) : null}
