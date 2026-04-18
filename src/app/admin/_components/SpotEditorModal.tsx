@@ -388,5 +388,5 @@ function normalizeDescription(value: string): string | undefined {
 }
 
 function roundCoordinate(value: number): number {
-  return Number(value.toFixed(6));
+  return Math.round(value * 1_000_000) / 1_000_000;
 }
