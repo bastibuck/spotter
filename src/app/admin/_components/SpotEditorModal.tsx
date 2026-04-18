@@ -6,7 +6,10 @@ import { toast } from "sonner";
 import type { z } from "zod";
 
 import CardinalDirection from "~/components/spots/Cardinals";
-import { SpotMap, SpotMapLocationPicker } from "~/components/spots/SpotMapWrapper";
+import {
+  SpotMap,
+  SpotMapLocationPicker,
+} from "~/components/spots/SpotMapWrapper";
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import { Textarea } from "~/components/ui/Textarea";
@@ -85,6 +88,13 @@ function SpotEditorModalContent({
   onSubmit,
 }: Omit<SpotEditorModalProps, "isOpen" | "resetKey">) {
   const [formValues, setFormValues] = useState(initialValues);
+  const setLocation = (position: { lat: number; long: number } | null) => {
+    setFormValues((current) => ({
+      ...current,
+      lat: position === null ? "" : roundCoordinate(position.lat),
+      long: position === null ? "" : roundCoordinate(position.long),
+    }));
+  };
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 md:p-6">
@@ -241,13 +251,7 @@ function SpotEditorModalContent({
                 <SpotMapLocationPicker
                   lat={formValues.lat}
                   long={formValues.long}
-                  onChange={(position) => {
-                    setFormValues((current) => ({
-                      ...current,
-                      lat: roundCoordinate(position.lat),
-                      long: roundCoordinate(position.long),
-                    }));
-                  }}
+                  onChange={setLocation}
                   disabled={isSubmitting}
                   height="h-[280px]"
                 />
@@ -262,13 +266,7 @@ function SpotEditorModalContent({
               <SpotMapLocationPicker
                 lat={null}
                 long={null}
-                onChange={(position) => {
-                  setFormValues((current) => ({
-                    ...current,
-                    lat: roundCoordinate(position.lat),
-                    long: roundCoordinate(position.long),
-                  }));
-                }}
+                onChange={setLocation}
                 disabled={isSubmitting}
                 height="h-[280px]"
               />
@@ -285,6 +283,19 @@ function SpotEditorModalContent({
                 </div>
               </div>
             )}
+
+            {allowMapPicking && hasCompleteCoordinates(formValues) ? (
+              <button
+                type="button"
+                className="text-ocean-200/60 hover:text-ocean-200 text-sm underline transition-colors"
+                onClick={() => {
+                  setLocation(null);
+                }}
+                disabled={isSubmitting}
+              >
+                Clear location
+              </button>
+            ) : null}
           </div>
 
           <div className="pt-2">
