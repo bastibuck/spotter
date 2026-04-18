@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import type { z } from "zod";
 
 import CardinalDirection from "~/components/spots/Cardinals";
-import { SpotMap } from "~/components/spots/SpotMapWrapper";
+import { SpotMap, SpotMapLocationPicker } from "~/components/spots/SpotMapWrapper";
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import { Textarea } from "~/components/ui/Textarea";
@@ -30,6 +30,7 @@ interface SpotEditorModalProps {
   submitLabel: string;
   initialValues: SpotEditorFormValues;
   isSubmitting: boolean;
+  allowMapPicking?: boolean;
   onClose: () => void;
   onSubmit: (values: {
     name: string;
@@ -48,6 +49,7 @@ export default function SpotEditorModal({
   submitLabel,
   initialValues,
   isSubmitting,
+  allowMapPicking,
   onClose,
   onSubmit,
 }: SpotEditorModalProps) {
@@ -64,6 +66,7 @@ export default function SpotEditorModal({
         submitLabel,
         initialValues,
         isSubmitting,
+        allowMapPicking,
         onClose,
         onSubmit,
       }}
@@ -77,6 +80,7 @@ function SpotEditorModalContent({
   submitLabel,
   initialValues,
   isSubmitting,
+  allowMapPicking = false,
   onClose,
   onSubmit,
 }: Omit<SpotEditorModalProps, "isOpen" | "resetKey">) {
@@ -223,17 +227,49 @@ function SpotEditorModalContent({
           <div className="space-y-3">
             <div className="space-y-1">
               <p className="text-ocean-200 text-sm font-medium">
-                Location preview
+                {allowMapPicking ? "Location" : "Location preview"}
               </p>
               <p className="text-ocean-200/65 text-sm leading-relaxed">
-                The map updates as you change the coordinates.
+                {allowMapPicking
+                  ? "Click on the map to pin the spot, or enter coordinates manually below."
+                  : "The map updates as you change the coordinates."}
               </p>
             </div>
 
             {hasCompleteCoordinates(formValues) ? (
-              <SpotMap
-                lat={formValues.lat}
-                long={formValues.long}
+              allowMapPicking ? (
+                <SpotMapLocationPicker
+                  lat={formValues.lat}
+                  long={formValues.long}
+                  onChange={(position) => {
+                    setFormValues((current) => ({
+                      ...current,
+                      lat: roundCoordinate(position.lat),
+                      long: roundCoordinate(position.long),
+                    }));
+                  }}
+                  disabled={isSubmitting}
+                  height="h-[280px]"
+                />
+              ) : (
+                <SpotMap
+                  lat={formValues.lat}
+                  long={formValues.long}
+                  height="h-[280px]"
+                />
+              )
+            ) : allowMapPicking ? (
+              <SpotMapLocationPicker
+                lat={null}
+                long={null}
+                onChange={(position) => {
+                  setFormValues((current) => ({
+                    ...current,
+                    lat: roundCoordinate(position.lat),
+                    long: roundCoordinate(position.long),
+                  }));
+                }}
+                disabled={isSubmitting}
                 height="h-[280px]"
               />
             ) : (
@@ -338,4 +374,8 @@ function normalizeDescription(value: string): string | undefined {
   const trimmed = value.trim();
 
   return trimmed.length === 0 ? undefined : trimmed;
+}
+
+function roundCoordinate(value: number): number {
+  return parseFloat(value.toFixed(6));
 }
