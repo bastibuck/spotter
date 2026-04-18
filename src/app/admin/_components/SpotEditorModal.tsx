@@ -388,5 +388,5 @@ function normalizeDescription(value: string): string | undefined {
 }
 
 function roundCoordinate(value: number): number {
-  return parseFloat(value.toFixed(6));
+  return Number(value.toFixed(6));
 }
