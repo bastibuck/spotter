@@ -214,6 +214,7 @@ export default function AdminSpotTable() {
         submitLabel="Create spot"
         initialValues={emptySpotEditorValues}
         isSubmitting={createSpot.isPending}
+        allowMapPicking
         onClose={() => {
           setModalState({ type: "closed" });
         }}

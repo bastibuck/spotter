@@ -242,6 +242,7 @@ export default function SpotSuggestionAdminTable({
         submitLabel="Create spot"
         initialValues={getInitialSpotEditorValues(selectedSuggestion)}
         isSubmitting={createSpotFromSuggestion.isPending}
+        allowMapPicking
         onClose={() => {
           setSelectedSuggestionId(null);
         }}

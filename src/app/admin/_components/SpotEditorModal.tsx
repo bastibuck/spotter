@@ -6,13 +6,17 @@ import { toast } from "sonner";
 import type { z } from "zod";
 
 import CardinalDirection from "~/components/spots/Cardinals";
-import { SpotMap } from "~/components/spots/SpotMapWrapper";
+import {
+  SpotMap,
+  SpotMapLocationPicker,
+} from "~/components/spots/SpotMapWrapper";
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import { Textarea } from "~/components/ui/Textarea";
 import type { WindDirection } from "~/server/db/schema";
 
 type SpotDirection = z.infer<typeof WindDirection>;
+const COORDINATE_PRECISION = 1_000_000;
 
 export interface SpotEditorFormValues {
   name: string;
@@ -30,6 +34,7 @@ interface SpotEditorModalProps {
   submitLabel: string;
   initialValues: SpotEditorFormValues;
   isSubmitting: boolean;
+  allowMapPicking?: boolean;
   onClose: () => void;
   onSubmit: (values: {
     name: string;
@@ -48,6 +53,7 @@ export default function SpotEditorModal({
   submitLabel,
   initialValues,
   isSubmitting,
+  allowMapPicking,
   onClose,
   onSubmit,
 }: SpotEditorModalProps) {
@@ -64,6 +70,7 @@ export default function SpotEditorModal({
         submitLabel,
         initialValues,
         isSubmitting,
+        allowMapPicking,
         onClose,
         onSubmit,
       }}
@@ -77,10 +84,18 @@ function SpotEditorModalContent({
   submitLabel,
   initialValues,
   isSubmitting,
+  allowMapPicking = false,
   onClose,
   onSubmit,
 }: Omit<SpotEditorModalProps, "isOpen" | "resetKey">) {
   const [formValues, setFormValues] = useState(initialValues);
+  const setLocation = (position: { lat: number; long: number } | null) => {
+    setFormValues((current) => ({
+      ...current,
+      lat: position === null ? "" : roundCoordinate(position.lat),
+      long: position === null ? "" : roundCoordinate(position.long),
+    }));
+  };
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 md:p-6">
@@ -223,17 +238,37 @@ function SpotEditorModalContent({
           <div className="space-y-3">
             <div className="space-y-1">
               <p className="text-ocean-200 text-sm font-medium">
-                Location preview
+                {allowMapPicking ? "Location" : "Location preview"}
               </p>
               <p className="text-ocean-200/65 text-sm leading-relaxed">
-                The map updates as you change the coordinates.
+                {allowMapPicking
+                  ? "Click on the map to pin the spot, or enter coordinates manually below."
+                  : "The map updates as you change the coordinates."}
               </p>
             </div>
 
             {hasCompleteCoordinates(formValues) ? (
-              <SpotMap
-                lat={formValues.lat}
-                long={formValues.long}
+              allowMapPicking ? (
+                <SpotMapLocationPicker
+                  lat={formValues.lat}
+                  long={formValues.long}
+                  onChange={setLocation}
+                  disabled={isSubmitting}
+                  height="h-[280px]"
+                />
+              ) : (
+                <SpotMap
+                  lat={formValues.lat}
+                  long={formValues.long}
+                  height="h-[280px]"
+                />
+              )
+            ) : allowMapPicking ? (
+              <SpotMapLocationPicker
+                lat={null}
+                long={null}
+                onChange={setLocation}
+                disabled={isSubmitting}
                 height="h-[280px]"
               />
             ) : (
@@ -249,6 +284,19 @@ function SpotEditorModalContent({
                 </div>
               </div>
             )}
+
+            {allowMapPicking && hasCompleteCoordinates(formValues) ? (
+              <button
+                type="button"
+                className="text-ocean-200/60 hover:text-ocean-200 text-sm underline transition-colors"
+                onClick={() => {
+                  setLocation(null);
+                }}
+                disabled={isSubmitting}
+              >
+                Clear location
+              </button>
+            ) : null}
           </div>
 
           <div className="pt-2">
@@ -338,4 +386,8 @@ function normalizeDescription(value: string): string | undefined {
   const trimmed = value.trim();
 
   return trimmed.length === 0 ? undefined : trimmed;
+}
+
+function roundCoordinate(value: number): number {
+  return Math.round(value * COORDINATE_PRECISION) / COORDINATE_PRECISION;
 }
