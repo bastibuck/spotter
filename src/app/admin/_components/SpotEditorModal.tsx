@@ -16,6 +16,7 @@ import { Textarea } from "~/components/ui/Textarea";
 import type { WindDirection } from "~/server/db/schema";
 
 type SpotDirection = z.infer<typeof WindDirection>;
+const COORDINATE_PRECISION = 1_000_000;
 
 export interface SpotEditorFormValues {
   name: string;
@@ -388,5 +389,5 @@ function normalizeDescription(value: string): string | undefined {
 }
 
 function roundCoordinate(value: number): number {
-  return Math.round(value * 1_000_000) / 1_000_000;
+  return Math.round(value * COORDINATE_PRECISION) / COORDINATE_PRECISION;
 }
