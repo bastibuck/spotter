@@ -3,17 +3,25 @@
 import React from "react";
 import type { LatLngBoundsExpression, LatLngExpression } from "leaflet";
 import L from "leaflet";
+import { maplibreGL } from "@maplibre/maplibre-gl-leaflet";
+import { setWorkerUrl } from "maplibre-gl";
 import { useRouter } from "next/navigation";
 import "leaflet/dist/leaflet.css";
-import {
-  MapContainer,
-  Marker,
-  TileLayer,
-  useMap,
-  useMapEvents,
-} from "react-leaflet";
+import "maplibre-gl/dist/maplibre-gl.css";
+import { MapContainer, Marker, useMap, useMapEvents } from "react-leaflet";
+
+setWorkerUrl(
+  new URL(
+    "maplibre-gl/dist/maplibre-gl-worker.mjs",
+    import.meta.url,
+  ).toString(),
+);
 
 export type SpotMapPosition = [number, number];
+
+const OPENFREEMAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
+const OPENFREEMAP_ATTRIBUTION =
+  '<a href="https://openfreemap.org/">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
 interface SpotMapRootBaseProps {
   zoom?: number;
@@ -36,6 +44,28 @@ export type SpotMapRootProps = SpotMapRootWithCenter | SpotMapRootWithBounds;
 function hasBounds(props: SpotMapRootProps): props is SpotMapRootWithBounds {
   return "bounds" in props;
 }
+
+const OpenFreeMapLayer: React.FC = () => {
+  const map = useMap();
+
+  React.useEffect(() => {
+    const layer = maplibreGL({
+      style: OPENFREEMAP_STYLE_URL,
+      attributionControl: false,
+      interactive: false,
+    });
+
+    map.attributionControl.addAttribution(OPENFREEMAP_ATTRIBUTION);
+    layer.addTo(map);
+
+    return () => {
+      map.removeLayer(layer);
+      map.attributionControl.removeAttribution(OPENFREEMAP_ATTRIBUTION);
+    };
+  }, [map]);
+
+  return null;
+};
 
 export interface SpotMapPinProps {
   lat: number;
@@ -122,10 +152,7 @@ export const SpotMapRoot: React.FC<SpotMapRootProps> = ({
         className={`${height} w-full`}
         scrollWheelZoom={false}
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-        />
+        <OpenFreeMapLayer />
         {center === undefined ? null : (
           <MapCenterSync center={center} zoom={zoom} />
         )}
@@ -245,10 +272,7 @@ export const SpotMapLocationPicker: React.FC<SpotMapLocationPickerProps> = ({
         scrollWheelZoom={false}
         style={{ cursor: disabled ? "default" : "crosshair" }}
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-        />
+        <OpenFreeMapLayer />
         <MapClickHandler onChange={onChange} disabled={disabled} />
         {hasPosition ? (
           <>
